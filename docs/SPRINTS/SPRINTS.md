@@ -39,35 +39,35 @@ Sprint plan derived from [ROADMAP.md](../ROADMAP/ROADMAP.md) and [REQUIREMENTS.m
 
 ### S0.1 Repo and workspace skeleton
 
-- [ ] Create repo, licence, README, `.editorconfig`, `.gitattributes`
-- [ ] pnpm workspace (`apps/desktop`, `apps/desktop/frontend`, `packages/*`)
-- [ ] Tauri 2 + Next.js static export boots a blank window
-- [ ] Verify font licences or switch to OFL fonts (NFR-12)
+- [x] Create repo, licence, README, `.editorconfig`, `.gitattributes`
+- [x] pnpm workspace (`apps/desktop`, `apps/desktop/frontend`, `packages/*`)
+- [x] Tauri 2 + Next.js static export boots a blank window (release build runs; window not inspected visually)
+- [x] Verify font licences or switch to OFL fonts (NFR-12): switched to Vazirmatn and Comfortaa
 
 **Done when:** `pnpm tauri:dev` opens an empty window and `pnpm build` produces the static export.
 
 ### S0.2 Shell, i18n, theming
 
-- [ ] Port from JabeX: shell, providers, theme, i18n, fonts, shadcn setup, token file (no JabeX-specific features)
-- [ ] `fa` (RTL, default) and `en` (LTR) dictionaries wired through `useTranslations()`
-- [ ] Light, Dark, System switcher; no flash of wrong theme
-- [ ] Shared date formatter stub (Jalali for `fa`, Gregorian for `en`)
+- [ ] Port from JabeX: shell, providers, theme, i18n, fonts, shadcn setup, token file (no JabeX-specific features). Not done: S0.2 was written from the docs without consulting JabeX. Open item for the author.
+- [x] `fa` (RTL, default) and `en` (LTR) dictionaries wired through `useTranslations()`
+- [ ] Light, Dark, System switcher; no flash of wrong theme (switcher built; flash not checked visually)
+- [x] Shared date formatter stub (Jalali for `fa`, Gregorian for `en`)
 
 **Done when:** the six locale/theme combinations render correctly on the empty shell.
 
 ### S0.3 Rust skeleton
 
-- [ ] Layers: `commands`, `application`, `domain`, `infrastructure`, `desktop`, `shared`
-- [ ] Database open, WAL mode, refinery `V1__` migration
-- [ ] One command end to end (save and read a task) with Zod-validated IPC in `lib/tauri.ts`
-- [ ] Error enum mapped to `{ code, message_key }`
+- [x] Layers: `commands`, `application`, `domain`, `infrastructure`, `desktop`, `shared`
+- [x] Database open, WAL mode, refinery `V1__` migration
+- [ ] One command end to end (save and read a task) with Zod-validated IPC in `lib/tauri.ts`. Covered by Rust tests and a release launch; the save-and-read click through the UI is not yet run.
+- [x] Error enum mapped to `{ code, message_key }`
 
 **Done when:** a task is saved and read back through the full stack.
 
 ### S0.4 CI and CSP
 
-- [ ] CI: lint, typecheck, test, build, `cargo fmt`, `clippy`, `cargo test`
-- [ ] Check the theme bootstrap against the release CSP
+- [ ] CI: lint, typecheck, test, build, `cargo fmt`, `clippy`, `cargo test` (workflow written in `.github/workflows/ci.yml`; not yet run on GitHub)
+- [ ] Check the theme bootstrap against the release CSP. Release CSP is set, and the release build passes with it. `script-src` allows `'unsafe-inline'` because the static export inlines its scripts. Hash-based strict CSP is an open item. Bootstrap not yet confirmed in the webview console.
 - [ ] Record real durations of S0.1 to S0.3 for later estimates
 
 **Done when (Phase 0):** the app runs on the author's machine, a task is saved, CI is green, and the six combinations render correctly.
@@ -182,7 +182,10 @@ Fill in after each sprint. Keep it factual and shame-free.
 
 | Sprint | Planned | Actual | What moved | Next |
 | --- | --- | --- | --- | --- |
-| S0.1 | | | | |
+| S0.1 | Repo and workspace skeleton | Not timed (author to record) | pnpm workspace, Next static export, Tauri 2 window, icon set, OFL fonts chosen, MIT LICENSE added | S0.2 |
+| S0.2 | Shell, i18n, theming | Not timed (author to record) | fa/en dictionaries, Zustand locale store, Light/Dark/System with next-themes, RTL direction sync, date formatter stub, shadcn-style button | S0.3 |
+| S0.3 | Rust skeleton | Not timed (author to record) | Layers in place, WAL + refinery V1 (`tasks`), `create_task` / `list_tasks` with Zod boundary and `{ code, message_key }` errors | S0.4 |
+| S0.4 | CI and CSP | Not timed (author to record) | CI workflow (frontend, Rust, release build), release CSP in `tauri.conf.json` | Phase 1 (S1.1) |
 
 ## Not in any sprint
 
