@@ -1,0 +1,33 @@
+{
+  "app": {
+    "name": "Self Planner",
+    "skipToContent": "Skip to main content"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "locale": {
+    "label": "Language",
+    "switchTo": "Switch language"
+  },
+  "tasks": {
+    "titleLabel": "Task title",
+    "titlePlaceholder": "Write a new task…",
+    "add": "Add"
+  },
+  "errors": {
+    "task": {
+      "titleRequired": "Enter a task title."
+    },
+    "storage": {
+      "failed": "Could not save yet. Try again."
+    },
+    "ipc": {
+      "unavailable": "This part works in the desktop app only.",
+      "invalidResponse": "The response was not in the expected shape."
+    }
+  }
+}
