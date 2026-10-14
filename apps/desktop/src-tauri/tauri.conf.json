@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Self Planner",
+  "version": "0.0.0",
+  "identifier": "app.selfplanner.desktop",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @selfplanner/desktop-frontend dev",
+    "devUrl": "http://localhost:3000",
+    "beforeBuildCommand": "pnpm --filter @selfplanner/desktop-frontend build",
+    "frontendDist": "../frontend/out"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Self Planner",
+        "width": 1100,
+        "height": 760,
+        "minWidth": 720,
+        "minHeight": 540
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+      "devCsp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
