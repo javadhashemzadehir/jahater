@@ -1,0 +1,17 @@
+{
+  "name": "self-planner",
+  "private": true,
+  "packageManager": "pnpm@9.15.5",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @selfplanner/desktop-frontend dev",
+    "build": "pnpm --filter @selfplanner/desktop-frontend build",
+    "lint": "pnpm --filter @selfplanner/desktop-frontend lint",
+    "typecheck": "pnpm --filter @selfplanner/desktop-frontend typecheck",
+    "test": "pnpm --filter @selfplanner/desktop-frontend test",
+    "tauri:dev": "pnpm --filter @selfplanner/desktop tauri:dev",
+    "tauri:build": "pnpm --filter @selfplanner/desktop tauri:build"
+  }
+}
