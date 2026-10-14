@@ -17,6 +17,7 @@ Start here if you are new to the repo. Layout mirrors JabeX: one folder per docu
 | [TESTING.md](./TESTING/TESTING.md) | Test expectations for frontend, Rust, CI |
 | [GIT_WORKFLOW.md](./GIT_WORKFLOW/GIT_WORKFLOW.md) | Branches, commits, releases |
 | [ROADMAP.md](./ROADMAP/ROADMAP.md) | Phased delivery checklist and MVP definition |
+| [SPRINTS.md](./SPRINTS/SPRINTS.md) | Roadmap phases sliced into sprints with goals and done-when |
 | [OPEN_SOURCE_AND_CONTENT.md](./OPEN_SOURCE/OPEN_SOURCE_AND_CONTENT.md) | Licensing, repo hygiene, video and content plan |
 | [ADR/](./ADR/) | Architecture Decision Records |
 
