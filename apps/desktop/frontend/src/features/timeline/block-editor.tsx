@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAction } from "@/features/tasks/use-action";
 import { useTranslations } from "@/hooks/use-locale";
-import { deleteBlock, updateBlock, type Block } from "@/lib/tauri";
+import { createBlock, deleteBlock, updateBlock, type Block } from "@/lib/tauri";
 import { isoFromTimeInput, movedStart, timeInputValue } from "./timeline-model";
 
 const NUDGE_MINUTES = 15;
+const BUFFER_MINUTES = 10;
 
 type Props = {
   block: Block;
@@ -42,6 +43,14 @@ export function BlockEditor({ block, day, onClose }: Props) {
       }),
     );
     if (saved) onClose();
+  }
+
+  // A short protective gap right after this block, so one task does not run into the next.
+  function addBufferAfter() {
+    const endMs = Date.parse(block.startAt) + block.durationMin * 60000;
+    void run(() =>
+      createBlock({ kind: "buffer", startAt: new Date(endMs).toISOString(), durationMin: BUFFER_MINUTES }),
+    );
   }
 
   async function onDelete() {
@@ -80,6 +89,9 @@ export function BlockEditor({ block, day, onClose }: Props) {
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={() => nudge(NUDGE_MINUTES)}>
           {t.timeline.later}
+        </Button>
+        <Button type="button" variant="outline" size="sm" onClick={addBufferAfter}>
+          {t.timeline.bufferAfter}
         </Button>
       </div>
 

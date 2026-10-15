@@ -205,7 +205,16 @@
     },
     "capacityLabel": "Planned work today",
     "capacityValue": "{planned} of {capacity}",
-    "overCapacity": "{over} more is planned than your daily capacity. Nothing has been moved. You decide what, if anything, to change."
+    "overCapacity": "{over} more is planned than your daily capacity. Nothing has been moved. You decide what, if anything, to change.",
+    "kind": "Type",
+    "kinds": {
+      "task": "Task",
+      "buffer": "Buffer",
+      "transition": "Transition",
+      "free": "Free time",
+      "event": "Event"
+    },
+    "bufferAfter": "Add a 10 minute buffer after"
   },
   "orphan": {
     "title": "A timer was still running",
@@ -277,5 +286,12 @@
     "morningQuestion": "What matters most today?",
     "eveningQuestion": "What went okay today?",
     "saved": "Saved."
+  },
+  "focus": {
+    "enter": "Focus mode",
+    "exit": "Leave focus mode",
+    "title": "Focus",
+    "nothingCurrent": "Nothing is planned for this moment. You can start a timer anyway.",
+    "markDone": "Mark this task as done"
   }
 }

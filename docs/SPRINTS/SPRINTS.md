@@ -169,8 +169,10 @@ Not yet checked visually: the six locale/theme combinations.
 
 ### S3.3 Focus and transitions
 
-- [ ] Focus mode showing only the current task and timer
-- [ ] Buffer and transition block kinds
+- [x] Focus mode (button next to the view switcher): only the current task and the timer, with start, pause, finish, mark done and one way out. The current task is the timer's task, else the planned block covering now, else a task marked doing (`pickCurrentTask`, tested)
+- [x] Buffer, transition, free-time and event block kinds on the timeline: a type selector when planning, dashed outline plus a type word on the block (not colour alone), and "Add a 10 minute buffer after" in the block editor. They do not count toward the daily capacity
+
+Not yet checked visually: the six locale/theme combinations.
 
 ### S3.4 Data safety and MVP trial
 

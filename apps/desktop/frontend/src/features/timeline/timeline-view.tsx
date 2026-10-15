@@ -23,7 +23,7 @@ import { useNow } from "@/features/timer/use-now";
 import { useIsClient } from "@/hooks/use-is-client";
 import { useLocale, useTranslations } from "@/hooks/use-locale";
 import { formatDate, formatTime } from "@/lib/format/date";
-import { createBlock, listBlocks, updateBlock, useIsTauri, type Block } from "@/lib/tauri";
+import { blockKindSchema, createBlock, listBlocks, updateBlock, useIsTauri, type Block, type BlockKind } from "@/lib/tauri";
 import { useSettingsStore } from "@/features/settings/settings-store";
 import { BlockEditor } from "./block-editor";
 import { CapacityBar } from "./capacity-bar";
@@ -96,7 +96,9 @@ export function TimelineView() {
 
   const taskTitle = new Map(tasks.map((task) => [task.id, task.title]));
   const label = (block: Block) =>
-    (block.taskId ? taskTitle.get(block.taskId) : undefined) ?? block.title ?? t.timeline.untitled;
+    (block.taskId ? taskTitle.get(block.taskId) : undefined) ??
+    block.title ??
+    (block.kind === "task" ? t.timeline.untitled : t.timeline.kinds[block.kind]);
   const byId = new Map(blocks.map((block) => [block.id, block]));
   const lanes = assignLanes(
     blocks.map((block) => {
@@ -197,6 +199,7 @@ export function TimelineView() {
                     key={block.id}
                     block={block}
                     title={label(block)}
+                    kindLabel={block.kind === "task" ? null : t.timeline.kinds[block.kind]}
                     day={day}
                     lane={place.lane}
                     lanes={place.lanes}
@@ -222,6 +225,7 @@ export function TimelineView() {
 function BlockCard({
   block,
   title,
+  kindLabel,
   day,
   lane,
   lanes,
@@ -230,6 +234,7 @@ function BlockCard({
 }: {
   block: Block;
   title: string;
+  kindLabel: string | null;
   day: Date;
   lane: number;
   lanes: number;
@@ -247,7 +252,7 @@ function BlockCard({
       ref={setNodeRef}
       className={`absolute z-10 flex items-start overflow-hidden rounded-md border bg-card text-xs shadow-sm ${
         selected ? "border-2 border-ring" : "border-border"
-      } ${isDragging ? "opacity-70" : ""}`}
+      } ${kindLabel ? "border-dashed" : ""} ${isDragging ? "opacity-70" : ""}`}
       style={{
         top: place.top,
         height: place.height,
@@ -276,6 +281,7 @@ function BlockCard({
           {title}
         </span>
         <span className="block truncate text-muted-foreground">
+          {kindLabel ? `${kindLabel} · ` : ""}
           {formatTime(block.startAt, locale)} – {formatTime(end, locale)}
         </span>
       </button>
@@ -287,12 +293,21 @@ function NewBlockForm({ day }: { day: Date }) {
   const t = useTranslations();
   const tasks = useTaskStore((state) => state.tasks);
   const { error, run } = useAction();
+  const [kind, setKind] = useState<BlockKind>("task");
   const [taskId, setTaskId] = useState("");
   const [title, setTitle] = useState("");
   const [start, setStart] = useState("09:00");
   const [duration, setDuration] = useState("30");
 
   const open = tasks.filter((task) => task.status !== "done" && task.status !== "archived");
+  const isTask = kind === "task";
+
+  function onKindChange(next: BlockKind) {
+    setKind(next);
+    // Short protective blocks start at a sensible length; the user can change it.
+    if (next === "buffer" || next === "transition") setDuration("10");
+    if (next !== "task") setTaskId("");
+  }
 
   function onTaskChange(id: string) {
     setTaskId(id);
@@ -306,8 +321,8 @@ function NewBlockForm({ day }: { day: Date }) {
     if (startAt === null) return;
     const created = await run(() =>
       createBlock({
-        kind: "task",
-        taskId: taskId || null,
+        kind,
+        taskId: isTask && taskId ? taskId : null,
         title: taskId ? null : title,
         startAt,
         durationMin: Number(duration),
@@ -317,30 +332,50 @@ function NewBlockForm({ day }: { day: Date }) {
   }
 
   return (
-    <form onSubmit={onSubmit} aria-label={t.timeline.addBlock} className="grid items-end gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
+    <form onSubmit={onSubmit} aria-label={t.timeline.addBlock} className="grid items-end gap-2 sm:grid-cols-[auto_1fr_auto_auto_auto]">
+      <label className="flex flex-col gap-1 text-sm">
+        {t.timeline.kind}
+        <Select value={kind} onChange={(event) => onKindChange(event.target.value as BlockKind)}>
+          {blockKindSchema.options.map((value) => (
+            <option key={value} value={value}>
+              {t.timeline.kinds[value]}
+            </option>
+          ))}
+        </Select>
+      </label>
       <div className="flex flex-col gap-1">
         <label className="text-sm" htmlFor="block-task">
-          {t.timer.task}
+          {isTask ? t.timer.task : t.timeline.blockTitle}
         </label>
-        <div className="flex gap-2">
-          <Select id="block-task" value={taskId} onChange={(event) => onTaskChange(event.target.value)}>
-            <option value="">{t.timeline.noTask}</option>
-            {open.map((task) => (
-              <option key={task.id} value={task.id}>
-                {task.title}
-              </option>
-            ))}
-          </Select>
-          {taskId === "" ? (
-            <Input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              aria-label={t.timeline.blockTitle}
-              placeholder={t.timeline.blockTitle}
-              dir="auto"
-            />
-          ) : null}
-        </div>
+        {isTask ? (
+          <div className="flex gap-2">
+            <Select id="block-task" value={taskId} onChange={(event) => onTaskChange(event.target.value)}>
+              <option value="">{t.timeline.noTask}</option>
+              {open.map((task) => (
+                <option key={task.id} value={task.id}>
+                  {task.title}
+                </option>
+              ))}
+            </Select>
+            {taskId === "" ? (
+              <Input
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                aria-label={t.timeline.blockTitle}
+                placeholder={t.timeline.blockTitle}
+                dir="auto"
+              />
+            ) : null}
+          </div>
+        ) : (
+          <Input
+            id="block-task"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder={t.timeline.kinds[kind]}
+            dir="auto"
+          />
+        )}
       </div>
       <label className="flex flex-col gap-1 text-sm">
         {t.timeline.start}
@@ -362,7 +397,7 @@ function NewBlockForm({ day }: { day: Date }) {
       </label>
       <Button type="submit">{t.timeline.add}</Button>
       {error ? (
-        <p role="alert" className="text-sm text-destructive sm:col-span-4">
+        <p role="alert" className="text-sm text-destructive sm:col-span-5">
           {error}
         </p>
       ) : null}
