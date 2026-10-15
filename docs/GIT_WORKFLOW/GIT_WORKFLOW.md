@@ -1,19 +1,15 @@
 # Git workflow
 
-A light Git Flow suitable for a solo maintainer now and contributors later.
+Two long-lived branches, nothing else. A solo maintainer does not need topic branches, and fewer branches means no drift.
 
 ## Branches
 
 | Branch | Purpose |
 | --- | --- |
-| `main` | Released code only, tagged `vX.Y.Z` |
-| `develop` | Integration branch for the next release |
-| `feature/<name>` | New functionality |
-| `bugfix/<name>` | Non-urgent fixes against `develop` |
-| `release/vX.Y.Z` | Release hardening, version bumps, changelog |
-| `hotfix/<name>` | Emergency fixes from `main` |
+| `develop` | All work. Commits and pushes land here |
+| `main` | Released code only, tagged `vX.Y.Z`. Changed only by a pull request from `develop` |
 
-Rules: lowercase kebab-case, short descriptive names (`feature/eisenhower-matrix`, `feature/timer-engine`, `bugfix/timer-after-sleep`). No direct commits to `main`.
+No `feature/`, `bugfix/`, `release/` or `hotfix/` branches unless the maintainer asks for one; delete it as soon as it is merged. No direct commits to `main`. Agent rules are in [AGENT_GIT_GUIDE.md](../AGENT_GIT_GUIDE/AGENT_GIT_GUIDE.md).
 
 ## Commits
 
@@ -33,16 +29,16 @@ This is the default for this repo. Remove this section if the policy is not want
 
 ## Pull requests
 
-- Target `develop`.
+- Open `develop` → `main` when a sprint item is done.
 - Conventional Commit title.
-- CI green: frontend, Rust.
+- CI green: frontend, Rust, release-csp.
 - Describe what changed and how it was checked, including locale and theme checks for UI work.
+- The maintainer merges with a merge commit and keeps `develop`.
 
 ## Releases
 
-1. Branch `release/vX.Y.Z` from `develop`.
-2. Bump versions (`package.json` files, `Cargo.toml`, `tauri.conf.json`) and update `CHANGELOG.md` (Keep a Changelog).
-3. Merge to `main`, tag `vX.Y.Z`; the release workflow builds installers.
-4. Merge back to `develop`.
+1. On `develop`, bump versions (`package.json` files, `Cargo.toml`, `tauri.conf.json`) and update `CHANGELOG.md` (Keep a Changelog).
+2. Merge `develop` into `main` by pull request and tag `vX.Y.Z` on `main`; the release workflow builds installers.
+3. Fast-forward `develop` to `main` if the merge commit differs.
 
 Unsigned installers trigger OS warnings (for example Windows SmartScreen). State this in release notes until code signing is set up.

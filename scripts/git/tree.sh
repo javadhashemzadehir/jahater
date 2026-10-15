@@ -1,7 +1,7 @@
 #!/bin/sh
 # Git tree report and safe cleanup.
 #   scripts/git/tree.sh           report only
-#   scripts/git/tree.sh --prune   delete local and remote branches already merged into develop
+#   scripts/git/tree.sh --prune   delete extra local and remote branches already merged into main
 set -e
 git fetch --prune --quiet
 
@@ -17,13 +17,13 @@ for b in main develop; do
 done
 
 echo
-echo "== Merged into origin/develop (safe to delete) =="
-merged=$(git branch -r --merged origin/develop | sed 's# *origin/##' | grep -vE '^(HEAD|main|develop)( |$)|->' || true)
+echo "== Extra branches merged into origin/main (safe to delete) =="
+merged=$(git branch -r --merged origin/main | sed 's# *origin/##' | grep -vE '^(HEAD|main|develop)( |$)|->' || true)
 [ -n "$merged" ] && echo "$merged" || echo "(none)"
 
 echo
 echo "== Not merged, with age =="
-for b in $(git branch -r --no-merged origin/develop | sed 's# *origin/##' | grep -vE '^(HEAD|main|develop)$|->'); do
+for b in $(git branch -r --no-merged origin/main | sed 's# *origin/##' | grep -vE '^(HEAD|main|develop)$|->'); do
   echo "$b  last commit: $(git log -1 --format=%cr "origin/$b")"
 done
 
