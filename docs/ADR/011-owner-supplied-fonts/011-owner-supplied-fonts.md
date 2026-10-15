@@ -18,7 +18,7 @@ ADR 010 bundled Bricolage Grotesque for Latin and left Persian on the system fon
 ## Consequences
 
 - Persian has a bundled typeface and consistent rendering across machines.
-- Comfortaa is SIL OFL. Yekan Bakh is a commercial font: its licence must allow embedding in a distributed app and, if the repository is public, redistribution of the font files. **Open item: the owner confirms the licence before any public release or public repository.**
+- Comfortaa is SIL OFL. Yekan Bakh is a commercial font with redistribution rights confirmed by the owner.
 - Yekan Bakh files are `.woff` (about 60 KB each), Comfortaa is a `.ttf` (about 200 KB). Converting to woff2 is a later size optimisation.
 - FaNum variants render Latin digits as Persian digits; copied or exported text still contains Latin digits.
 

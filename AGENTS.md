@@ -1,12 +1,12 @@
 # AGENTS.md
 
-Instructions for coding agents and contributors working on Self Planner.
+Instructions for coding agents and contributors working on Jahater.
 
 > **Status:** the repository is in the planning stage. Paths and commands below describe the planned scaffold. If a path or command does not exist yet, check `docs/ROADMAP/ROADMAP.md` for the phase that introduces it, and do not invent it.
 
 ## What this project is
 
-Self Planner is a private, offline-first desktop planner for ADHD brains. One task model drives six views: timeline, time tracking, timeboxing, Eisenhower matrix, to-do list and Kanban. Persian (RTL, default) and English (LTR) are both first-class. Themes are Light, Dark and System.
+Jahater is a private, offline-first desktop planner for ADHD brains. One task model drives six views: timeline, time tracking, timeboxing, Eisenhower matrix, to-do list and Kanban. Persian (RTL, default) and English (LTR) are both first-class. Themes are Light, Dark and System.
 
 Read in this order before non-trivial work:
 
