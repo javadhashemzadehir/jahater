@@ -75,7 +75,7 @@ cargo test
 - App Router with `src/` directory; aliases `@/*`, `@components/*`, `@features/*`, `@lib/*`.
 - Default locale `fa` (RTL); `en` (LTR).
 - Themes through `next-themes`: Light, Dark, System.
-- shadcn/ui (New York) in `src/components/ui`. Add components with `pnpm --filter @selfplanner/desktop-frontend exec shadcn@latest add <name>`. Do not introduce other UI kits.
+- shadcn/ui (New York) in `src/components/ui`. Add components with `pnpm --filter @selfplanner/desktop-frontend exec shadcn@latest add <name>`. Third-party shadcn-compatible components are allowed after the adaptation checklist in ADR 009; do not introduce full design systems.
 - Next.js moves fast. Read the relevant guide in `node_modules/next/dist/docs/` before relying on remembered APIs.
 
 ## Reusing JabeX code

@@ -7,7 +7,17 @@ Next.js App Router with static export, running inside the Tauri webview. This do
 - `next.config.ts`: `output: "export"`, `images.unoptimized: true`, `reactCompiler: true`, `devIndicators: false`, Tailwind through `@tailwindcss/turbopack`.
 - Path aliases: `@/*`, `@components/*`, `@features/*`, `@lib/*`.
 - Only client-side features. No route handlers, server actions or SSR-only APIs.
-- UI kit: shadcn/ui (New York) in `src/components/ui`. Do not add other kits.
+- UI kit: official shadcn/ui (New York) in `src/components/ui`, plus vetted shadcn-compatible third-party components ([ADR 009](../ADR/009-shadcn-and-third-party-components/009-shadcn-and-third-party-components.md)). Use a ready-made component before writing a custom one. Do not add full design systems (MUI, Chakra).
+
+### Component sources
+
+Record each third-party component or library here (name, URL, licence, adapted for tokens/RTL/i18n).
+
+| Source | URL | Used for |
+| --- | --- | --- |
+| shadcn/ui | https://ui.shadcn.com/ | Base component set |
+| shadcn.io | https://www.shadcn.io/ | Candidate extra components (none imported yet) |
+| shadcn studio | https://shadcnstudio.com/components | Candidate blocks (none imported yet) |
 
 ## Provider tree
 
