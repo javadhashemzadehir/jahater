@@ -27,7 +27,7 @@ Mirrors JabeX: commit history contains only human contributors.
 
 - No AI assistant attribution trailers or assistant identities in commit metadata.
 - Legitimate human `Co-authored-by` trailers stay.
-- JabeX enforces this with a `commit-msg` hook that strips assistant trailers. Copy `scripts/git/commit-msg` from JabeX into `.git/hooks/commit-msg` when the repo is created.
+- A tracked `commit-msg` hook in `scripts/git/` strips assistant trailers. Install it once per clone with `sh scripts/git/install-hooks.sh`. Agent rules for commits, merges and tree cleanup are in [AGENT_GIT_GUIDE.md](../AGENT_GIT_GUIDE/AGENT_GIT_GUIDE.md).
 
 This is carried over from JabeX as a default. Remove this section if the policy is not wanted for Self Planner.
 
