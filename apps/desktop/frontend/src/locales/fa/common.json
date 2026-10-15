@@ -40,7 +40,8 @@
     "label": "نماها",
     "tasks": "کارها",
     "trash": "سطل زباله",
-    "labels": "پروژه‌ها و برچسب‌ها"
+    "labels": "پروژه‌ها و برچسب‌ها",
+    "board": "تخته"
   },
   "trash": {
     "title": "سطل زباله",
@@ -81,5 +82,23 @@
     "noTags": "هنوز برچسبی ثبت نشده است.",
     "rename": "تغییر نام",
     "deleteHold": "برای حذف نگه دارید"
+  },
+  "board": {
+    "columns": {
+      "todo": "برای انجام",
+      "doing": "در حال انجام",
+      "done": "انجام‌شده"
+    },
+    "emptyColumn": "چیزی اینجا نیست.",
+    "dragHandle": "جابه‌جایی کار: {title}",
+    "moveTo": "انتقال به ستون: {title}",
+    "instructions": "برای برداشتن کار، Space یا Enter را بزنید. با کلیدهای جهت‌دار آن را به ستون دیگری ببرید و دوباره Space یا Enter بزنید تا رها شود. برای انصراف Escape را بزنید.",
+    "announce": {
+      "pickedUp": "{title} برداشته شد.",
+      "over": "{title} روی ستون {column} است.",
+      "outside": "{title} روی هیچ ستونی نیست.",
+      "dropped": "{title} به ستون {column} منتقل شد.",
+      "cancelled": "{title} در جای خود ماند."
+    }
   }
 }

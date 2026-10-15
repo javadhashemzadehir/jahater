@@ -40,7 +40,8 @@
     "label": "Views",
     "tasks": "Tasks",
     "trash": "Trash",
-    "labels": "Projects & tags"
+    "labels": "Projects & tags",
+    "board": "Board"
   },
   "trash": {
     "title": "Trash",
@@ -81,5 +82,23 @@
     "noTags": "No tags yet.",
     "rename": "Rename",
     "deleteHold": "Hold to delete"
+  },
+  "board": {
+    "columns": {
+      "todo": "To do",
+      "doing": "Doing",
+      "done": "Done"
+    },
+    "emptyColumn": "Nothing here.",
+    "dragHandle": "Move task: {title}",
+    "moveTo": "Move to column: {title}",
+    "instructions": "Press Space or Enter to pick up the task. Use the arrow keys to move it to another column, then press Space or Enter to drop it. Press Escape to cancel.",
+    "announce": {
+      "pickedUp": "Picked up {title}.",
+      "over": "{title} is over {column}.",
+      "outside": "{title} is not over a column.",
+      "dropped": "{title} moved to {column}.",
+      "cancelled": "{title} stayed where it was."
+    }
   }
 }

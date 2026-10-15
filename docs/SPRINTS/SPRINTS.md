@@ -96,9 +96,9 @@ Not yet checked: the six locale/theme combinations and a click-through in the de
 
 ### S1.3 Kanban
 
-- [ ] Kanban columns by status; drag changes the task's own `status`
-- [ ] Keyboard alternative for every drag action
-- [ ] RTL drag-and-drop verified in `fa` and `en`
+- [x] Kanban columns by status (To do, Doing, Done; archived is hidden); drag changes the task's own `status` through `@dnd-kit/core`
+- [x] Keyboard alternative for every drag action: dnd-kit keyboard sensor with localized announcements, plus a "Move to column" select on every card
+- [ ] RTL drag-and-drop verified in `fa` and `en`. Not run yet: needs a click-through in the desktop window. Column order follows the document direction, so RTL mirrors without extra code
 
 ### S1.4 Eisenhower matrix
 

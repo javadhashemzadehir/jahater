@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { BoardView } from "@/features/board/board-view";
 import { LabelsView } from "@/features/labels/labels-view";
 import { TasksView } from "@/features/tasks/tasks-view";
 import { useTaskSync } from "@/features/tasks/use-task-sync";
 import { TrashView } from "@/features/trash/trash-view";
 import { useTranslations } from "@/hooks/use-locale";
 
-type View = "tasks" | "labels" | "trash";
+type View = "tasks" | "board" | "labels" | "trash";
 
-const views: View[] = ["tasks", "labels", "trash"];
+const views: View[] = ["tasks", "board", "labels", "trash"];
 
 export function Workspace() {
   const t = useTranslations();
@@ -37,6 +38,7 @@ export function Workspace() {
       </div>
 
       {view === "tasks" ? <TasksView /> : null}
+      {view === "board" ? <BoardView /> : null}
       {view === "labels" ? <LabelsView /> : null}
       {view === "trash" ? <TrashView /> : null}
     </div>
