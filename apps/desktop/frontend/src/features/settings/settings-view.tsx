@@ -8,6 +8,7 @@ import { useAction } from "@/features/tasks/use-action";
 import { useIsClient } from "@/hooks/use-is-client";
 import { useTranslations } from "@/hooks/use-locale";
 import { updateSettings, useIsTauri } from "@/lib/tauri";
+import { DataSection } from "./data-section";
 import { useSettingsStore } from "./settings-store";
 
 export function SettingsView() {
@@ -43,6 +44,7 @@ export function SettingsView() {
   }
 
   return (
+    <div className="flex w-full max-w-md flex-col gap-10">
     <section aria-labelledby="settings-heading" className="flex w-full max-w-md flex-col gap-4">
       <h2 id="settings-heading" className="text-lg font-semibold">
         {t.views.settings}
@@ -82,5 +84,7 @@ export function SettingsView() {
         </Button>
       </form>
     </section>
+    <DataSection />
+    </div>
   );
 }

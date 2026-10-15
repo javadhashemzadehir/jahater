@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { reviewSchema, saveReviewInputSchema, settingsSchema, blockSchema, orphanActionSchema, orphanTimerSchema, createBlockInputSchema, createTaskInputSchema, labelSchema, taskSchema, updateTaskInputSchema } from "./tauri";
+import { importSummarySchema, reviewSchema, saveReviewInputSchema, settingsSchema, blockSchema, orphanActionSchema, orphanTimerSchema, createBlockInputSchema, createTaskInputSchema, labelSchema, taskSchema, updateTaskInputSchema } from "./tauri";
 
 describe("task IPC schemas", () => {
   it("keeps an omitted field out of an update, and passes null through as a clear", () => {
@@ -119,5 +119,13 @@ describe("settings and review IPC schemas", () => {
     };
     expect(reviewSchema.safeParse(review).success).toBe(true);
     expect(reviewSchema.safeParse({ ...review, day: "15/10/2026" }).success).toBe(false);
+  });
+});
+
+describe("backup IPC schemas", () => {
+  it("requires the safety backup name next to the row count", () => {
+    expect(importSummarySchema.safeParse({ rows: 3, safetyBackup: "pre-import-1.json" }).success).toBe(true);
+    expect(importSummarySchema.safeParse({ rows: 3 }).success).toBe(false);
+    expect(importSummarySchema.safeParse({ rows: -1, safetyBackup: "x" }).success).toBe(false);
   });
 });

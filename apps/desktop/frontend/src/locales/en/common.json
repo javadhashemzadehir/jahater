@@ -98,6 +98,9 @@
     },
     "settings": {
       "capacityInvalid": "Capacity must be between half an hour and 24 hours."
+    },
+    "backup": {
+      "invalid": "This file or backup could not be used. Nothing was changed."
     }
   },
   "labels": {
@@ -293,5 +296,24 @@
     "title": "Focus",
     "nothingCurrent": "Nothing is planned for this moment. You can start a timer anyway.",
     "markDone": "Mark this task as done"
+  },
+  "data": {
+    "title": "Your data",
+    "intro": "Everything stays on this computer. A backup is saved automatically once a day, and the newest 14 are kept.",
+    "exportTitle": "Export",
+    "export": "Export everything to a file",
+    "exportedTo": "Saved to:",
+    "importTitle": "Import",
+    "importWarning": "Importing replaces everything in the app with the contents of the file. A safety copy of your current data is saved first, so you can undo it from the list below.",
+    "chooseFile": "Choose an export file",
+    "importHold": "Hold to replace all data",
+    "imported": "Imported {rows} items. Your previous data was saved as {backup}.",
+    "backupsTitle": "Automatic backups",
+    "backupsHelp": "Restoring replaces everything with that copy. A safety copy of the current data is saved first.",
+    "noBackups": "No backups yet.",
+    "dailyCopy": "daily backup",
+    "safetyCopy": "safety copy before a restore",
+    "restoreHold": "Hold to restore",
+    "restored": "Restored. Your previous data was saved as {backup}."
   }
 }

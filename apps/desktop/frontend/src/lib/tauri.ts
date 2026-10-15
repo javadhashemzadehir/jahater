@@ -195,6 +195,13 @@ export const saveReviewInputSchema = z.object({
 
 export type SaveReviewInput = z.infer<typeof saveReviewInputSchema>;
 
+export const importSummarySchema = z.object({
+  rows: z.number().int().nonnegative(),
+  safetyBackup: z.string(),
+});
+
+export type ImportSummary = z.infer<typeof importSummarySchema>;
+
 export class IpcError extends Error {
   readonly command: CommandError;
 
@@ -360,6 +367,25 @@ export function getDailyReview(day: string): Promise<Review | null> {
 export function saveDailyReview(day: string, input: SaveReviewInput): Promise<Review> {
   const payload = saveReviewInputSchema.parse(input);
   return call("save_daily_review", { day, input: payload }, reviewSchema);
+}
+
+/** Writes a full export into the app's exports folder; resolves to where the file is. */
+export function exportData(): Promise<string> {
+  return call("export_data", {}, z.string());
+}
+
+/** Replaces all data with an export file's text. The backend keeps a safety copy first. */
+export function importData(json: string): Promise<ImportSummary> {
+  return call("import_data", { json }, importSummarySchema);
+}
+
+/** Backup file names, newest first. */
+export function listBackups(): Promise<string[]> {
+  return call("list_backups", {}, z.string().array());
+}
+
+export function restoreBackup(name: string): Promise<ImportSummary> {
+  return call("restore_backup", { name }, importSummarySchema);
 }
 
 export const TIMER_CHANGED_EVENT = "timer://changed";

@@ -176,9 +176,11 @@ Not yet checked visually: the six locale/theme combinations.
 
 ### S3.4 Data safety and MVP trial
 
-- [ ] JSON export and import
-- [ ] Automatic daily backup with rotation
-- [ ] Two-week daily-use trial with no fallback to another tool
+- [x] JSON export and import (Settings, "Your data"). The file is a versioned envelope (`format`, `version`, `schema`, `tables`) with every table, soft-deleted rows included. Export writes into `{app_data}/SelfPlanner/exports/` and shows the path (no save-dialog plugin yet). Import replaces everything in one transaction, rolls back on any rejected row, refuses files from a newer schema, validates column names against the real table, and takes a safety copy first; a long press is required
+- [x] Automatic daily backup with rotation: `{app_data}/SelfPlanner/backups/backup-YYYY-MM-DD.json` at startup and re-checked hourly, newest 14 kept; safety copies (`pre-import-…`) keep the newest 5. Any backup can be restored from Settings. The day in a backup name is the UTC date
+- [ ] Two-week daily-use trial with no fallback to another tool. This one is yours to run; it cannot be done by code
+
+Not yet checked visually: the six locale/theme combinations.
 
 **Done when (MVP):** two weeks of daily use with no fallback to another tool.
 
