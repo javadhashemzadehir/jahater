@@ -7,12 +7,15 @@ use super::events::TauriChangeNotifier;
 use super::state::AppState;
 use crate::application::block_service::BlockService;
 use crate::application::label_service::LabelService;
+use crate::application::review_service::{ReviewService, SettingsService};
 use crate::application::task_service::TaskService;
 use crate::application::timer_service::TimerService;
 use crate::infrastructure::clock::SystemClock;
 use crate::infrastructure::database;
 use crate::infrastructure::repositories::sqlite_block_repository::SqliteBlockRepository;
 use crate::infrastructure::repositories::sqlite_label_repository::SqliteLabelRepository;
+use crate::infrastructure::repositories::sqlite_meta_repository::SqliteMetaRepository;
+use crate::infrastructure::repositories::sqlite_review_repository::SqliteReviewRepository;
 use crate::infrastructure::repositories::sqlite_task_repository::SqliteTaskRepository;
 use crate::infrastructure::repositories::sqlite_time_entry_repository::SqliteTimeEntryRepository;
 
@@ -28,7 +31,7 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let tasks_repository = Arc::new(SqliteTaskRepository::new(connection.clone()));
     let blocks_repository = Arc::new(SqliteBlockRepository::new(connection.clone()));
     let entries_repository = Arc::new(SqliteTimeEntryRepository::new(connection.clone()));
-    let labels_repository = Arc::new(SqliteLabelRepository::new(connection));
+    let labels_repository = Arc::new(SqliteLabelRepository::new(connection.clone()));
     let notifier = Arc::new(TauriChangeNotifier::new(app.handle().clone()));
     let clock = Arc::new(SystemClock);
     let tasks = TaskService::new(
@@ -44,7 +47,12 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         clock.clone(),
         notifier.clone(),
     );
-    let blocks = BlockService::new(blocks_repository, tasks_repository, clock, notifier);
+    let blocks = BlockService::new(blocks_repository, tasks_repository, clock.clone(), notifier);
+    let reviews = ReviewService::new(
+        Arc::new(SqliteReviewRepository::new(connection.clone())),
+        clock,
+    );
+    let settings = SettingsService::new(Arc::new(SqliteMetaRepository::new(connection)));
 
     // Must run before the ticker starts: its heartbeat would hide when the timer was last seen.
     timer.detect_orphan()?;
@@ -54,6 +62,8 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         labels,
         timer,
         blocks,
+        reviews,
+        settings,
     });
     super::ticker::spawn(app.handle().clone());
     Ok(())

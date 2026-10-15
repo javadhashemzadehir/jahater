@@ -18,4 +18,10 @@ pub enum DomainError {
     InvalidTimerTarget,
     #[error("block length must be between 1 minute and 24 hours")]
     InvalidDuration,
+    #[error("review day must be a real date written YYYY-MM-DD")]
+    InvalidDay,
+    #[error("energy must be between 1 and 5")]
+    InvalidEnergy,
+    #[error("capacity must be between 1 minute and 24 hours")]
+    InvalidCapacity,
 }

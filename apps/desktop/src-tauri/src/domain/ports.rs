@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 
 use super::block::TimeBlock;
 use super::label::{Label, LabelKind};
+use super::review::DailyReview;
 use super::task::Task;
 use super::timer::TimeEntry;
 
@@ -66,6 +67,18 @@ pub trait BlockRepository: Send + Sync {
         from: DateTime<Utc>,
         to: DateTime<Utc>,
     ) -> Result<Vec<TimeBlock>, RepositoryError>;
+}
+
+pub trait ReviewRepository: Send + Sync {
+    fn find_by_day(&self, day: &str) -> Result<Option<DailyReview>, RepositoryError>;
+    fn insert(&self, review: &DailyReview) -> Result<(), RepositoryError>;
+    fn update(&self, review: &DailyReview) -> Result<(), RepositoryError>;
+}
+
+/// Small key/value store for device preferences.
+pub trait MetaRepository: Send + Sync {
+    fn get(&self, key: &str) -> Result<Option<String>, RepositoryError>;
+    fn set(&self, key: &str, value: &str) -> Result<(), RepositoryError>;
 }
 
 /// Tells the UI that task data changed, so every view refetches (FR-15).

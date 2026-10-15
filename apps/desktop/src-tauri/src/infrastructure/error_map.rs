@@ -54,6 +54,18 @@ pub fn to_command_error(error: &ApplicationError) -> CommandError {
             code: "NOT_FOUND",
             message_key: "errors.block.notFound",
         },
+        ApplicationError::Domain(DomainError::InvalidDay) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.review.dayInvalid",
+        },
+        ApplicationError::Domain(DomainError::InvalidEnergy) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.review.energyInvalid",
+        },
+        ApplicationError::Domain(DomainError::InvalidCapacity) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.settings.capacityInvalid",
+        },
         ApplicationError::NoActiveTimer => CommandError {
             code: "NOT_FOUND",
             message_key: "errors.timer.none",

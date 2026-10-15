@@ -36,6 +36,10 @@ pub fn run() {
             commands::block_commands::update_block,
             commands::block_commands::delete_block,
             commands::block_commands::list_blocks,
+            commands::planning_commands::get_settings,
+            commands::planning_commands::update_settings,
+            commands::planning_commands::get_daily_review,
+            commands::planning_commands::save_daily_review,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Self Planner");
