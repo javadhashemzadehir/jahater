@@ -18,12 +18,29 @@
     "titlePlaceholder": "Write a new task…",
     "add": "Add",
     "empty": "No tasks yet.",
-    "moveToTrash": "Move to Trash"
+    "moveToTrash": "Move to Trash",
+    "notes": "Notes",
+    "estimate": "Estimate (minutes)",
+    "project": "Project",
+    "noProject": "No project",
+    "tags": "Tags",
+    "urgent": "Urgent",
+    "important": "Important",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "markDone": "Mark as done",
+    "markTodo": "Mark as not done",
+    "filterProject": "Filter by project",
+    "filterTag": "Filter by tag",
+    "allProjects": "All projects",
+    "allTags": "All tags"
   },
   "views": {
     "label": "Views",
     "tasks": "Tasks",
-    "trash": "Trash"
+    "trash": "Trash",
+    "labels": "Projects & tags"
   },
   "trash": {
     "title": "Trash",
@@ -46,6 +63,23 @@
     "ipc": {
       "unavailable": "This part works in the desktop app only.",
       "invalidResponse": "The response was not in the expected shape."
+    },
+    "label": {
+      "nameRequired": "Enter a name.",
+      "notFound": "This project or tag no longer exists.",
+      "duplicate": "This name is already in use."
     }
+  },
+  "labels": {
+    "projects": "Projects",
+    "tags": "Tags",
+    "addProject": "Project name",
+    "addTag": "Tag name",
+    "projectPlaceholder": "Add a project…",
+    "tagPlaceholder": "Add a tag…",
+    "noProjects": "No projects yet.",
+    "noTags": "No tags yet.",
+    "rename": "Rename",
+    "deleteHold": "Hold to delete"
   }
 }

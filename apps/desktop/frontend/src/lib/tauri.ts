@@ -23,6 +23,8 @@ export const taskSchema = z.object({
   isUrgent: z.boolean(),
   isImportant: z.boolean(),
   estimateMinutes: z.number().int().positive().nullable(),
+  projectId: z.string().nullable(),
+  tagIds: z.array(z.string()),
   deletedAt: z.string().nullable(),
   revision: z.number().int(),
   createdAt: z.string(),
@@ -37,6 +39,8 @@ export const createTaskInputSchema = z.object({
   isUrgent: z.boolean().optional(),
   isImportant: z.boolean().optional(),
   estimateMinutes: z.number().int().positive().nullish(),
+  projectId: z.string().nullish(),
+  tagIds: z.array(z.string()).optional(),
 });
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>;
@@ -49,9 +53,21 @@ export const updateTaskInputSchema = z.object({
   isUrgent: z.boolean().optional(),
   isImportant: z.boolean().optional(),
   estimateMinutes: z.number().int().positive().nullish(),
+  projectId: z.string().nullish(),
+  tagIds: z.array(z.string()).optional(),
 });
 
 export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>;
+
+export const labelSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  revision: z.number().int(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type Label = z.infer<typeof labelSchema>;
 
 export class IpcError extends Error {
   readonly command: CommandError;
@@ -113,6 +129,38 @@ export function listTasks(): Promise<Task[]> {
 
 export function listTrashedTasks(): Promise<Task[]> {
   return call("list_trashed_tasks", {}, taskSchema.array());
+}
+
+export function listProjects(): Promise<Label[]> {
+  return call("list_projects", {}, labelSchema.array());
+}
+
+export function createProject(name: string): Promise<Label> {
+  return call("create_project", { name }, labelSchema);
+}
+
+export function renameProject(id: string, name: string): Promise<Label> {
+  return call("rename_project", { id, name }, labelSchema);
+}
+
+export function deleteProject(id: string): Promise<void> {
+  return call("delete_project", { id }, z.void());
+}
+
+export function listTags(): Promise<Label[]> {
+  return call("list_tags", {}, labelSchema.array());
+}
+
+export function createTag(name: string): Promise<Label> {
+  return call("create_tag", { name }, labelSchema);
+}
+
+export function renameTag(id: string, name: string): Promise<Label> {
+  return call("rename_tag", { id, name }, labelSchema);
+}
+
+export function deleteTag(id: string): Promise<void> {
+  return call("delete_tag", { id }, z.void());
 }
 
 export const TASKS_CHANGED_EVENT = "tasks://changed";

@@ -16,6 +16,14 @@ pub fn run() {
             commands::task_commands::purge_task,
             commands::task_commands::list_tasks,
             commands::task_commands::list_trashed_tasks,
+            commands::label_commands::create_project,
+            commands::label_commands::rename_project,
+            commands::label_commands::delete_project,
+            commands::label_commands::list_projects,
+            commands::label_commands::create_tag,
+            commands::label_commands::rename_tag,
+            commands::label_commands::delete_tag,
+            commands::label_commands::list_tags,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Self Planner");

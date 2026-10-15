@@ -5,9 +5,11 @@ use tauri::{App, Manager};
 
 use super::events::TauriChangeNotifier;
 use super::state::AppState;
+use crate::application::label_service::LabelService;
 use crate::application::task_service::TaskService;
 use crate::infrastructure::clock::SystemClock;
 use crate::infrastructure::database;
+use crate::infrastructure::repositories::sqlite_label_repository::SqliteLabelRepository;
 use crate::infrastructure::repositories::sqlite_task_repository::SqliteTaskRepository;
 
 /// Overrides the data directory for dev, tests and seed scripts. Never point it at the real app data.
@@ -18,12 +20,20 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let data_dir = resolve_data_dir(app)?;
     std::fs::create_dir_all(&data_dir)?;
 
-    let connection = database::open(&data_dir.join(DATABASE_FILE))?;
-    let repository = Arc::new(SqliteTaskRepository::new(connection));
+    let connection = database::share(database::open(&data_dir.join(DATABASE_FILE))?);
+    let tasks_repository = Arc::new(SqliteTaskRepository::new(connection.clone()));
+    let labels_repository = Arc::new(SqliteLabelRepository::new(connection));
     let notifier = Arc::new(TauriChangeNotifier::new(app.handle().clone()));
-    let tasks = TaskService::new(repository, Arc::new(SystemClock), notifier);
+    let clock = Arc::new(SystemClock);
+    let tasks = TaskService::new(
+        tasks_repository,
+        labels_repository.clone(),
+        clock.clone(),
+        notifier.clone(),
+    );
+    let labels = LabelService::new(labels_repository, clock, notifier);
 
-    app.manage(AppState { tasks });
+    app.manage(AppState { tasks, labels });
     Ok(())
 }
 

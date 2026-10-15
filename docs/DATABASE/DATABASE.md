@@ -32,6 +32,7 @@ JabeX uses multiple local profiles. Self Planner starts with a single profile. I
 
 - `V1__create_tasks.sql` (S0.3) creates only the `tasks` table.
 - `V2__task_fields.sql` (S1.1) adds `tasks.notes` and `tasks.estimate_minutes`, plus an index on `deleted_at`.
+- `V3__projects_and_tags.sql` (S1.2) adds `projects`, `tags`, `task_tags` and `tasks.project_id`. Names are unique ignoring case. Projects and tags are hard-deleted: `project_id` is set to `NULL` and `task_tags` rows cascade, so tasks are never lost. Colour, archive and soft delete for labels are deferred.
 - Other tables below ship in the migration of the sprint that needs them (for example `projects` in S1.2, `time_blocks` and `time_entries` in Phase 2).
 - Released migrations are immutable. Changes go into a new `V{n}__name.sql`.
 

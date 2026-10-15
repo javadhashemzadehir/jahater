@@ -14,6 +14,18 @@ pub fn to_command_error(error: &ApplicationError) -> CommandError {
             code: "VALIDATION_FAILED",
             message_key: "errors.task.estimateInvalid",
         },
+        ApplicationError::Domain(DomainError::EmptyName) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.label.nameRequired",
+        },
+        ApplicationError::LabelNotFound => CommandError {
+            code: "NOT_FOUND",
+            message_key: "errors.label.notFound",
+        },
+        ApplicationError::DuplicateLabel => CommandError {
+            code: "CONFLICT",
+            message_key: "errors.label.duplicate",
+        },
         ApplicationError::TaskNotFound => CommandError {
             code: "NOT_FOUND",
             message_key: "errors.task.notFound",

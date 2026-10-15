@@ -9,4 +9,8 @@ pub enum ApplicationError {
     Repository(#[from] RepositoryError),
     #[error("task not found")]
     TaskNotFound,
+    #[error("project or tag not found")]
+    LabelNotFound,
+    #[error("a project or tag with this name already exists")]
+    DuplicateLabel,
 }

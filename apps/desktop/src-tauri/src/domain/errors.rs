@@ -4,4 +4,6 @@ pub enum DomainError {
     EmptyTitle,
     #[error("estimate must be a positive number of minutes")]
     InvalidEstimate,
+    #[error("name is empty")]
+    EmptyName,
 }
