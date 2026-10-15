@@ -1,6 +1,6 @@
 # Development guide
 
-> The repository is in the planning stage. This guide describes the intended workflow, copied from JabeX and adapted. Update it as the scaffold lands.
+> The repository is in the planning stage. This guide describes the intended workflow, adapted from earlier projects. Update it as the scaffold lands.
 
 ## Prerequisites
 
@@ -78,9 +78,9 @@ cargo test
 - shadcn/ui (New York) in `src/components/ui`. Add components with `pnpm --filter @selfplanner/desktop-frontend exec shadcn@latest add <name>`. Do not build custom components: compose existing ones, and add shadcn-compatible third-party components only after the adaptation checklist in ADR 009. Do not introduce full design systems.
 - Next.js moves fast. Read the relevant guide in `node_modules/next/dist/docs/` before relying on remembered APIs.
 
-## Reusing JabeX code
+## Reusing shared code
 
-JabeX is the reference implementation. When scaffolding, copy and rename rather than rewrite:
+When porting code from earlier projects, copy and rename rather than rewrite:
 
 - App shell, sidebar, header, skip-to-content
 - Providers: theme, locale hydrator, direction sync
@@ -90,7 +90,7 @@ JabeX is the reference implementation. When scaffolding, copy and rename rather 
 - Rust: `shared/ids.rs`, `shared/time.rs`, database open and migration wiring, `error_map`, tray module
 - CI and release workflows
 
-Change names (`jabex` → `selfplanner`), storage keys, app identifier and the primary colour hue. Do not copy JabeX-specific features (Leitner, TipTap, ink, speech).
+Change names, storage keys, app identifier and the primary colour hue. Do not copy features outside the product scope (flashcards, rich-text editors, handwriting, speech).
 
 ## Dev data safety
 

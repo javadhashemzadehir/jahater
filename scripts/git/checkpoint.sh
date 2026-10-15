@@ -8,7 +8,7 @@ msg=$1
 shift
 
 case "$(git rev-parse --abbrev-ref HEAD)" in
-  main|develop) echo "Refusing to commit on $(git rev-parse --abbrev-ref HEAD). Branch from develop first." >&2; exit 1 ;;
+  main) echo "Refusing to commit on main. Work on develop." >&2; exit 1 ;;
 esac
 
 echo "$msg" | grep -qE '^(feat|fix|docs|refactor|test|chore|ci|perf|build)(\([a-z0-9-]+\))?!?: .+' \

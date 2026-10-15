@@ -2,7 +2,7 @@
 
 ## Overview
 
-Self Planner is a **Tauri 2** desktop app embedding a **Next.js** frontend. All data is stored locally through the Rust host. There is no cloud backend. The structure deliberately mirrors [JabeX](https://github.com/javadhashemzadehir/JabeX) so patterns, components and tooling can be reused.
+Self Planner is a **Tauri 2** desktop app embedding a **Next.js** frontend. All data is stored locally through the Rust host. There is no cloud backend. The structure is deliberately conventional so patterns, components and tooling can be reused.
 
 ```
 ┌─────────────────────────────────────────┐
@@ -41,7 +41,7 @@ pnpm workspace: `apps/desktop`, `apps/desktop/frontend`, `packages/*`. Packages 
 | Concern | Choice | Notes |
 | --- | --- | --- |
 | Desktop runtime | Tauri 2 | Tray, dialogs, notifications, global shortcut plugins |
-| Frontend | Next.js App Router, React 19, TypeScript, `output: "export"`, React Compiler | No server-only features. Mirror JabeX versions at scaffold time (JabeX currently pins Next 16.4.0 and React 19.3.0). |
+| Frontend | Next.js App Router, React 19, TypeScript, `output: "export"`, React Compiler | No server-only features. Pin exact Next and React versions in `package.json`. |
 | Styling | Tailwind CSS v4 with CSS variable tokens | OKLCH tokens in `:root` and `.dark` |
 | Components | shadcn/ui (New York) on Radix, plus shadcn-compatible third-party components | ADR 009: no custom-built components, no full design systems |
 | Theming | `next-themes`, class strategy, default `system` | See [FRONTEND.md](../FRONTEND/FRONTEND.md) |
@@ -50,10 +50,10 @@ pnpm workspace: `apps/desktop`, `apps/desktop/frontend`, `packages/*`. Packages 
 | Validation | Zod 4 (TS) and Rust validation at the IPC boundary | |
 | Motion | `framer-motion` with `MotionConfig reducedMotion="user"` | |
 | Toasts / command palette | `sonner`, `cmdk` | |
-| Drag and drop | `@dnd-kit` (new vs JabeX) | Needs keyboard sensors |
+| Drag and drop | `@dnd-kit` (new dependency) | Needs keyboard sensors |
 | Calendar | `Intl` with `fa-IR-u-ca-persian` for display, `date-fns-jalali` or equivalent for arithmetic | Display only; storage is Gregorian ISO |
 | Database | SQLite through `rusqlite` (bundled) and `refinery` migrations | No ORM |
-| Rust utilities | `uuid` (v7), `chrono`, `thiserror`, `tracing`, `directories`, `parking_lot`, `tokio` | Same as JabeX |
+| Rust utilities | `uuid` (v7), `chrono`, `thiserror`, `tracing`, `directories`, `parking_lot`, `tokio` | Standard choices |
 | Tests | Vitest and Testing Library; `cargo test` | |
 
 ## Frontend layers
@@ -101,7 +101,7 @@ Dependency rule: inward only. `domain` never imports `rusqlite` or Tauri. See [B
 
 See [ADR/](../ADR/). Open questions:
 
-- Hand-written `packages/types` (JabeX approach) vs generated types from Rust.
+- Hand-written `packages/types` vs generated types from Rust.
 - Exact calendar library and its quality in RTL timeline layouts.
 - Linux behaviour of global shortcuts under Wayland.
 - Whether Next's inline theme bootstrap script passes the release CSP (Tauri rewrites CSP hashes for built HTML; verify in a release build).

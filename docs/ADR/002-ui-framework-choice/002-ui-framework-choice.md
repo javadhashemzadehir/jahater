@@ -22,7 +22,7 @@ The UI needs accessible primitives, full RTL support, design tokens that work in
 
 - Components are owned code, easy to adapt for RTL.
 - Radix handles focus, keyboard and ARIA; `DirectionProvider` handles RTL.
-- Same system as JabeX.
+- Same UI system the author already uses.
 
 ### Negative
 

@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Self Planner needs a desktop-first, offline planner with a modern web UI, Persian RTL support and strong privacy. The author already ships JabeX on Next.js and Tauri, so patterns, components and CI can be reused.
+Self Planner needs a desktop-first, offline planner with a modern web UI, Persian RTL support and strong privacy. The author already ships a desktop app on Next.js and Tauri, so patterns, components and CI can be reused.
 
 ## Decision
 
@@ -21,7 +21,7 @@ Use **Next.js (App Router, TypeScript, static export)** for the UI and **Tauri 2
 ### Positive
 
 - Small binaries and a stronger security posture than Electron.
-- Reuse of JabeX shell, providers, i18n, theming and workflows.
+- Reuse of an existing shell, providers, i18n, theming and workflows.
 - Clear IPC boundary.
 
 ### Negative
@@ -33,5 +33,5 @@ Use **Next.js (App Router, TypeScript, static export)** for the UI and **Tauri 2
 ## Alternatives considered
 
 - **Electron + React:** heavier and larger attack surface.
-- **Tauri + Vite React:** viable and simpler, but gives up code reuse with JabeX.
+- **Tauri + Vite React:** viable and simpler, but gives up code reuse.
 - **Native UI:** slower iteration for a bilingual design system.

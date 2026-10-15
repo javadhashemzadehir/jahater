@@ -2,11 +2,11 @@
 
 ## Licence
 
-Default: **MIT**, consistent with JabeX. Confirm before the first public release.
+Default: **MIT**. Confirm before the first public release.
 
 | Licence | Effect | Fit |
 | --- | --- | --- |
-| MIT | Anyone may reuse, including in closed products | Maximum adoption; matches JabeX and Super Productivity |
+| MIT | Anyone may reuse, including in closed products | Maximum adoption; matches Super Productivity |
 | Apache-2.0 | Like MIT with an explicit patent grant | If patents are a concern |
 | GPL / AGPL | Derivatives must stay open | If closed forks are unwanted |
 

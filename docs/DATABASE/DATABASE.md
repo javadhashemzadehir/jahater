@@ -26,7 +26,7 @@
 
 `SELF_PLANNER_DATA_DIR` overrides the base path (dev, tests, doc screenshots). Seed and screenshot scripts must never touch the real app-data directory.
 
-JabeX uses multiple local profiles. Self Planner starts with a single profile. If profiles are added later, the layout can follow JabeX (`app.sqlite` registry plus `profiles/{uuid}/`).
+Self Planner starts with a single profile. If multiple local profiles are added later, the layout can use an `app.sqlite` registry plus `profiles/{uuid}/`.
 
 ## Migrations
 
@@ -173,7 +173,7 @@ CREATE UNIQUE INDEX idx_one_running ON time_entries(is_running) WHERE is_running
 Notes:
 
 - `is_running` is set to `0` when `ended_at` is set. Both change in one transaction.
-- `app_meta` holds device preferences as JSON (capacity per day, week start, shortcuts, tray). Locale and theme are stored by the frontend in `localStorage`, same as JabeX.
+- `app_meta` holds device preferences as JSON (capacity per day, week start, shortcuts, tray). Locale and theme are stored by the frontend in `localStorage`.
 - The `day` in `daily_reviews` is the user's local date. A configurable `day_start_hour` (default 0) lets night owls treat 01:00 as the previous day.
 
 ## Mapping views to data
@@ -223,4 +223,4 @@ GROUP BY t.id;
 
 - Retention for `task_events`.
 - Whether recurring tasks generate the next instance on completion or are computed on read. Current preference: generate on completion.
-- Whether SQLite FTS5 search (as in JabeX) is worth adding for the task list.
+- Whether SQLite FTS5 search is worth adding for the task list.
