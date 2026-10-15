@@ -1,0 +1,15 @@
+#!/bin/sh
+# Strips AI-assistant attribution from commit messages (repo policy: AGENTS.md,
+# docs/GIT_WORKFLOW/GIT_WORKFLOW.md). Human Co-authored-by trailers stay.
+
+file=$1
+[ -n "$file" ] && [ -f "$file" ] || exit 0
+
+tmp="$file.strip.$$"
+
+grep -viE '^[[:space:]]*Co-authored-by:.*(claude|anthropic|cursor|copilot|openai|chatgpt|gemini|codex|noreply@anthropic\.com)' "$file" \
+  | grep -viE 'generated with .*claude' \
+  | awk 'BEGIN{b=0} /^[[:space:]]*$/{b++; next} {if(b>0 && n>0){print ""} b=0; n++; print}' > "$tmp"
+
+mv "$tmp" "$file"
+exit 0

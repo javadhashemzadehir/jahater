@@ -16,6 +16,7 @@ Start here if you are new to the repo. Layout mirrors JabeX: one folder per docu
 | [DEVELOPMENT.md](./DEVELOPMENT/DEVELOPMENT.md) | Setup, commands, first run |
 | [TESTING.md](./TESTING/TESTING.md) | Test expectations for frontend, Rust, CI |
 | [GIT_WORKFLOW.md](./GIT_WORKFLOW/GIT_WORKFLOW.md) | Branches, commits, releases |
+| [AGENT_GIT_GUIDE.md](./AGENT_GIT_GUIDE/AGENT_GIT_GUIDE.md) | How agents commit, merge on time and keep the git tree clean |
 | [ROADMAP.md](./ROADMAP/ROADMAP.md) | Phased delivery checklist and MVP definition |
 | [SPRINTS.md](./SPRINTS/SPRINTS.md) | Roadmap phases sliced into sprints with goals and done-when |
 | [OPEN_SOURCE_AND_CONTENT.md](./OPEN_SOURCE/OPEN_SOURCE_AND_CONTENT.md) | Licensing, repo hygiene, video and content plan |
@@ -30,6 +31,7 @@ Start here if you are new to the repo. Layout mirrors JabeX: one folder per docu
 - [005 Clean architecture](./ADR/005-clean-architecture/005-clean-architecture.md)
 - [006 Timer engine](./ADR/006-timer-engine/006-timer-engine.md)
 - [007 Single task model](./ADR/007-single-task-model/007-single-task-model.md)
+- [008 Release CSP script policy](./ADR/008-release-csp-script-policy/008-release-csp-script-policy.md)
 
 ## About sources
 

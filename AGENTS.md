@@ -133,6 +133,7 @@ Next.js changes quickly and may differ from what you remember. Read the relevant
 ## Git and commits
 
 - Branching and Conventional Commits: `docs/GIT_WORKFLOW/GIT_WORKFLOW.md`.
+- Agent commit, merge and tree-cleanup rules: `docs/AGENT_GIT_GUIDE/AGENT_GIT_GUIDE.md`. Run `sh scripts/git/install-hooks.sh` once per clone.
 - Branch from `develop`; never commit directly to `main`.
 - Commit messages and PR descriptions must **not** contain AI-assistant attribution trailers or assistant identities. This mirrors the JabeX policy and is the default for this repo. Human `Co-authored-by` trailers are fine.
 - Keep commits small and focused.

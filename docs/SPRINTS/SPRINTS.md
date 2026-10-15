@@ -39,35 +39,35 @@ Sprint plan derived from [ROADMAP.md](../ROADMAP/ROADMAP.md) and [REQUIREMENTS.m
 
 ### S0.1 Repo and workspace skeleton
 
-- [ ] Create repo, licence, README, `.editorconfig`, `.gitattributes`
-- [ ] pnpm workspace (`apps/desktop`, `apps/desktop/frontend`, `packages/*`)
-- [ ] Tauri 2 + Next.js static export boots a blank window
-- [ ] Verify font licences or switch to OFL fonts (NFR-12)
+- [x] Create repo, licence, README, `.editorconfig`, `.gitattributes`
+- [x] pnpm workspace (`apps/desktop`, `apps/desktop/frontend`, `packages/*`)
+- [x] Tauri 2 + Next.js static export boots a blank window (release build runs; window not inspected visually)
+- [x] Verify font licences or switch to OFL fonts (NFR-12): switched to Vazirmatn and Comfortaa
 
 **Done when:** `pnpm tauri:dev` opens an empty window and `pnpm build` produces the static export.
 
 ### S0.2 Shell, i18n, theming
 
-- [ ] Port from JabeX: shell, providers, theme, i18n, fonts, shadcn setup, token file (no JabeX-specific features)
-- [ ] `fa` (RTL, default) and `en` (LTR) dictionaries wired through `useTranslations()`
-- [ ] Light, Dark, System switcher; no flash of wrong theme
-- [ ] Shared date formatter stub (Jalali for `fa`, Gregorian for `en`)
+- [x] Port from JabeX: shell, providers, theme, i18n, shadcn setup, token file (no JabeX-specific features). Ported from the local JabeX clone: hold-to-confirm button, input, theme provider, `components.json`. Fonts stay Vazirmatn and Comfortaa (NFR-12) instead of JabeX's Yekan.
+- [x] `fa` (RTL, default) and `en` (LTR) dictionaries wired through `useTranslations()`
+- [x] Light, Dark, System switcher; no flash of wrong theme. The `next-themes` bootstrap is inline in the export and runs before paint. Not yet checked visually in the desktop window.
+- [x] Shared date formatter stub (Jalali for `fa`, Gregorian for `en`)
 
 **Done when:** the six locale/theme combinations render correctly on the empty shell.
 
 ### S0.3 Rust skeleton
 
-- [ ] Layers: `commands`, `application`, `domain`, `infrastructure`, `desktop`, `shared`
-- [ ] Database open, WAL mode, refinery `V1__` migration
-- [ ] One command end to end (save and read a task) with Zod-validated IPC in `lib/tauri.ts`
-- [ ] Error enum mapped to `{ code, message_key }`
+- [x] Layers: `commands`, `application`, `domain`, `infrastructure`, `desktop`, `shared`
+- [x] Database open, WAL mode, refinery `V1__` migration
+- [ ] One command end to end (save and read a task) with Zod-validated IPC in `lib/tauri.ts`. Covered by Rust tests and a release launch; the save-and-read click through the UI is not yet run.
+- [x] Error enum mapped to `{ code, message_key }`
 
 **Done when:** a task is saved and read back through the full stack.
 
 ### S0.4 CI and CSP
 
-- [ ] CI: lint, typecheck, test, build, `cargo fmt`, `clippy`, `cargo test`
-- [ ] Check the theme bootstrap against the release CSP
+- [x] CI: lint, typecheck, test, build, `cargo fmt`, `clippy`, `cargo test`. All three jobs (`frontend`, `rust`, `release-csp`) passed on PR #2.
+- [x] Check the theme bootstrap against the release CSP. The release build passes with the CSP. `script-src` allows `'unsafe-inline'` for the static export; see [ADR 008](../ADR/008-release-csp-script-policy/008-release-csp-script-policy.md). Hash-based strict CSP is deferred. Webview console not yet inspected.
 - [ ] Record real durations of S0.1 to S0.3 for later estimates
 
 **Done when (Phase 0):** the app runs on the author's machine, a task is saved, CI is green, and the six combinations render correctly.
@@ -78,11 +78,13 @@ Sprint plan derived from [ROADMAP.md](../ROADMAP/ROADMAP.md) and [REQUIREMENTS.m
 
 ### S1.1 Task model and Trash
 
-- [ ] Task CRUD with title, notes, project, tags
-- [ ] `is_urgent`, `is_important`, status (`todo`, `doing`, `done`, `archived`), estimate, actual
-- [ ] Soft delete via `deleted_at`, `revision` bump on update
-- [ ] Trash view with restore and hold-to-confirm permanent delete
-- [ ] `tasks://changed` event emitted from Rust
+- [x] Task CRUD with title and notes (V2 adds `notes`, `estimate_minutes`). Project and tags are deferred to S1.2, where the `projects` and `tags` tables arrive
+- [x] `is_urgent`, `is_important`, status (`todo`, `doing`, `done`, `archived`), estimate. Actual time is not a column: it is derived from `time_entries` in Phase 2 (see DATABASE.md sample query)
+- [x] Soft delete via `deleted_at`, `revision` bump on update
+- [x] Trash view with restore and hold-to-confirm permanent delete, reached from the Tasks/Trash switch
+- [x] `tasks://changed` event emitted from Rust after every task write
+
+Backend and IPC: `create_task`, `update_task` (partial patch, `null` clears), `trash_task`, `restore_task`, `purge_task` (trashed rows only), `list_tasks`, `list_trashed_tasks`. Domain tests, repository tests and service tests cover the rules; Zod tests cover the IPC boundary.
 
 ### S1.2 List view and store sync
 
@@ -182,7 +184,10 @@ Fill in after each sprint. Keep it factual and shame-free.
 
 | Sprint | Planned | Actual | What moved | Next |
 | --- | --- | --- | --- | --- |
-| S0.1 | | | | |
+| S0.1 | Repo and workspace skeleton | Not timed (author to record) | pnpm workspace, Next static export, Tauri 2 window, icon set, OFL fonts chosen, MIT LICENSE added | S0.2 |
+| S0.2 | Shell, i18n, theming | Not timed (author to record) | fa/en dictionaries, Zustand locale store, Light/Dark/System with next-themes, RTL direction sync, date formatter stub, shadcn-style button | S0.3 |
+| S0.3 | Rust skeleton | Not timed (author to record) | Layers in place, WAL + refinery V1 (`tasks`), `create_task` / `list_tasks` with Zod boundary and `{ code, message_key }` errors | S0.4 |
+| S0.4 | CI and CSP | Not timed (author to record) | CI workflow (frontend, Rust, release build), release CSP in `tauri.conf.json` | Phase 1 (S1.1) |
 
 ## Not in any sprint
 
