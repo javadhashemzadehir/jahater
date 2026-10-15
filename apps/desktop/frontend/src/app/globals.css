@@ -115,9 +115,13 @@
   color-scheme: dark;
 }
 
-/* Locale font stacks: Bricolage Grotesque for Latin; Persian uses the system UI font (no Persian font bundled yet). */
+/* Locale font stacks: Comfortaa for Latin, Yekan Bakh FaNum for Persian. Each falls through per glyph. */
 html {
-  --font-family: var(--font-bricolage), system-ui, "Segoe UI", Tahoma, sans-serif;
+  --font-family: var(--font-comfortaa), var(--font-yekan), system-ui, "Segoe UI", Tahoma, sans-serif;
+}
+
+html:lang(fa) {
+  --font-family: var(--font-yekan), var(--font-comfortaa), system-ui, "Segoe UI", Tahoma, sans-serif;
 }
 
 @layer base {
