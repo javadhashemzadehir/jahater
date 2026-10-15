@@ -88,9 +88,11 @@ Backend and IPC: `create_task`, `update_task` (partial patch, `null` clears), `t
 
 ### S1.2 List view and store sync
 
-- [ ] List view on the single task model (ADR 007)
-- [ ] Zustand feature store that refetches on `tasks://changed`
-- [ ] Projects and tags management
+- [x] List view on the single task model (ADR 007): done checkbox, inline editor (title, notes, estimate, project, tags, urgent, important), project and tag filters, move to Trash
+- [x] Zustand feature store that refetches on `tasks://changed` (`features/tasks/task-store.ts`, mounted once by `useTaskSync`)
+- [x] Projects and tags management (create, rename, hold-to-confirm delete). Deleting only unlinks; tasks are kept (V3 migration)
+
+Not yet checked: the six locale/theme combinations and a click-through in the desktop window.
 
 ### S1.3 Kanban
 
