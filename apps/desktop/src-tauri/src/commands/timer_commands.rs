@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::application::timer_service::{OrphanResolution, OrphanView, TimerView};
+use crate::application::timer_service::{OrphanResolution, OrphanView, TimerView, TrackedEntry};
 use crate::desktop::state::AppState;
 use crate::domain::timer::{StartTimer, TimerMode};
 use crate::infrastructure::error_map::to_command_error;
@@ -166,5 +166,53 @@ pub fn resolve_orphan_timer(
         .timer
         .resolve_orphan(resolution)
         .map(|timer| timer.map(TimerDto::from))
+        .map_err(|error| to_command_error(&error))
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrackedEntryDto {
+    pub id: String,
+    pub task_id: Option<String>,
+    pub mode: &'static str,
+    pub started_at: String,
+    pub ended_at: String,
+    pub actual_seconds: i64,
+}
+
+impl From<TrackedEntry> for TrackedEntryDto {
+    fn from(tracked: TrackedEntry) -> Self {
+        let entry = tracked.entry;
+        Self {
+            id: entry.id,
+            task_id: entry.task_id,
+            mode: entry.mode.as_str(),
+            started_at: format_timestamp(entry.started_at),
+            ended_at: format_timestamp(entry.ended_at.unwrap_or(entry.started_at)),
+            actual_seconds: tracked.actual_seconds,
+        }
+    }
+}
+
+/// Finished entries that started inside `[from, to)` (RFC 3339), for the estimate-vs-actual report.
+#[tauri::command]
+pub fn list_tracked_entries(
+    state: State<'_, AppState>,
+    from: String,
+    to: String,
+) -> Result<Vec<TrackedEntryDto>, CommandError> {
+    let invalid = || CommandError {
+        code: "VALIDATION_FAILED",
+        message_key: "errors.block.timeInvalid",
+    };
+    let parse = |value: &str| {
+        chrono::DateTime::parse_from_rfc3339(value)
+            .map(|time| time.with_timezone(&chrono::Utc))
+            .map_err(|_| invalid())
+    };
+    state
+        .timer
+        .tracked_entries(parse(&from)?, parse(&to)?)
+        .map(|entries| entries.into_iter().map(TrackedEntryDto::from).collect())
         .map_err(|error| to_command_error(&error))
 }

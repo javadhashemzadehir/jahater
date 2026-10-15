@@ -16,6 +16,13 @@ pub struct TimerView {
     pub remaining_seconds: Option<i64>,
 }
 
+/// A finished entry with the time actually worked (pauses excluded).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrackedEntry {
+    pub entry: TimeEntry,
+    pub actual_seconds: i64,
+}
+
 /// What the user can do about a timer that was still running when the app last closed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OrphanResolution {
@@ -92,6 +99,23 @@ impl TimerService {
 
     pub fn stop(&self) -> Result<TimerView, ApplicationError> {
         self.change(|entry, now| entry.stop(now))
+    }
+
+    /// Finished entries that started inside `[from, to)`, each with the time actually worked.
+    pub fn tracked_entries(
+        &self,
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+    ) -> Result<Vec<TrackedEntry>, ApplicationError> {
+        Ok(self
+            .entries
+            .list_finished_between(from, to)?
+            .into_iter()
+            .map(|entry| TrackedEntry {
+                actual_seconds: entry.elapsed_seconds(entry.ended_at.unwrap_or(entry.started_at)),
+                entry,
+            })
+            .collect())
     }
 
     pub fn active(&self) -> Result<Option<TimerView>, ApplicationError> {
@@ -263,6 +287,26 @@ mod tests {
                 *slot = entry.clone();
             }
             Ok(())
+        }
+
+        fn list_finished_between(
+            &self,
+            from: DateTime<Utc>,
+            to: DateTime<Utc>,
+        ) -> Result<Vec<TimeEntry>, RepositoryError> {
+            Ok(self
+                .rows
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|e| {
+                    !e.is_running
+                        && e.deleted_at.is_none()
+                        && e.started_at >= from
+                        && e.started_at < to
+                })
+                .cloned()
+                .collect())
         }
 
         fn touch_running(&self, at: DateTime<Utc>) -> Result<(), RepositoryError> {
@@ -498,6 +542,39 @@ mod tests {
         f.service.start(tracker(None)).unwrap();
         f.clock.advance(-3600);
         assert_eq!(f.service.active().unwrap().unwrap().elapsed_seconds, 0);
+    }
+
+    #[test]
+    fn tracked_entries_report_worked_time_without_pauses() {
+        let f = fixture();
+        f.service.start(tracker(Some("task-1"))).unwrap();
+        f.clock.advance(600);
+        f.service.pause().unwrap();
+        f.clock.advance(3000);
+        f.service.resume().unwrap();
+        f.clock.advance(300);
+        f.service.stop().unwrap();
+
+        let from = f.clock.now() - chrono::Duration::days(1);
+        let to = f.clock.now() + chrono::Duration::days(1);
+        let tracked = f.service.tracked_entries(from, to).unwrap();
+        assert_eq!(tracked.len(), 1);
+        assert_eq!(tracked[0].actual_seconds, 900);
+        assert_eq!(tracked[0].entry.task_id.as_deref(), Some("task-1"));
+    }
+
+    #[test]
+    fn a_running_or_discarded_timer_is_not_reported() {
+        let f = fixture();
+        f.service.start(tracker(None)).unwrap();
+        f.clock.advance(60);
+        let from = f.clock.now() - chrono::Duration::days(1);
+        let to = f.clock.now() + chrono::Duration::days(1);
+        assert!(f.service.tracked_entries(from, to).unwrap().is_empty());
+
+        let service = restart(&f);
+        service.resolve_orphan(OrphanResolution::Discard).unwrap();
+        assert!(service.tracked_entries(from, to).unwrap().is_empty());
     }
 
     /// Simulates closing the app: the same data, a fresh service with no memory of the session.

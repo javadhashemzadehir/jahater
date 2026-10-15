@@ -155,7 +155,10 @@ Blocks never move on their own. Not yet checked visually: the six locale/theme c
 
 ### S3.1 Estimate vs actual report
 
-- [ ] Report by day, project and tag
+- [x] Report by task, day, project and tag over today, 7 or 30 days: estimate, actual and difference per group, with a total. The backend returns finished entries with worked seconds (`list_tracked_entries`, pauses excluded); grouping is a pure, tested function (`report-model.ts`)
+- Rules worth knowing: an entry belongs to the day it started; a task's estimate counts once per group (on its first worked day in the day view); a task with several tags appears under each, so tag rows can exceed the total. The wording is "difference", never "over" or "late"
+
+Not yet checked visually: the six locale/theme combinations.
 
 ### S3.2 Capacity and reviews
 

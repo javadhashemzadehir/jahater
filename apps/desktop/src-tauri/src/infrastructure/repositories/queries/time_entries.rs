@@ -33,3 +33,13 @@ pub const FIND_RUNNING_ENTRY: &str = "
 // nothing to recover. Only the running (unpaused) entry gets a heartbeat.
 pub const TOUCH_RUNNING_ENTRY: &str =
     "UPDATE time_entries SET last_seen_at = ?1 WHERE is_running = 1 AND paused_at IS NULL";
+
+// Entries are reported on the day they started. Timestamps share one text format, so text
+// comparison orders them correctly.
+pub const SELECT_FINISHED_BETWEEN: &str = "
+    SELECT id, task_id, mode, started_at, ended_at, paused_total_sec, paused_at, target_min,
+           is_running, note, deleted_at, revision, created_at, updated_at, last_seen_at
+    FROM time_entries
+    WHERE is_running = 0 AND deleted_at IS NULL AND started_at >= ?1 AND started_at < ?2
+    ORDER BY started_at, id
+";

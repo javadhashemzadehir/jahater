@@ -45,6 +45,12 @@ pub trait TimeEntryRepository: Send + Sync {
     ) -> Result<(), RepositoryError>;
     /// Overwrites every mutable column of an existing entry.
     fn update(&self, entry: &TimeEntry) -> Result<(), RepositoryError>;
+    /// Finished, not discarded entries that started inside `[from, to)`, earliest first.
+    fn list_finished_between(
+        &self,
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+    ) -> Result<Vec<TimeEntry>, RepositoryError>;
     /// Records that the running, unpaused entry is alive at `at`. Does not bump `revision`.
     fn touch_running(&self, at: DateTime<Utc>) -> Result<(), RepositoryError>;
 }

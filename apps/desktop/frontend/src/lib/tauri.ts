@@ -150,6 +150,17 @@ export const orphanTimerSchema = z.object({
 
 export type OrphanTimer = z.infer<typeof orphanTimerSchema>;
 
+export const trackedEntrySchema = z.object({
+  id: z.string(),
+  taskId: z.string().nullable(),
+  mode: timerModeSchema,
+  startedAt: z.string(),
+  endedAt: z.string(),
+  actualSeconds: z.number().int().nonnegative(),
+});
+
+export type TrackedEntry = z.infer<typeof trackedEntrySchema>;
+
 export class IpcError extends Error {
   readonly command: CommandError;
 
@@ -291,6 +302,11 @@ export function getOrphanTimer(): Promise<OrphanTimer | null> {
 
 export function resolveOrphanTimer(action: OrphanAction): Promise<Timer | null> {
   return call("resolve_orphan_timer", { action: orphanActionSchema.parse(action) }, timerSchema.nullable());
+}
+
+/** Finished entries that started inside `[from, to)` (ISO strings), with worked seconds. */
+export function listTrackedEntries(from: string, to: string): Promise<TrackedEntry[]> {
+  return call("list_tracked_entries", { from, to }, trackedEntrySchema.array());
 }
 
 export const TIMER_CHANGED_EVENT = "timer://changed";

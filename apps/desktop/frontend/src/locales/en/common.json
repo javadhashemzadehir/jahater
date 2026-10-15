@@ -44,7 +44,8 @@
     "board": "Board",
     "matrix": "Matrix",
     "timer": "Timer",
-    "timeline": "Timeline"
+    "timeline": "Timeline",
+    "reports": "Report"
   },
   "trash": {
     "title": "Trash",
@@ -201,5 +202,43 @@
     "resume": "Keep it running",
     "discard": "Discard this time",
     "later": "Decide later"
+  },
+  "reports": {
+    "title": "Estimate and actual time",
+    "intro": "How long tasks were planned to take next to how long they took. This is information, not a score.",
+    "range": "Period",
+    "groupBy": "Group by",
+    "ranges": {
+      "1": "Today",
+      "7": "Last 7 days",
+      "30": "Last 30 days"
+    },
+    "groupings": {
+      "task": "Task",
+      "day": "Day",
+      "project": "Project",
+      "tag": "Tag"
+    },
+    "none": {
+      "task": "Time without a task",
+      "day": "No day",
+      "project": "No project",
+      "tag": "No tag"
+    },
+    "removed": {
+      "task": "Removed task",
+      "day": "Unknown day",
+      "project": "Removed project",
+      "tag": "Removed tag"
+    },
+    "estimate": "Estimate (h:mm)",
+    "actual": "Actual (h:mm)",
+    "difference": "Difference",
+    "total": "Total",
+    "noEstimate": "no estimate",
+    "minutesUnit": "min",
+    "empty": "No finished timers in this period yet.",
+    "tagNote": "A task with several tags appears under each of them, so the rows can add up to more than the total.",
+    "dayNote": "A task's estimate is counted on the first day it was worked on."
   }
 }

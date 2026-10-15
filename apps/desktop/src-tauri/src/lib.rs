@@ -30,6 +30,7 @@ pub fn run() {
             commands::timer_commands::stop_timer,
             commands::timer_commands::get_active_timer,
             commands::timer_commands::get_orphan_timer,
+            commands::timer_commands::list_tracked_entries,
             commands::timer_commands::resolve_orphan_timer,
             commands::block_commands::create_block,
             commands::block_commands::update_block,
