@@ -3,11 +3,13 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use super::error::ApplicationError;
-use crate::domain::ports::{ChangeNotifier, Clock, TaskRepository};
+use crate::domain::label::LabelKind;
+use crate::domain::ports::{ChangeNotifier, Clock, LabelRepository, TaskRepository};
 use crate::domain::task::{NewTask, Task, TaskPatch};
 
 pub struct TaskService {
     repository: Arc<dyn TaskRepository>,
+    labels: Arc<dyn LabelRepository>,
     clock: Arc<dyn Clock>,
     notifier: Arc<dyn ChangeNotifier>,
 }
@@ -15,11 +17,13 @@ pub struct TaskService {
 impl TaskService {
     pub fn new(
         repository: Arc<dyn TaskRepository>,
+        labels: Arc<dyn LabelRepository>,
         clock: Arc<dyn Clock>,
         notifier: Arc<dyn ChangeNotifier>,
     ) -> Self {
         Self {
             repository,
+            labels,
             clock,
             notifier,
         }
@@ -27,6 +31,7 @@ impl TaskService {
 
     pub fn create_task(&self, input: NewTask) -> Result<Task, ApplicationError> {
         let task = Task::new(Uuid::now_v7().to_string(), input, self.clock.now())?;
+        self.ensure_labels_exist(&task)?;
         self.repository.insert(&task)?;
         self.notifier.tasks_changed();
         Ok(task)
@@ -35,6 +40,7 @@ impl TaskService {
     pub fn update_task(&self, id: &str, patch: TaskPatch) -> Result<Task, ApplicationError> {
         let mut task = self.active(id)?;
         task.apply(patch, self.clock.now())?;
+        self.ensure_labels_exist(&task)?;
         self.repository.update(&task)?;
         self.notifier.tasks_changed();
         Ok(task)
@@ -73,6 +79,24 @@ impl TaskService {
         Ok(self.repository.list_trashed()?)
     }
 
+    /// A task may only point at a project and tags that exist.
+    fn ensure_labels_exist(&self, task: &Task) -> Result<(), ApplicationError> {
+        if let Some(project_id) = &task.project_id {
+            self.require_label(LabelKind::Project, project_id)?;
+        }
+        for tag_id in &task.tag_ids {
+            self.require_label(LabelKind::Tag, tag_id)?;
+        }
+        Ok(())
+    }
+
+    fn require_label(&self, kind: LabelKind, id: &str) -> Result<(), ApplicationError> {
+        self.labels
+            .find(kind, id)?
+            .map(|_| ())
+            .ok_or(ApplicationError::LabelNotFound)
+    }
+
     fn active(&self, id: &str) -> Result<Task, ApplicationError> {
         self.repository
             .find_active(id)?
@@ -88,34 +112,14 @@ impl TaskService {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::atomic::Ordering;
     use std::sync::Mutex;
 
-    use chrono::{DateTime, Utc};
-
     use super::*;
+    use crate::application::test_support::{label, CountingNotifier, FixedClock, MemoryLabels};
     use crate::domain::errors::DomainError;
     use crate::domain::ports::RepositoryError;
     use crate::domain::task::TaskStatus;
-
-    struct FixedClock(DateTime<Utc>);
-
-    impl Clock for FixedClock {
-        fn now(&self) -> DateTime<Utc> {
-            self.0
-        }
-    }
-
-    #[derive(Default)]
-    struct CountingNotifier {
-        count: AtomicUsize,
-    }
-
-    impl ChangeNotifier for CountingNotifier {
-        fn tasks_changed(&self) {
-            self.count.fetch_add(1, Ordering::SeqCst);
-        }
-    }
 
     #[derive(Default)]
     struct MemoryRepository {
@@ -189,23 +193,24 @@ mod tests {
     struct Fixture {
         service: TaskService,
         repository: Arc<MemoryRepository>,
+        labels: Arc<MemoryLabels>,
         notifier: Arc<CountingNotifier>,
     }
 
     fn fixture() -> Fixture {
         let repository = Arc::new(MemoryRepository::default());
+        let labels = Arc::new(MemoryLabels::default());
         let notifier = Arc::new(CountingNotifier::default());
-        let now = DateTime::parse_from_rfc3339("2026-10-15T08:00:00Z")
-            .unwrap()
-            .with_timezone(&Utc);
         let service = TaskService::new(
             repository.clone(),
-            Arc::new(FixedClock(now)),
+            labels.clone(),
+            Arc::new(FixedClock::default()),
             notifier.clone(),
         );
         Fixture {
             service,
             repository,
+            labels,
             notifier,
         }
     }
@@ -301,5 +306,43 @@ mod tests {
             f.service.restore_task("missing"),
             Err(ApplicationError::TaskNotFound)
         ));
+    }
+
+    #[test]
+    fn project_and_tags_must_exist() {
+        let f = fixture();
+        let mut input = new_task("A");
+        input.project_id = Some("missing".into());
+        assert!(matches!(
+            f.service.create_task(input),
+            Err(ApplicationError::LabelNotFound)
+        ));
+
+        f.labels.add(LabelKind::Project, label("p1", "Thesis"));
+        f.labels.add(LabelKind::Tag, label("t1", "home"));
+        let created = f.service.create_task(new_task("A")).unwrap();
+
+        let updated = f
+            .service
+            .update_task(
+                &created.id,
+                TaskPatch {
+                    project_id: Some(Some("p1".into())),
+                    tag_ids: Some(vec!["t1".into()]),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+        assert_eq!(updated.project_id.as_deref(), Some("p1"));
+
+        let bad_tag = f.service.update_task(
+            &created.id,
+            TaskPatch {
+                tag_ids: Some(vec!["nope".into()]),
+                ..Default::default()
+            },
+        );
+        assert!(matches!(bad_tag, Err(ApplicationError::LabelNotFound)));
+        assert_eq!(f.service.list_tasks().unwrap()[0].tag_ids, vec!["t1"]);
     }
 }

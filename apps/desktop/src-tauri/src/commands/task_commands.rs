@@ -19,6 +19,10 @@ pub struct CreateTaskInput {
     pub is_important: bool,
     #[serde(default)]
     pub estimate_minutes: Option<u32>,
+    #[serde(default)]
+    pub project_id: Option<String>,
+    #[serde(default)]
+    pub tag_ids: Vec<String>,
 }
 
 /// Missing key: leave the field. `null`: clear it. A value: set it.
@@ -33,6 +37,9 @@ pub struct UpdateTaskInput {
     pub is_important: Option<bool>,
     #[serde(default, deserialize_with = "nullable")]
     pub estimate_minutes: Option<Option<u32>>,
+    #[serde(default, deserialize_with = "nullable")]
+    pub project_id: Option<Option<String>>,
+    pub tag_ids: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -45,6 +52,8 @@ pub struct TaskDto {
     pub is_urgent: bool,
     pub is_important: bool,
     pub estimate_minutes: Option<u32>,
+    pub project_id: Option<String>,
+    pub tag_ids: Vec<String>,
     pub deleted_at: Option<String>,
     pub revision: i64,
     pub created_at: String,
@@ -61,6 +70,8 @@ impl From<Task> for TaskDto {
             is_urgent: task.is_urgent,
             is_important: task.is_important,
             estimate_minutes: task.estimate_minutes,
+            project_id: task.project_id,
+            tag_ids: task.tag_ids,
             deleted_at: task.deleted_at.map(format_timestamp),
             revision: task.revision,
             created_at: format_timestamp(task.created_at),
@@ -80,6 +91,8 @@ pub fn create_task(
         is_urgent: input.is_urgent,
         is_important: input.is_important,
         estimate_minutes: input.estimate_minutes,
+        project_id: input.project_id,
+        tag_ids: input.tag_ids,
     };
     state
         .tasks
@@ -165,6 +178,8 @@ fn into_patch(input: UpdateTaskInput) -> Result<TaskPatch, CommandError> {
         is_urgent: input.is_urgent,
         is_important: input.is_important,
         estimate_minutes: input.estimate_minutes,
+        project_id: input.project_id,
+        tag_ids: input.tag_ids,
     })
 }
 

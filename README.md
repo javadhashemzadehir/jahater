@@ -25,7 +25,7 @@ Foundation:
 | --- | --- |
 | Desktop host | Tauri 2 (Rust) |
 | UI | Next.js App Router, static export, React 19, TypeScript |
-| Styling | Tailwind CSS v4, shadcn/ui (Radix), OKLCH design tokens |
+| Styling | Tailwind CSS v4, shadcn/ui (Radix) and vetted third-party components, OKLCH design tokens |
 | Theming | `next-themes` (Light / Dark / System) |
 | i18n | JSON dictionaries, Zustand locale store, `lang` and `dir` on `<html>` |
 | State | Zustand, Zod at boundaries |

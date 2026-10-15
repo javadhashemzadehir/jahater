@@ -23,3 +23,21 @@ export function formatDuration(totalMinutes: number, locale: Locale): string {
   const format = new Intl.NumberFormat(intlLocale[locale], { minimumIntegerDigits: 2 });
   return `${format.format(hours)}:${format.format(minutes)}`;
 }
+
+/** Clock text such as 05:30 or 1:05:30, with the digits of the locale. */
+export function formatClock(totalSeconds: number, locale: Locale): string {
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
+  const seconds = safe % 60;
+  const two = new Intl.NumberFormat(intlLocale[locale], { minimumIntegerDigits: 2, useGrouping: false });
+  const one = new Intl.NumberFormat(intlLocale[locale], { useGrouping: false });
+  const rest = `${two.format(minutes)}:${two.format(seconds)}`;
+  return hours > 0 ? `${one.format(hours)}:${rest}` : rest;
+}
+
+/** Time of day such as 09:30, with the digits of the locale. */
+export function formatTime(value: Date | string, locale: Locale): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+  return new Intl.DateTimeFormat(intlLocale[locale], { hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+}

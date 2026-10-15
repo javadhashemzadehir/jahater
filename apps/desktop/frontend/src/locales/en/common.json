@@ -18,20 +18,45 @@
     "titlePlaceholder": "Write a new task…",
     "add": "Add",
     "empty": "No tasks yet.",
-    "moveToTrash": "Move to Trash"
+    "moveToTrash": "Move to Trash",
+    "notes": "Notes",
+    "estimate": "Estimate (minutes)",
+    "project": "Project",
+    "noProject": "No project",
+    "tags": "Tags",
+    "urgent": "Urgent",
+    "important": "Important",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "markDone": "Mark as done",
+    "markTodo": "Mark as not done",
+    "filterProject": "Filter by project",
+    "filterTag": "Filter by tag",
+    "allProjects": "All projects",
+    "allTags": "All tags"
   },
   "views": {
     "label": "Views",
     "tasks": "Tasks",
-    "trash": "Trash"
+    "trash": "Trash",
+    "labels": "Projects & tags",
+    "board": "Board",
+    "matrix": "Matrix",
+    "timer": "Timer",
+    "timeline": "Timeline",
+    "reports": "Report",
+    "review": "Check-in",
+    "settings": "Settings"
   },
   "trash": {
     "title": "Trash",
     "empty": "Trash is empty.",
     "restore": "Restore",
-    "purgeHold": "Hold to delete forever",
-    "purgeConfirming": "Keep holding…",
-    "trashedOn": "Moved to Trash"
+    "trashedOn": "Moved to Trash",
+    "purge": "Delete forever",
+    "purgeTitle": "Delete this task forever?",
+    "purgeDescription": "“{title}” will be removed permanently. This can’t be undone."
   },
   "errors": {
     "task": {
@@ -46,6 +71,254 @@
     "ipc": {
       "unavailable": "This part works in the desktop app only.",
       "invalidResponse": "The response was not in the expected shape."
+    },
+    "label": {
+      "nameRequired": "Enter a name.",
+      "notFound": "This project or tag no longer exists.",
+      "duplicate": "This name is already in use."
+    },
+    "timer": {
+      "alreadyPaused": "The timer is already paused.",
+      "notPaused": "The timer is not paused.",
+      "stopped": "This timer has already stopped.",
+      "targetRequired": "Choose how long the timebox should be.",
+      "targetInvalid": "The length must be a whole number of minutes above zero.",
+      "modeInvalid": "Choose a valid timer mode.",
+      "none": "No timer is running.",
+      "resolutionInvalid": "Choose one of the listed options."
+    },
+    "block": {
+      "durationInvalid": "A block must be between 1 minute and 24 hours long.",
+      "notFound": "This block no longer exists.",
+      "kindInvalid": "Choose a valid block type.",
+      "timeInvalid": "That time is not valid."
+    },
+    "review": {
+      "dayInvalid": "That date is not valid.",
+      "energyInvalid": "Choose an energy level from 1 to 5."
+    },
+    "settings": {
+      "capacityInvalid": "Capacity must be between half an hour and 24 hours."
+    },
+    "backup": {
+      "invalid": "This file or backup could not be used. Nothing was changed."
     }
+  },
+  "labels": {
+    "projects": "Projects",
+    "tags": "Tags",
+    "addProject": "Project name",
+    "addTag": "Tag name",
+    "projectPlaceholder": "Add a project…",
+    "tagPlaceholder": "Add a tag…",
+    "noProjects": "No projects yet.",
+    "noTags": "No tags yet.",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteTitle": "Delete “{name}”?",
+    "deleteDescription": "Your tasks stay. They are only unlinked from it."
+  },
+  "board": {
+    "columns": {
+      "todo": "To do",
+      "doing": "Doing",
+      "done": "Done"
+    },
+    "emptyColumn": "Nothing here.",
+    "dragHandle": "Move task: {title}",
+    "moveTo": "Move to column: {title}",
+    "instructions": "Press Space or Enter to pick up the task. Use the arrow keys to move it to another column, then press Space or Enter to drop it. Press Escape to cancel.",
+    "announce": {
+      "pickedUp": "Picked up {title}.",
+      "over": "{title} is over {column}.",
+      "outside": "{title} is not over a column.",
+      "dropped": "{title} moved to {column}.",
+      "cancelled": "{title} stayed where it was."
+    }
+  },
+  "matrix": {
+    "urgent": "Urgent",
+    "notUrgent": "Not urgent",
+    "rowHint": "Top row: important. Bottom row: not important.",
+    "quadrants": {
+      "1": "Do first",
+      "2": "Plan",
+      "3": "Handle quickly",
+      "4": "Park"
+    },
+    "hints": {
+      "1": "Urgent and important",
+      "2": "Important, not urgent",
+      "3": "Urgent, not important",
+      "4": "Neither urgent nor important"
+    },
+    "moveTo": "Move to quadrant: {title}",
+    "instructions": "Press Space or Enter to pick up the task. Use the arrow keys to move it to another quadrant, then press Space or Enter to drop it. Press Escape to cancel.",
+    "announce": {
+      "outside": "{title} is not over a quadrant."
+    }
+  },
+  "timer": {
+    "idle": "Nothing is being timed right now.",
+    "task": "Task",
+    "noTask": "No task",
+    "mode": "Mode",
+    "minutes": "Length (minutes)",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Finish",
+    "elapsed": "elapsed",
+    "remaining": "left",
+    "overtime": "past the target",
+    "modes": {
+      "tracker": "Tracker",
+      "timebox": "Timebox",
+      "pomodoro": "Pomodoro",
+      "flowtime": "Flowtime"
+    },
+    "phase": {
+      "running": "Running",
+      "warning": "Almost at the target",
+      "paused": "Paused",
+      "reached": "Target reached"
+    }
+  },
+  "timeline": {
+    "today": "Today",
+    "previousDay": "Previous day",
+    "nextDay": "Next day",
+    "now": "Now",
+    "empty": "No blocks planned for this day.",
+    "untitled": "Untitled block",
+    "addBlock": "Plan a block",
+    "noTask": "No task",
+    "blockTitle": "Block title",
+    "start": "Start",
+    "duration": "Length (minutes)",
+    "add": "Add block",
+    "editBlock": "Edit block",
+    "earlier": "15 minutes earlier",
+    "later": "15 minutes later",
+    "removeBlock": "Remove block",
+    "selectHint": "Select a block to edit it, or drag its handle. With the keyboard, use the edit panel.",
+    "dragHandle": "Move block: {title}",
+    "instructions": "Press Space or Enter to pick up the block. Use the up and down arrow keys to move it, then press Space or Enter to drop it. Press Escape to cancel.",
+    "announce": {
+      "pickedUp": "Picked up {title}.",
+      "dropped": "{title} was moved.",
+      "cancelled": "{title} stayed where it was."
+    },
+    "capacityLabel": "Planned work today",
+    "capacityValue": "{planned} of {capacity}",
+    "overCapacity": "{over} more is planned than your daily capacity. Nothing has been moved. You decide what, if anything, to change.",
+    "kind": "Type",
+    "kinds": {
+      "task": "Task",
+      "buffer": "Buffer",
+      "transition": "Transition",
+      "free": "Free time",
+      "event": "Event"
+    },
+    "bufferAfter": "Add a 10 minute buffer after"
+  },
+  "orphan": {
+    "title": "A timer was still running",
+    "description": "A timer was running when Self Planner last closed. The last time it was seen running was {time}. Nothing is lost: pick what fits.",
+    "stopAtLastSeen": "Stop at {time} ({tracked} tracked)",
+    "resume": "Keep it running",
+    "discard": "Discard this time",
+    "later": "Decide later"
+  },
+  "reports": {
+    "title": "Estimate and actual time",
+    "intro": "How long tasks were planned to take next to how long they took. This is information, not a score.",
+    "range": "Period",
+    "groupBy": "Group by",
+    "ranges": {
+      "1": "Today",
+      "7": "Last 7 days",
+      "30": "Last 30 days"
+    },
+    "groupings": {
+      "task": "Task",
+      "day": "Day",
+      "project": "Project",
+      "tag": "Tag"
+    },
+    "none": {
+      "task": "Time without a task",
+      "day": "No day",
+      "project": "No project",
+      "tag": "No tag"
+    },
+    "removed": {
+      "task": "Removed task",
+      "day": "Unknown day",
+      "project": "Removed project",
+      "tag": "Removed tag"
+    },
+    "estimate": "Estimate (h:mm)",
+    "actual": "Actual (h:mm)",
+    "difference": "Difference",
+    "total": "Total",
+    "noEstimate": "no estimate",
+    "minutesUnit": "min",
+    "empty": "No finished timers in this period yet.",
+    "tagNote": "A task with several tags appears under each of them, so the rows can add up to more than the total.",
+    "dayNote": "A task's estimate is counted on the first day it was worked on."
+  },
+  "settings": {
+    "capacity": "Daily capacity (hours)",
+    "capacityHelp": "How much planned work fits in a day for you. It only drives the gentle heads-up on the timeline; nothing is moved for you.",
+    "saved": "Saved."
+  },
+  "review": {
+    "title": "Daily check-in",
+    "modeLabel": "Check-in time",
+    "modes": {
+      "morning": "Morning",
+      "evening": "Evening"
+    },
+    "energyQuestion": "How is your energy right now?",
+    "energy": {
+      "1": "1 · very low",
+      "2": "2 · low",
+      "3": "3 · okay",
+      "4": "4 · good",
+      "5": "5 · high"
+    },
+    "clearEnergy": "Skip this question",
+    "morningQuestion": "What matters most today?",
+    "eveningQuestion": "What went okay today?",
+    "saved": "Saved."
+  },
+  "focus": {
+    "enter": "Focus mode",
+    "exit": "Leave focus mode",
+    "title": "Focus",
+    "nothingCurrent": "Nothing is planned for this moment. You can start a timer anyway.",
+    "markDone": "Mark this task as done"
+  },
+  "data": {
+    "title": "Your data",
+    "intro": "Everything stays on this computer. A backup is saved automatically once a day, and the newest 14 are kept.",
+    "exportTitle": "Export",
+    "export": "Export everything to a file",
+    "exportedTo": "Saved to:",
+    "importTitle": "Import",
+    "importWarning": "Importing replaces everything in the app with the contents of the file. A safety copy of your current data is saved first, so you can undo it from the list below.",
+    "chooseFile": "Choose an export file",
+    "imported": "Imported {rows} items. Your previous data was saved as {backup}.",
+    "backupsTitle": "Automatic backups",
+    "backupsHelp": "Restoring replaces everything with that copy. A safety copy of the current data is saved first.",
+    "noBackups": "No backups yet.",
+    "dailyCopy": "daily backup",
+    "safetyCopy": "safety copy before a restore",
+    "restored": "Restored. Your previous data was saved as {backup}.",
+    "importConfirm": "Replace all data",
+    "importConfirmTitle": "Replace all data with this file?",
+    "restore": "Restore",
+    "restoreConfirmTitle": "Restore this backup?"
   }
 }

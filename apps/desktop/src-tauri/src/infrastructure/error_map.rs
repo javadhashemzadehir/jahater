@@ -1,5 +1,6 @@
 use crate::application::error::ApplicationError;
 use crate::domain::errors::DomainError;
+use crate::domain::ports::RepositoryError;
 use crate::shared::error::CommandError;
 
 /// Maps internal errors to the `{ code, message_key }` pair the UI localizes.
@@ -14,9 +15,69 @@ pub fn to_command_error(error: &ApplicationError) -> CommandError {
             code: "VALIDATION_FAILED",
             message_key: "errors.task.estimateInvalid",
         },
+        ApplicationError::Domain(DomainError::EmptyName) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.label.nameRequired",
+        },
+        ApplicationError::LabelNotFound => CommandError {
+            code: "NOT_FOUND",
+            message_key: "errors.label.notFound",
+        },
+        ApplicationError::DuplicateLabel => CommandError {
+            code: "CONFLICT",
+            message_key: "errors.label.duplicate",
+        },
+        ApplicationError::Domain(DomainError::TimerAlreadyPaused) => CommandError {
+            code: "CONFLICT",
+            message_key: "errors.timer.alreadyPaused",
+        },
+        ApplicationError::Domain(DomainError::TimerNotPaused) => CommandError {
+            code: "CONFLICT",
+            message_key: "errors.timer.notPaused",
+        },
+        ApplicationError::Domain(DomainError::TimerStopped) => CommandError {
+            code: "CONFLICT",
+            message_key: "errors.timer.stopped",
+        },
+        ApplicationError::Domain(DomainError::TimerTargetRequired) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.timer.targetRequired",
+        },
+        ApplicationError::Domain(DomainError::InvalidTimerTarget) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.timer.targetInvalid",
+        },
+        ApplicationError::Domain(DomainError::InvalidDuration) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.block.durationInvalid",
+        },
+        ApplicationError::BlockNotFound => CommandError {
+            code: "NOT_FOUND",
+            message_key: "errors.block.notFound",
+        },
+        ApplicationError::Domain(DomainError::InvalidDay) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.review.dayInvalid",
+        },
+        ApplicationError::Domain(DomainError::InvalidEnergy) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.review.energyInvalid",
+        },
+        ApplicationError::Domain(DomainError::InvalidCapacity) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.settings.capacityInvalid",
+        },
+        ApplicationError::NoActiveTimer => CommandError {
+            code: "NOT_FOUND",
+            message_key: "errors.timer.none",
+        },
         ApplicationError::TaskNotFound => CommandError {
             code: "NOT_FOUND",
             message_key: "errors.task.notFound",
+        },
+        ApplicationError::Repository(RepositoryError::InvalidData(_)) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.backup.invalid",
         },
         ApplicationError::Repository(_) => CommandError {
             code: "STORAGE_FAILED",

@@ -2,7 +2,9 @@
 
 import { useTheme } from "next-themes";
 import { Monitor, Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsClient } from "@/hooks/use-is-client";
 import { useTranslations } from "@/hooks/use-locale";
 
@@ -19,27 +21,30 @@ export function ThemeSwitcher() {
 
   // Same footprint before mount, so hydration does not shift the header.
   if (!isClient) {
-    return <div className="h-10 w-28" aria-hidden="true" />;
+    return <Skeleton className="h-8 w-26" />;
   }
 
   return (
-    <div role="group" aria-label={t.theme.label} className="inline-flex gap-1 rounded-md border border-border p-1">
-      {options.map(({ value, icon: Icon, key }) => {
-        const pressed = theme === value;
-        return (
-          <Button
-            key={value}
-            variant={pressed ? "secondary" : "ghost"}
-            size="sm"
-            aria-pressed={pressed}
-            aria-label={t.theme[key]}
-            title={t.theme[key]}
-            onClick={() => setTheme(value)}
-          >
-            <Icon aria-hidden="true" />
-          </Button>
-        );
-      })}
-    </div>
+    <ToggleGroup
+      type="single"
+      variant="outline"
+      size="sm"
+      aria-label={t.theme.label}
+      value={theme}
+      onValueChange={(value) => {
+        if (value) setTheme(value);
+      }}
+    >
+      {options.map(({ value, icon: Icon, key }) => (
+        <Tooltip key={value}>
+          <TooltipTrigger asChild>
+            <ToggleGroupItem value={value} aria-label={t.theme[key]}>
+              <Icon aria-hidden="true" />
+            </ToggleGroupItem>
+          </TooltipTrigger>
+          <TooltipContent>{t.theme[key]}</TooltipContent>
+        </Tooltip>
+      ))}
+    </ToggleGroup>
   );
 }

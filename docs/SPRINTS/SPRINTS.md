@@ -88,20 +88,24 @@ Backend and IPC: `create_task`, `update_task` (partial patch, `null` clears), `t
 
 ### S1.2 List view and store sync
 
-- [ ] List view on the single task model (ADR 007)
-- [ ] Zustand feature store that refetches on `tasks://changed`
-- [ ] Projects and tags management
+- [x] List view on the single task model (ADR 007): done checkbox, inline editor (title, notes, estimate, project, tags, urgent, important), project and tag filters, move to Trash
+- [x] Zustand feature store that refetches on `tasks://changed` (`features/tasks/task-store.ts`, mounted once by `useTaskSync`)
+- [x] Projects and tags management (create, rename, hold-to-confirm delete). Deleting only unlinks; tasks are kept (V3 migration)
+
+Not yet checked: the six locale/theme combinations and a click-through in the desktop window.
 
 ### S1.3 Kanban
 
-- [ ] Kanban columns by status; drag changes the task's own `status`
-- [ ] Keyboard alternative for every drag action
-- [ ] RTL drag-and-drop verified in `fa` and `en`
+- [x] Kanban columns by status (To do, Doing, Done; archived is hidden); drag changes the task's own `status` through `@dnd-kit/core`
+- [x] Keyboard alternative for every drag action: dnd-kit keyboard sensor with localized announcements, plus a "Move to column" select on every card
+- [ ] RTL drag-and-drop verified in `fa` and `en`. Not run yet: needs a click-through in the desktop window. Column order follows the document direction, so RTL mirrors without extra code
 
 ### S1.4 Eisenhower matrix
 
-- [ ] Four quadrants with `--quadrant-*` tokens and non-colour cues
-- [ ] Drag changes the two flags; keyboard alternative
+- [x] Four quadrants with `--quadrant-*` tokens and non-colour cues (icon, title, hint text, axis labels)
+- [x] Drag changes the two flags (`isUrgent`, `isImportant`); keyboard alternative: dnd-kit keyboard sensor plus a "Move to quadrant" select on each card. Done and archived tasks are not shown
+
+Not yet checked visually: the six locale/theme combinations.
 
 ### S1.5 Quick capture
 
@@ -116,26 +120,32 @@ Backend and IPC: `create_task`, `update_task` (partial patch, `null` clears), `t
 
 ### S2.1 Timer engine (Rust)
 
-- [ ] Injected `Clock`; elapsed derived from absolute timestamps (ADR 006)
-- [ ] One running entry at a time; start, pause, stop persisted immediately
-- [ ] Fake-clock tests including sleep and suspend cases
+- [x] Injected `Clock`; elapsed derived from absolute timestamps (ADR 006): `domain/timer.rs`
+- [x] One running entry at a time (partial unique index plus `replace_running` in one transaction); start, pause, resume, stop persisted immediately (V4 migration)
+- [x] Fake-clock tests including sleep (an eight-hour gap with no ticks) and a system clock moved backwards (elapsed clamps to zero)
+
+Backend and IPC: `start_timer`, `pause_timer`, `resume_timer`, `stop_timer`, `get_active_timer`; events `timer://changed`, `timer://tick` (every second, display only) and `timer://finished` (once per entry when a target is reached). No UI yet: S2.2.
 
 ### S2.2 Tracker, timebox, visual timer
 
-- [ ] Tracker UI for start, pause, stop
-- [ ] Timebox with target duration and countdown
-- [ ] Circular visual timer using `--timer-*` tokens; respects reduced motion
+- [x] Tracker UI for start, pause, resume, finish (Timer view, optional task link). Pomodoro and Flowtime modes are available too, since a mode is data on the entry
+- [x] Timebox with target duration and countdown, then calm overtime (`+mm:ss`) past the target
+- [x] Circular visual timer using `--timer-*` tokens. The phase (running, almost at the target, paused, target reached) is also written as text in a `role="status"` line, so colour is not the only cue. The ring has no animation, so there is nothing to reduce
+
+Display values are recomputed from timestamps (`timer-math.ts`, mirrors the Rust formula), so a throttled webview never changes the numbers. Not yet checked visually: the six locale/theme combinations.
 
 ### S2.3 Daily timeline
 
-- [ ] Time blocks with start and duration on a task
-- [ ] Draggable blocks, now line, keyboard alternative
-- [ ] Jalali/Gregorian display through the shared formatter
+- [x] Time blocks with start and duration, linked to a task or free-standing (V5 migration; `create_block`, `update_block`, `delete_block`, `list_blocks`). Overlapping blocks sit side by side
+- [x] Draggable blocks (snap to 5 minutes, kept inside the day), a "Now" line on today, and a keyboard alternative: dnd-kit keyboard sensor plus an edit panel with start time, length and 15-minute earlier/later buttons
+- [x] Jalali/Gregorian display through the shared formatter (`formatDate`, `formatTime`); day navigation arrows mirror in RTL
+
+Blocks never move on their own. Not yet checked visually: the six locale/theme combinations and an RTL drag.
 
 ### S2.4 Notifications and recovery
 
-- [ ] Notifications from Rust for block start and timebox end
-- [ ] Orphan-timer recovery on startup
+- [ ] Notifications from Rust for block start and timebox end. **Blocked:** needs `tauri-plugin-notification`, and crates.io was unreachable from the build machine when this sprint ran, so the crate could not be added. `timer://finished` already fires once per reached target; the Rust-side sink is what is missing
+- [x] Orphan-timer recovery on startup: the running timer is marked alive every 5 seconds (`last_seen_at`, V6). A timer found running (not paused) at launch opens a dialog: stop at the last seen time, keep it running, or discard. Closing the dialog leaves the timer as it is. Covered by service tests for all three choices, a paused timer and the normal stop path
 
 **Done when (Phase 2):** a real day is planned and tracked, including a laptop sleep during a timer.
 
@@ -145,23 +155,32 @@ Backend and IPC: `create_task`, `update_task` (partial patch, `null` clears), `t
 
 ### S3.1 Estimate vs actual report
 
-- [ ] Report by day, project and tag
+- [x] Report by task, day, project and tag over today, 7 or 30 days: estimate, actual and difference per group, with a total. The backend returns finished entries with worked seconds (`list_tracked_entries`, pauses excluded); grouping is a pure, tested function (`report-model.ts`)
+- Rules worth knowing: an entry belongs to the day it started; a task's estimate counts once per group (on its first worked day in the day view); a task with several tags appears under each, so tag rows can exceed the total. The wording is "difference", never "over" or "late"
+
+Not yet checked visually: the six locale/theme combinations.
 
 ### S3.2 Capacity and reviews
 
-- [ ] Daily capacity setting and overload warning (never auto-reschedules)
-- [ ] Morning and evening review, each under 2 minutes
+- [x] Daily capacity setting (Settings view, stored in `app_meta`, default 6 hours) and an overload heads-up on the timeline: a capacity bar with a `role="meter"`, and when planned work exceeds capacity a plain sentence ("Nothing has been moved. You decide.") with an info icon. Only task and event blocks count; buffers, transitions and free time do not. Nothing is ever rescheduled automatically
+- [x] Morning and evening check-in (Check-in view, V7 `daily_reviews`): morning is an energy level, the day's load and one question; evening is one question. Every field is optional, so a check-in can be a single tap
+
+Not yet checked visually: the six locale/theme combinations.
 
 ### S3.3 Focus and transitions
 
-- [ ] Focus mode showing only the current task and timer
-- [ ] Buffer and transition block kinds
+- [x] Focus mode (button next to the view switcher): only the current task and the timer, with start, pause, finish, mark done and one way out. The current task is the timer's task, else the planned block covering now, else a task marked doing (`pickCurrentTask`, tested)
+- [x] Buffer, transition, free-time and event block kinds on the timeline: a type selector when planning, dashed outline plus a type word on the block (not colour alone), and "Add a 10 minute buffer after" in the block editor. They do not count toward the daily capacity
+
+Not yet checked visually: the six locale/theme combinations.
 
 ### S3.4 Data safety and MVP trial
 
-- [ ] JSON export and import
-- [ ] Automatic daily backup with rotation
-- [ ] Two-week daily-use trial with no fallback to another tool
+- [x] JSON export and import (Settings, "Your data"). The file is a versioned envelope (`format`, `version`, `schema`, `tables`) with every table, soft-deleted rows included. Export writes into `{app_data}/SelfPlanner/exports/` and shows the path (no save-dialog plugin yet). Import replaces everything in one transaction, rolls back on any rejected row, refuses files from a newer schema, validates column names against the real table, and takes a safety copy first; a long press is required
+- [x] Automatic daily backup with rotation: `{app_data}/SelfPlanner/backups/backup-YYYY-MM-DD.json` at startup and re-checked hourly, newest 14 kept; safety copies (`pre-import-…`) keep the newest 5. Any backup can be restored from Settings. The day in a backup name is the UTC date
+- [ ] Two-week daily-use trial with no fallback to another tool. This one is yours to run; it cannot be done by code
+
+Not yet checked visually: the six locale/theme combinations.
 
 **Done when (MVP):** two weeks of daily use with no fallback to another tool.
 

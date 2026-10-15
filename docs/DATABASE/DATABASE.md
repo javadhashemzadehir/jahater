@@ -32,6 +32,11 @@ Self Planner starts with a single profile. If multiple local profiles are added 
 
 - `V1__create_tasks.sql` (S0.3) creates only the `tasks` table.
 - `V2__task_fields.sql` (S1.1) adds `tasks.notes` and `tasks.estimate_minutes`, plus an index on `deleted_at`.
+- `V3__projects_and_tags.sql` (S1.2) adds `projects`, `tags`, `task_tags` and `tasks.project_id`. Names are unique ignoring case. Projects and tags are hard-deleted: `project_id` is set to `NULL` and `task_tags` rows cascade, so tasks are never lost. Colour, archive and soft delete for labels are deferred.
+- `V4__time_entries.sql` (S2.1) adds `time_entries` and the one-running-entry index. Deleting a task keeps its entries (`task_id` becomes `NULL`).
+- `V5__time_blocks.sql` (S2.3) adds `time_blocks`. Blocks are soft-deleted; deleting a task keeps its blocks, unlinked.
+- `V6__timer_last_seen.sql` (S2.4) adds `time_entries.last_seen_at`, a heartbeat for crash recovery that does not bump `revision`.
+- `V7__settings_and_reviews.sql` (S3.2) adds `app_meta` (device settings; currently `capacity_minutes`) and `daily_reviews` (one row per local day).
 - Other tables below ship in the migration of the sprint that needs them (for example `projects` in S1.2, `time_blocks` and `time_entries` in Phase 2).
 - Released migrations are immutable. Changes go into a new `V{n}__name.sql`.
 

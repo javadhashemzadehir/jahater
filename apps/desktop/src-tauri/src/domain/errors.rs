@@ -4,4 +4,24 @@ pub enum DomainError {
     EmptyTitle,
     #[error("estimate must be a positive number of minutes")]
     InvalidEstimate,
+    #[error("name is empty")]
+    EmptyName,
+    #[error("timer is already paused")]
+    TimerAlreadyPaused,
+    #[error("timer is not paused")]
+    TimerNotPaused,
+    #[error("timer was already stopped")]
+    TimerStopped,
+    #[error("a timebox needs a target length")]
+    TimerTargetRequired,
+    #[error("target must be a positive number of minutes")]
+    InvalidTimerTarget,
+    #[error("block length must be between 1 minute and 24 hours")]
+    InvalidDuration,
+    #[error("review day must be a real date written YYYY-MM-DD")]
+    InvalidDay,
+    #[error("energy must be between 1 and 5")]
+    InvalidEnergy,
+    #[error("capacity must be between 1 minute and 24 hours")]
+    InvalidCapacity,
 }

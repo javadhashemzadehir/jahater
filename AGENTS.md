@@ -20,7 +20,7 @@ Read in this order before non-trivial work:
 
 - Tauri 2 (Rust) desktop host
 - Next.js App Router, static export (`output: "export"`), React 19, TypeScript, React Compiler
-- Tailwind CSS v4, shadcn/ui (New York) on Radix, OKLCH CSS-variable tokens
+- Tailwind CSS v4, shadcn/ui (New York) on Radix for all UI, plus shadcn-compatible third-party components where the official set has no match (ADR 009), OKLCH CSS-variable tokens
 - `next-themes` for Light / Dark / System
 - Zustand stores, Zod at boundaries
 - SQLite through `rusqlite` and `refinery`, no ORM
@@ -78,7 +78,11 @@ cargo test
 
 ### UI
 
-- shadcn/ui only. Do not add MUI, Chakra, Persian UI kits or other component libraries.
+- **No custom-built components.** Every control, surface, list row, message and overlay comes from `components/ui`: official shadcn/ui first, then shadcn-compatible third-party components (shadcn.io, shadcn studio, libraries such as cmdk, sonner, vaul, recharts). See ADR 009.
+- Feature code only composes those components. Plain HTML is for layout and text only: no raw `button`, `input`, `select`, `textarea`, `table`, hand-styled cards or `role="alert"` paragraphs. If nothing fits, record an open item in `docs/FRONTEND/FRONTEND.md` instead of writing a component.
+- Destructive actions confirm through `AlertDialog`.
+- Third-party components are copied in and adapted before merge: tokens, logical utilities, `useTranslations()`, keyboard, reduced motion, no network. Record the source in `docs/FRONTEND/FRONTEND.md`.
+- Do not add full design systems with their own theme (MUI, Chakra, Persian UI kits).
 - Every drag-and-drop action needs a keyboard alternative.
 - Respect reduced motion (`MotionConfig reducedMotion="user"`).
 - Keep copy neutral and shame-free: no "failed", no broken-streak messaging.

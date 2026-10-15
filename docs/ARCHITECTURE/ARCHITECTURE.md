@@ -43,7 +43,7 @@ pnpm workspace: `apps/desktop`, `apps/desktop/frontend`, `packages/*`. Packages 
 | Desktop runtime | Tauri 2 | Tray, dialogs, notifications, global shortcut plugins |
 | Frontend | Next.js App Router, React 19, TypeScript, `output: "export"`, React Compiler | No server-only features. Pin exact Next and React versions in `package.json`. |
 | Styling | Tailwind CSS v4 with CSS variable tokens | OKLCH tokens in `:root` and `.dark` |
-| Components | shadcn/ui (New York) on Radix | No other UI kits |
+| Components | shadcn/ui (New York) on Radix, plus shadcn-compatible third-party components | ADR 009: no custom-built components, no full design systems |
 | Theming | `next-themes`, class strategy, default `system` | See [FRONTEND.md](../FRONTEND/FRONTEND.md) |
 | i18n | JSON dictionaries, Zustand store | `fa` default RTL, `en` LTR |
 | State | Zustand per feature store | |

@@ -32,6 +32,7 @@ Start here if you are new to the repo. One folder per document, numbered ADRs.
 - [006 Timer engine](./ADR/006-timer-engine/006-timer-engine.md)
 - [007 Single task model](./ADR/007-single-task-model/007-single-task-model.md)
 - [008 Release CSP script policy](./ADR/008-release-csp-script-policy/008-release-csp-script-policy.md)
+- [009 All UI from the shadcn design system](./ADR/009-shadcn-and-third-party-components/009-shadcn-and-third-party-components.md)
 
 ## About sources
 

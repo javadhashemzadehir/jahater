@@ -16,7 +16,7 @@ Priorities use MoSCoW: **M** must (MVP), **S** should, **C** could, **W** won't 
 | FR-06 | Estimate (minutes) and actual time per task | M |
 | FR-07 | Recurring tasks | S |
 | FR-08 | Due date with sorting | S |
-| FR-09 | Trash view with restore and hold-to-confirm permanent delete | S |
+| FR-09 | Trash view with restore and permanent delete behind a confirmation dialog (ADR 009) | S |
 
 ### Views
 
