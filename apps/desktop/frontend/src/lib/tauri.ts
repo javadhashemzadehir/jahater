@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { z } from "zod";
 
 // Every IPC payload and response is validated here, at the boundary (AGENTS.md).
@@ -10,12 +11,19 @@ export const commandErrorSchema = z.object({
 
 export type CommandError = z.infer<typeof commandErrorSchema>;
 
+export const taskStatusSchema = z.enum(["todo", "doing", "done", "archived"]);
+
+export type TaskStatus = z.infer<typeof taskStatusSchema>;
+
 export const taskSchema = z.object({
   id: z.string(),
   title: z.string(),
-  status: z.enum(["todo", "doing", "done", "archived"]),
+  notes: z.string().nullable(),
+  status: taskStatusSchema,
   isUrgent: z.boolean(),
   isImportant: z.boolean(),
+  estimateMinutes: z.number().int().positive().nullable(),
+  deletedAt: z.string().nullable(),
   revision: z.number().int(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -25,9 +33,25 @@ export type Task = z.infer<typeof taskSchema>;
 
 export const createTaskInputSchema = z.object({
   title: z.string(),
+  notes: z.string().nullish(),
+  isUrgent: z.boolean().optional(),
+  isImportant: z.boolean().optional(),
+  estimateMinutes: z.number().int().positive().nullish(),
 });
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>;
+
+// Omitted key: unchanged. `null`: cleared. Value: set.
+export const updateTaskInputSchema = z.object({
+  title: z.string().optional(),
+  notes: z.string().nullish(),
+  status: taskStatusSchema.optional(),
+  isUrgent: z.boolean().optional(),
+  isImportant: z.boolean().optional(),
+  estimateMinutes: z.number().int().positive().nullish(),
+});
+
+export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>;
 
 export class IpcError extends Error {
   readonly command: CommandError;
@@ -66,6 +90,34 @@ export function createTask(input: CreateTaskInput): Promise<Task> {
   return call("create_task", { input: payload }, taskSchema);
 }
 
+export function updateTask(id: string, input: UpdateTaskInput): Promise<Task> {
+  const payload = updateTaskInputSchema.parse(input);
+  return call("update_task", { id, input: payload }, taskSchema);
+}
+
+export function trashTask(id: string): Promise<Task> {
+  return call("trash_task", { id }, taskSchema);
+}
+
+export function restoreTask(id: string): Promise<Task> {
+  return call("restore_task", { id }, taskSchema);
+}
+
+export function purgeTask(id: string): Promise<void> {
+  return call("purge_task", { id }, z.void());
+}
+
 export function listTasks(): Promise<Task[]> {
   return call("list_tasks", {}, taskSchema.array());
+}
+
+export function listTrashedTasks(): Promise<Task[]> {
+  return call("list_trashed_tasks", {}, taskSchema.array());
+}
+
+export const TASKS_CHANGED_EVENT = "tasks://changed";
+
+// Rust emits this after every task write. Views refetch instead of patching local copies (AGENTS.md).
+export function onTasksChanged(handler: () => void): Promise<UnlistenFn> {
+  return listen(TASKS_CHANGED_EVENT, () => handler());
 }

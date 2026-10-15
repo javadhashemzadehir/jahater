@@ -16,11 +16,29 @@
   "tasks": {
     "titleLabel": "Task title",
     "titlePlaceholder": "Write a new task…",
-    "add": "Add"
+    "add": "Add",
+    "empty": "No tasks yet.",
+    "moveToTrash": "Move to Trash"
+  },
+  "views": {
+    "label": "Views",
+    "tasks": "Tasks",
+    "trash": "Trash"
+  },
+  "trash": {
+    "title": "Trash",
+    "empty": "Trash is empty.",
+    "restore": "Restore",
+    "purgeHold": "Hold to delete forever",
+    "purgeConfirming": "Keep holding…",
+    "trashedOn": "Moved to Trash"
   },
   "errors": {
     "task": {
-      "titleRequired": "Enter a task title."
+      "titleRequired": "Enter a task title.",
+      "estimateInvalid": "Estimate must be a whole number of minutes above zero.",
+      "statusInvalid": "Choose a valid status.",
+      "notFound": "This task no longer exists."
     },
     "storage": {
       "failed": "Could not save yet. Try again."

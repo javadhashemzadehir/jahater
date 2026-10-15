@@ -1,18 +1,10 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Direction, Tooltip } from "radix-ui";
 import { MotionConfig } from "motion/react";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { useLocaleStore } from "@/lib/i18n/locale-store";
-
-function ThemeProvider({ children }: { children: ReactNode }) {
-  return (
-    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      {children}
-    </NextThemesProvider>
-  );
-}
 
 function LocaleHydrator({ children }: { children: ReactNode }) {
   const hydrate = useLocaleStore((state) => state.hydrate);
