@@ -1,6 +1,6 @@
 # Frontend
 
-Next.js App Router with static export, running inside the Tauri webview. This document defines the bilingual (Persian/English) and three-mode theme (Light, Dark, System) setup. Both use well-known patterns so the setup stays simple.
+Next.js App Router with static export, running inside the Tauri webview. This document defines the bilingual (Persian/English) and three-mode theme (Light, Dark, System) setup. Both follow the JabeX implementation so code can be copied and kept in sync.
 
 ## Project setup
 
@@ -57,7 +57,7 @@ src/locales/en/common.json
 1. `config.ts` exports `locales = ["fa", "en"] as const`, `DEFAULT_LOCALE = "fa"`, `localeDirections`, `localeLabels` (`فارسی`, `English`), and `LOCALE_STORAGE_KEY = "selfplanner.locale"`.
 2. The `fa` JSON is the source of truth for the dictionary type: `type Dictionary = typeof fa`. Missing keys in `en` fail typecheck.
 3. `setLocale` updates `document.documentElement.lang` and `.dir`, saves to `localStorage` inside try/catch, and updates the store.
-4. `hydrate()` runs once on mount. Root layout renders the default locale on the server and static export; an `en` user sees a one-frame switch. Accepted trade-off.
+4. `hydrate()` runs once on mount. Root layout renders the default locale on the server and static export; an `en` user sees a one-frame switch. Accepted trade-off, same as JabeX.
 5. Every user-facing string comes from `useTranslations()`. No literals in JSX, toasts, `aria-label`, tooltips or document title.
 6. Dynamic text uses small formatter helpers in `lib/`, not string concatenation, so word order can differ per locale.
 7. Add new strings to **both** JSON files in the same change.
@@ -98,7 +98,7 @@ The daily timeline is **vertical** (time flows top to bottom), so it has no RTL 
 
 Default is **System**. The selected mode persists locally (`next-themes` stores it in `localStorage`).
 
-### Implementation
+### Implementation (same as JabeX)
 
 ```tsx
 // components/providers/theme-provider.tsx
@@ -152,23 +152,41 @@ Rules:
 1. Components use tokens through Tailwind classes (`bg-background`, `text-muted-foreground`). No hex or `rgb()` in components.
 2. Colour is never the only carrier of meaning. Pair with icon, label or pattern.
 3. Project colours are user-chosen and stored as a hue or a light/dark pair; they must stay readable on both backgrounds. Compute readable foreground at runtime.
-4. Pick a primary hue for the brand. Decision pending.
+4. The primary hue comes from the Jahater brand (Ink, hue 271), which is distinct from JabeX (hue 160).
 5. Check contrast in all three modes before merging UI work.
 6. Dark mode is designed, not inverted.
+
+## Brand and design system
+
+The Jahater brand pack ([ADR 010](../ADR/010-jahater-brand-and-design-system/010-jahater-brand-and-design-system.md)) sets the palette, type and logo.
+
+| Role | Colour | Token (OKLCH) |
+| --- | --- | --- |
+| Ink | `#1B2340` | `--foreground`, `--primary` (light), `--card` (dark) |
+| Amber | `#F0A92E` | `--brand-arrow`, `--primary` / `--ring` (dark) |
+| Paper | `#F6F3EC` | `--background` (light), `--foreground` (dark) |
+| Slate | `#4A5170` | `--muted-foreground` (light) |
+| Amber text | `#A36A00` | `--brand-accent` (light), `--ring` (light) |
+
+- Amber is for the arrow only, never for text on Paper. Use Amber text (`#A36A00`) for the wordmark accent.
+- Logo: `components/brand/logo.tsx` (`Logo`, `LogoMark`). Files for outside use are in `public/brand/` (mark, reversed, black, white, ink on amber, app icon). The favicon is `src/app/icon.svg`. Tauri icons in `src-tauri/icons/` are generated from `app-icon.svg` with `pnpm tauri icon`.
+- Wordmark: "Jahat" + "er" in English, "جهت" + "ر" in Persian (the last part takes the accent). Strings: `app.brandBase`, `app.brandAccent`.
+- Do not stretch, rotate, outline or recolour the mark, close the ring, put the full-colour mark on photos, or set the wordmark in another typeface.
+- Clear space is 2.5 times the stroke width on every side. Minimum size: mark 16 px, lockup 96 px wide.
 
 ## Fonts
 
 | Locale | Font | Notes |
 | --- | --- | --- |
-| `fa` | Vazirmatn (SIL OFL) | Persian and Latin subsets; Persian digits come from the locale formatter |
-| `en` | Comfortaa (SIL OFL), with Vazirmatn fallback for Persian glyphs | |
+| `en` | Bricolage Grotesque (SIL OFL, variable) | Latin subset from the brand pack |
+| `fa` | System UI font | No Persian font is bundled yet. **Open item:** choose an OFL Persian font. Vazirmatn is not used (owner decision). |
 
-- Yekan Bakh is not used: its licence does not allow redistribution in this repo. Decision recorded in S0.1 (SPRINTS.md).
-- Font files come from the `@fontsource` npm packages and live in `src/fonts/` with their OFL texts in `src/fonts/licenses/`. No remote font loading.
-- Loaded with `next/font/local` as CSS variables (`--font-vazirmatn-arabic`, `--font-vazirmatn-latin`, `--font-comfortaa`), `display: "swap"`.
-- `html { --font-family: ... }` and `html[lang="en"] { --font-family: ... }` switch the stack with the locale.
+- Yekan Bakh is not used: its licence does not allow redistribution in this repo.
+- The font file lives in `src/fonts/` with its OFL text in `src/fonts/licenses/`. No remote font loading.
+- Loaded with `next/font/local` as the CSS variable `--font-bricolage`, `display: "swap"`.
+- `html { --font-family: ... }` sets the stack.
 - `body` and portal content (`[data-radix-portal]`, `[role="dialog"]`, Sonner toasts) must all use `var(--font-family)`.
-- **Check each font's licence for redistribution inside an open-source repo before committing the files.** If a font cannot be bundled, use Vazirmatn (SIL OFL) for `fa` and a system or OFL font for `en`.
+- **Check each font's licence for redistribution inside an open-source repo before committing the files.**
 - FaNum caveat: copied text contains Latin digits even though they look Persian. Fine for display, noted for export.
 
 ## Feature structure

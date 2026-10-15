@@ -20,6 +20,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand-arrow: var(--brand-arrow);
+  --color-brand-accent: var(--brand-accent);
   --color-timer-track: var(--timer-track);
   --color-timer-progress: var(--timer-progress);
   --color-timer-warning: var(--timer-warning);
@@ -39,83 +41,83 @@
   --font-sans: var(--font-family);
 }
 
-/* Light tokens (default). Dark tokens live under .dark, applied by next-themes. */
+/* Jahater brand tokens (docs/ADR/010). Ink #1B2340, Amber #F0A92E, Paper #F6F3EC, Slate #4A5170. */
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.99 0.002 250);
-  --foreground: oklch(0.2 0.02 250);
+  --background: oklch(0.965 0.01 87);
+  --foreground: oklch(0.265 0.055 271);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 250);
-  --primary: oklch(0.45 0.14 262);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.94 0.01 250);
-  --secondary-foreground: oklch(0.25 0.02 250);
-  --muted: oklch(0.95 0.008 250);
-  --muted-foreground: oklch(0.45 0.02 250);
-  --accent: oklch(0.93 0.02 262);
-  --accent-foreground: oklch(0.25 0.04 262);
+  --card-foreground: oklch(0.265 0.055 271);
+  --primary: oklch(0.265 0.055 271);
+  --primary-foreground: oklch(0.965 0.01 87);
+  --secondary: oklch(0.93 0.014 88);
+  --secondary-foreground: oklch(0.265 0.055 271);
+  --muted: oklch(0.945 0.012 88);
+  --muted-foreground: oklch(0.442 0.052 274);
+  --accent: oklch(0.92 0.055 82);
+  --accent-foreground: oklch(0.265 0.055 271);
   --destructive: oklch(0.52 0.19 27);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0.01 250);
-  --input: oklch(0.88 0.01 250);
-  --ring: oklch(0.55 0.15 262);
-  --timer-track: oklch(0.9 0.01 250);
-  --timer-progress: oklch(0.5 0.14 262);
+  --border: oklch(0.87 0.018 89);
+  --input: oklch(0.87 0.018 89);
+  --ring: oklch(0.571 0.122 72);
+  --brand-arrow: oklch(0.784 0.152 76);
+  --brand-accent: oklch(0.571 0.122 72);
+  --timer-track: oklch(0.9 0.016 89);
+  --timer-progress: oklch(0.265 0.055 271);
   --timer-warning: oklch(0.72 0.14 75);
-  --timer-overtime: oklch(0.5 0.1 300);
+  --timer-overtime: oklch(0.442 0.052 274);
   --quadrant-1: oklch(0.93 0.05 25);
   --quadrant-2: oklch(0.93 0.05 150);
-  --quadrant-3: oklch(0.93 0.05 85);
-  --quadrant-4: oklch(0.93 0.02 250);
-  --block-task: oklch(0.9 0.05 262);
+  --quadrant-3: oklch(0.93 0.06 82);
+  --quadrant-4: oklch(0.93 0.015 89);
+  --block-task: oklch(0.9 0.03 271);
   --block-buffer: oklch(0.93 0.03 170);
-  --block-free: oklch(0.97 0.005 250);
+  --block-free: oklch(0.975 0.008 88);
   --block-event: oklch(0.9 0.05 300);
   --now-line: oklch(0.55 0.2 27);
   color-scheme: light;
 }
 
 .dark {
-  --background: oklch(0.16 0.01 250);
-  --foreground: oklch(0.96 0.005 250);
-  --card: oklch(0.2 0.012 250);
-  --card-foreground: oklch(0.96 0.005 250);
-  --primary: oklch(0.72 0.13 262);
-  --primary-foreground: oklch(0.18 0.02 262);
-  --secondary: oklch(0.26 0.012 250);
-  --secondary-foreground: oklch(0.93 0.005 250);
-  --muted: oklch(0.24 0.01 250);
-  --muted-foreground: oklch(0.72 0.012 250);
-  --accent: oklch(0.3 0.04 262);
-  --accent-foreground: oklch(0.94 0.01 262);
+  --background: oklch(0.2 0.04 271);
+  --foreground: oklch(0.965 0.01 87);
+  --card: oklch(0.265 0.055 271);
+  --card-foreground: oklch(0.965 0.01 87);
+  --primary: oklch(0.784 0.152 76);
+  --primary-foreground: oklch(0.265 0.055 271);
+  --secondary: oklch(0.31 0.05 272);
+  --secondary-foreground: oklch(0.965 0.01 87);
+  --muted: oklch(0.28 0.045 272);
+  --muted-foreground: oklch(0.78 0.03 274);
+  --accent: oklch(0.34 0.06 272);
+  --accent-foreground: oklch(0.965 0.01 87);
   --destructive: oklch(0.7 0.17 27);
   --destructive-foreground: oklch(0.18 0.02 27);
-  --border: oklch(0.32 0.012 250);
-  --input: oklch(0.32 0.012 250);
-  --ring: oklch(0.75 0.13 262);
-  --timer-track: oklch(0.3 0.012 250);
-  --timer-progress: oklch(0.75 0.13 262);
+  --border: oklch(0.36 0.05 272);
+  --input: oklch(0.36 0.05 272);
+  --ring: oklch(0.784 0.152 76);
+  --brand-arrow: oklch(0.784 0.152 76);
+  --brand-accent: oklch(0.784 0.152 76);
+  --timer-track: oklch(0.34 0.05 272);
+  --timer-progress: oklch(0.784 0.152 76);
   --timer-warning: oklch(0.82 0.14 75);
-  --timer-overtime: oklch(0.75 0.11 300);
+  --timer-overtime: oklch(0.78 0.03 274);
   --quadrant-1: oklch(0.32 0.06 25);
   --quadrant-2: oklch(0.32 0.05 150);
-  --quadrant-3: oklch(0.32 0.05 85);
-  --quadrant-4: oklch(0.28 0.02 250);
-  --block-task: oklch(0.32 0.05 262);
+  --quadrant-3: oklch(0.34 0.06 82);
+  --quadrant-4: oklch(0.29 0.04 272);
+  --block-task: oklch(0.34 0.05 272);
   --block-buffer: oklch(0.3 0.04 170);
-  --block-free: oklch(0.22 0.01 250);
+  --block-free: oklch(0.23 0.04 271);
   --block-event: oklch(0.32 0.05 300);
   --now-line: oklch(0.72 0.19 27);
   color-scheme: dark;
 }
 
-/* Locale font stacks. Persian glyphs fall back to Vazirmatn in English. */
+/* Locale font stacks: Bricolage Grotesque for Latin; Persian uses the system UI font (no Persian font bundled yet). */
 html {
-  --font-family: var(--font-vazirmatn-arabic), var(--font-vazirmatn-latin), system-ui, sans-serif;
-}
-
-html[lang="en"] {
-  --font-family: var(--font-comfortaa), var(--font-vazirmatn-arabic), system-ui, sans-serif;
+  --font-family: var(--font-bricolage), system-ui, "Segoe UI", Tahoma, sans-serif;
 }
 
 @layer base {

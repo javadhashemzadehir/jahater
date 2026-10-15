@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { LocaleSwitcher } from "@/components/shell/locale-switcher";
+import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { useTranslations } from "@/hooks/use-locale";
@@ -19,7 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <a href="#main">{t.app.skipToContent}</a>
       </Button>
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
-        <span className="text-base font-semibold">{t.app.name}</span>
+        <Logo />
         <div className="flex items-center gap-2">
           <LocaleSwitcher />
           <ThemeSwitcher />

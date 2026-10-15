@@ -6,7 +6,7 @@ import { DEFAULT_LOCALE, localeDirections } from "@/lib/i18n/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Self Planner",
+  title: "Jahater",
 };
 
 // Server and static export render the default locale. LocaleHydrator switches
