@@ -102,8 +102,10 @@ Not yet checked: the six locale/theme combinations and a click-through in the de
 
 ### S1.4 Eisenhower matrix
 
-- [ ] Four quadrants with `--quadrant-*` tokens and non-colour cues
-- [ ] Drag changes the two flags; keyboard alternative
+- [x] Four quadrants with `--quadrant-*` tokens and non-colour cues (icon, title, hint text, axis labels)
+- [x] Drag changes the two flags (`isUrgent`, `isImportant`); keyboard alternative: dnd-kit keyboard sensor plus a "Move to quadrant" select on each card. Done and archived tasks are not shown
+
+Not yet checked visually: the six locale/theme combinations.
 
 ### S1.5 Quick capture
 

@@ -41,7 +41,8 @@
     "tasks": "Tasks",
     "trash": "Trash",
     "labels": "Projects & tags",
-    "board": "Board"
+    "board": "Board",
+    "matrix": "Matrix"
   },
   "trash": {
     "title": "Trash",
@@ -99,6 +100,28 @@
       "outside": "{title} is not over a column.",
       "dropped": "{title} moved to {column}.",
       "cancelled": "{title} stayed where it was."
+    }
+  },
+  "matrix": {
+    "urgent": "Urgent",
+    "notUrgent": "Not urgent",
+    "rowHint": "Top row: important. Bottom row: not important.",
+    "quadrants": {
+      "1": "Do first",
+      "2": "Plan",
+      "3": "Handle quickly",
+      "4": "Park"
+    },
+    "hints": {
+      "1": "Urgent and important",
+      "2": "Important, not urgent",
+      "3": "Urgent, not important",
+      "4": "Neither urgent nor important"
+    },
+    "moveTo": "Move to quadrant: {title}",
+    "instructions": "Press Space or Enter to pick up the task. Use the arrow keys to move it to another quadrant, then press Space or Enter to drop it. Press Escape to cancel.",
+    "announce": {
+      "outside": "{title} is not over a quadrant."
     }
   }
 }
