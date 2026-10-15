@@ -152,23 +152,41 @@ Rules:
 1. Components use tokens through Tailwind classes (`bg-background`, `text-muted-foreground`). No hex or `rgb()` in components.
 2. Colour is never the only carrier of meaning. Pair with icon, label or pattern.
 3. Project colours are user-chosen and stored as a hue or a light/dark pair; they must stay readable on both backgrounds. Compute readable foreground at runtime.
-4. Pick a primary hue that is distinct from JabeX (which uses hue 160) so the apps are visually separate. Decision pending.
+4. The primary hue comes from the Jahater brand (Ink, hue 271), which is distinct from JabeX (hue 160).
 5. Check contrast in all three modes before merging UI work.
 6. Dark mode is designed, not inverted.
+
+## Brand and design system
+
+The Jahater brand pack ([ADR 010](../ADR/010-jahater-brand-and-design-system/010-jahater-brand-and-design-system.md)) sets the palette, type and logo.
+
+| Role | Colour | Token (OKLCH) |
+| --- | --- | --- |
+| Ink | `#1B2340` | `--foreground`, `--primary` (light), `--card` (dark) |
+| Amber | `#F0A92E` | `--brand-arrow`, `--primary` / `--ring` (dark) |
+| Paper | `#F6F3EC` | `--background` (light), `--foreground` (dark) |
+| Slate | `#4A5170` | `--muted-foreground` (light) |
+| Amber text | `#A36A00` | `--brand-accent` (light), `--ring` (light) |
+
+- Amber is for the arrow only, never for text on Paper. Use Amber text (`#A36A00`) for the wordmark accent.
+- Logo: `components/brand/logo.tsx` (`Logo`, `LogoMark`). Files for outside use are in `public/brand/` (mark, reversed, black, white, ink on amber, app icon). The favicon is `src/app/icon.svg`. Tauri icons in `src-tauri/icons/` are generated from `app-icon.svg` with `pnpm tauri icon`.
+- Wordmark: "Jahat" + "er" in English, "جهت" + "ر" in Persian (the last part takes the accent). Strings: `app.brandBase`, `app.brandAccent`.
+- Do not stretch, rotate, outline or recolour the mark, close the ring, put the full-colour mark on photos, or set the wordmark in another typeface.
+- Clear space is 2.5 times the stroke width on every side. Minimum size: mark 16 px, lockup 96 px wide.
 
 ## Fonts
 
 | Locale | Font | Notes |
 | --- | --- | --- |
-| `fa` | Vazirmatn (SIL OFL) | Persian and Latin subsets; Persian digits come from the locale formatter |
-| `en` | Comfortaa (SIL OFL), with Vazirmatn fallback for Persian glyphs | |
+| `en` | Bricolage Grotesque (SIL OFL, variable) | Latin subset from the brand pack |
+| `fa` | System UI font | No Persian font is bundled yet. **Open item:** choose an OFL Persian font. Vazirmatn is not used (owner decision). |
 
-- Yekan Bakh is not used: its licence does not allow redistribution in this repo. Decision recorded in S0.1 (SPRINTS.md).
-- Font files come from the `@fontsource` npm packages and live in `src/fonts/` with their OFL texts in `src/fonts/licenses/`. No remote font loading.
-- Loaded with `next/font/local` as CSS variables (`--font-vazirmatn-arabic`, `--font-vazirmatn-latin`, `--font-comfortaa`), `display: "swap"`.
-- `html { --font-family: ... }` and `html[lang="en"] { --font-family: ... }` switch the stack with the locale.
+- Yekan Bakh is not used: its licence does not allow redistribution in this repo.
+- The font file lives in `src/fonts/` with its OFL text in `src/fonts/licenses/`. No remote font loading.
+- Loaded with `next/font/local` as the CSS variable `--font-bricolage`, `display: "swap"`.
+- `html { --font-family: ... }` sets the stack.
 - `body` and portal content (`[data-radix-portal]`, `[role="dialog"]`, Sonner toasts) must all use `var(--font-family)`.
-- **Check each font's licence for redistribution inside an open-source repo before committing the files.** If a font cannot be bundled, use Vazirmatn (SIL OFL) for `fa` and a system or OFL font for `en`.
+- **Check each font's licence for redistribution inside an open-source repo before committing the files.**
 - FaNum caveat: copied text contains Latin digits even though they look Persian. Fine for display, noted for export.
 
 ## Feature structure

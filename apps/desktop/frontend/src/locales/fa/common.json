@@ -1,6 +1,8 @@
 {
   "app": {
-    "name": "برنامه‌ریز شخصی",
+    "name": "جهتر",
+    "brandBase": "جهت",
+    "brandAccent": "ر",
     "skipToContent": "پرش به محتوای اصلی"
   },
   "theme": {

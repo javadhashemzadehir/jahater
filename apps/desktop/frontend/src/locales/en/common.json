@@ -1,6 +1,8 @@
 {
   "app": {
-    "name": "Self Planner",
+    "name": "Jahater",
+    "brandBase": "Jahat",
+    "brandAccent": "er",
     "skipToContent": "Skip to main content"
   },
   "theme": {
