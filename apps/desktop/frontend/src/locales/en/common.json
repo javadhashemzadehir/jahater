@@ -45,7 +45,9 @@
     "matrix": "Matrix",
     "timer": "Timer",
     "timeline": "Timeline",
-    "reports": "Report"
+    "reports": "Report",
+    "review": "Check-in",
+    "settings": "Settings"
   },
   "trash": {
     "title": "Trash",
@@ -89,6 +91,13 @@
       "notFound": "This block no longer exists.",
       "kindInvalid": "Choose a valid block type.",
       "timeInvalid": "That time is not valid."
+    },
+    "review": {
+      "dayInvalid": "That date is not valid.",
+      "energyInvalid": "Choose an energy level from 1 to 5."
+    },
+    "settings": {
+      "capacityInvalid": "Capacity must be between half an hour and 24 hours."
     }
   },
   "labels": {
@@ -193,7 +202,10 @@
       "pickedUp": "Picked up {title}.",
       "dropped": "{title} was moved.",
       "cancelled": "{title} stayed where it was."
-    }
+    },
+    "capacityLabel": "Planned work today",
+    "capacityValue": "{planned} of {capacity}",
+    "overCapacity": "{over} more is planned than your daily capacity. Nothing has been moved. You decide what, if anything, to change."
   },
   "orphan": {
     "title": "A timer was still running",
@@ -240,5 +252,30 @@
     "empty": "No finished timers in this period yet.",
     "tagNote": "A task with several tags appears under each of them, so the rows can add up to more than the total.",
     "dayNote": "A task's estimate is counted on the first day it was worked on."
+  },
+  "settings": {
+    "capacity": "Daily capacity (hours)",
+    "capacityHelp": "How much planned work fits in a day for you. It only drives the gentle heads-up on the timeline; nothing is moved for you.",
+    "saved": "Saved."
+  },
+  "review": {
+    "title": "Daily check-in",
+    "modeLabel": "Check-in time",
+    "modes": {
+      "morning": "Morning",
+      "evening": "Evening"
+    },
+    "energyQuestion": "How is your energy right now?",
+    "energy": {
+      "1": "1 · very low",
+      "2": "2 · low",
+      "3": "3 · okay",
+      "4": "4 · good",
+      "5": "5 · high"
+    },
+    "clearEnergy": "Skip this question",
+    "morningQuestion": "What matters most today?",
+    "eveningQuestion": "What went okay today?",
+    "saved": "Saved."
   }
 }

@@ -24,7 +24,9 @@ import { useIsClient } from "@/hooks/use-is-client";
 import { useLocale, useTranslations } from "@/hooks/use-locale";
 import { formatDate, formatTime } from "@/lib/format/date";
 import { createBlock, listBlocks, updateBlock, useIsTauri, type Block } from "@/lib/tauri";
+import { useSettingsStore } from "@/features/settings/settings-store";
 import { BlockEditor } from "./block-editor";
+import { CapacityBar } from "./capacity-bar";
 import {
   PX_PER_MINUTE,
   MINUTES_PER_DAY,
@@ -34,6 +36,8 @@ import {
   geometry,
   isSameDay,
   isoFromTimeInput,
+  loadOf,
+  plannedMinutes,
   minutesIntoDay,
   movedStart,
   startOfDay,
@@ -47,6 +51,7 @@ export function TimelineView() {
   const isClient = useIsClient();
   const inTauri = useIsTauri();
   const tasks = useTaskStore((state) => state.tasks);
+  const capacity = useSettingsStore((state) => state.settings.capacityMinutes);
   const { error, run } = useAction();
   const nowMs = useNow(true);
 
@@ -139,6 +144,8 @@ export function TimelineView() {
           </Button>
         </div>
       </div>
+
+      <CapacityBar load={loadOf(plannedMinutes(blocks, day), capacity)} />
 
       <NewBlockForm day={day} />
 

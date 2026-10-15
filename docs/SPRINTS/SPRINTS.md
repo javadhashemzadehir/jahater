@@ -162,8 +162,10 @@ Not yet checked visually: the six locale/theme combinations.
 
 ### S3.2 Capacity and reviews
 
-- [ ] Daily capacity setting and overload warning (never auto-reschedules)
-- [ ] Morning and evening review, each under 2 minutes
+- [x] Daily capacity setting (Settings view, stored in `app_meta`, default 6 hours) and an overload heads-up on the timeline: a capacity bar with a `role="meter"`, and when planned work exceeds capacity a plain sentence ("Nothing has been moved. You decide.") with an info icon. Only task and event blocks count; buffers, transitions and free time do not. Nothing is ever rescheduled automatically
+- [x] Morning and evening check-in (Check-in view, V7 `daily_reviews`): morning is an energy level, the day's load and one question; evening is one question. Every field is optional, so a check-in can be a single tap
+
+Not yet checked visually: the six locale/theme combinations.
 
 ### S3.3 Focus and transitions
 

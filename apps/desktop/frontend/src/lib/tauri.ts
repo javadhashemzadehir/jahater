@@ -161,6 +161,40 @@ export const trackedEntrySchema = z.object({
 
 export type TrackedEntry = z.infer<typeof trackedEntrySchema>;
 
+export const settingsSchema = z.object({
+  capacityMinutes: z.number().int().positive(),
+});
+
+export type Settings = z.infer<typeof settingsSchema>;
+
+export const updateSettingsInputSchema = z.object({
+  capacityMinutes: z.number().int().positive().optional(),
+});
+
+export type UpdateSettingsInput = z.infer<typeof updateSettingsInputSchema>;
+
+export const reviewSchema = z.object({
+  id: z.string(),
+  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  morningNote: z.string().nullable(),
+  eveningNote: z.string().nullable(),
+  energyLevel: z.number().int().min(1).max(5).nullable(),
+  revision: z.number().int(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type Review = z.infer<typeof reviewSchema>;
+
+// Omitted key: unchanged. `null`: cleared.
+export const saveReviewInputSchema = z.object({
+  morningNote: z.string().nullish(),
+  eveningNote: z.string().nullish(),
+  energyLevel: z.number().int().min(1).max(5).nullish(),
+});
+
+export type SaveReviewInput = z.infer<typeof saveReviewInputSchema>;
+
 export class IpcError extends Error {
   readonly command: CommandError;
 
@@ -307,6 +341,25 @@ export function resolveOrphanTimer(action: OrphanAction): Promise<Timer | null> 
 /** Finished entries that started inside `[from, to)` (ISO strings), with worked seconds. */
 export function listTrackedEntries(from: string, to: string): Promise<TrackedEntry[]> {
   return call("list_tracked_entries", { from, to }, trackedEntrySchema.array());
+}
+
+export function getSettings(): Promise<Settings> {
+  return call("get_settings", {}, settingsSchema);
+}
+
+export function updateSettings(input: UpdateSettingsInput): Promise<Settings> {
+  const payload = updateSettingsInputSchema.parse(input);
+  return call("update_settings", { input: payload }, settingsSchema);
+}
+
+/** `day` is the local date as YYYY-MM-DD. Resolves to null before the first save. */
+export function getDailyReview(day: string): Promise<Review | null> {
+  return call("get_daily_review", { day }, reviewSchema.nullable());
+}
+
+export function saveDailyReview(day: string, input: SaveReviewInput): Promise<Review> {
+  const payload = saveReviewInputSchema.parse(input);
+  return call("save_daily_review", { day, input: payload }, reviewSchema);
 }
 
 export const TIMER_CHANGED_EVENT = "timer://changed";

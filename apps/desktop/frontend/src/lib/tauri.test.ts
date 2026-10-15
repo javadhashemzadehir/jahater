@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blockSchema, orphanActionSchema, orphanTimerSchema, createBlockInputSchema, createTaskInputSchema, labelSchema, taskSchema, updateTaskInputSchema } from "./tauri";
+import { reviewSchema, saveReviewInputSchema, settingsSchema, blockSchema, orphanActionSchema, orphanTimerSchema, createBlockInputSchema, createTaskInputSchema, labelSchema, taskSchema, updateTaskInputSchema } from "./tauri";
 
 describe("task IPC schemas", () => {
   it("keeps an omitted field out of an update, and passes null through as a clear", () => {
@@ -91,5 +91,33 @@ describe("orphan timer IPC schemas", () => {
 
   it("requires the last seen time next to the timer", () => {
     expect(orphanTimerSchema.safeParse({ lastSeenAt: "x", elapsedAtLastSeenSeconds: 5 }).success).toBe(false);
+  });
+});
+
+describe("settings and review IPC schemas", () => {
+  it("rejects a zero capacity", () => {
+    expect(settingsSchema.safeParse({ capacityMinutes: 360 }).success).toBe(true);
+    expect(settingsSchema.safeParse({ capacityMinutes: 0 }).success).toBe(false);
+  });
+
+  it("keeps energy between one and five and lets a save clear it with null", () => {
+    expect(saveReviewInputSchema.safeParse({ energyLevel: 6 }).success).toBe(false);
+    expect(saveReviewInputSchema.safeParse({ energyLevel: 0 }).success).toBe(false);
+    expect(saveReviewInputSchema.parse({ energyLevel: null }).energyLevel).toBeNull();
+  });
+
+  it("requires a YYYY-MM-DD day in a review", () => {
+    const review = {
+      id: "r",
+      day: "2026-10-15",
+      morningNote: null,
+      eveningNote: null,
+      energyLevel: null,
+      revision: 1,
+      createdAt: "x",
+      updatedAt: "y",
+    };
+    expect(reviewSchema.safeParse(review).success).toBe(true);
+    expect(reviewSchema.safeParse({ ...review, day: "15/10/2026" }).success).toBe(false);
   });
 });

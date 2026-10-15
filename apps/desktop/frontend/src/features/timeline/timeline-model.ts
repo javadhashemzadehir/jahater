@@ -107,3 +107,34 @@ export function assignLanes(spans: Span[]): Map<string, { lane: number; lanes: n
 
   return result;
 }
+
+export type LoadBlock = { startAt: string; durationMin: number; kind: string };
+
+/** Block kinds that count as planned work. Buffers, transitions and free time are protection. */
+const WORK_KINDS = new Set(["task", "event"]);
+
+/**
+ * Minutes of planned work on `day`, each block clipped to that day. Overlapping blocks add up on
+ * purpose: two things planned at once is part of the load.
+ */
+export function plannedMinutes(blocks: LoadBlock[], day: Date): number {
+  let total = 0;
+  for (const block of blocks) {
+    if (!WORK_KINDS.has(block.kind)) continue;
+    const start = Math.max(0, minutesIntoDay(block.startAt, day));
+    const end = Math.min(MINUTES_PER_DAY, minutesIntoDay(block.startAt, day) + block.durationMin);
+    total += Math.max(0, end - start);
+  }
+  return total;
+}
+
+export type Load = { planned: number; capacity: number; over: number; fraction: number };
+
+export function loadOf(planned: number, capacity: number): Load {
+  return {
+    planned,
+    capacity,
+    over: Math.max(0, planned - capacity),
+    fraction: capacity > 0 ? Math.min(1, planned / capacity) : 1,
+  };
+}

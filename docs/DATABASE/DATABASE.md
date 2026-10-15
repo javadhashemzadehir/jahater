@@ -36,6 +36,7 @@ JabeX uses multiple local profiles. Self Planner starts with a single profile. I
 - `V4__time_entries.sql` (S2.1) adds `time_entries` and the one-running-entry index. Deleting a task keeps its entries (`task_id` becomes `NULL`).
 - `V5__time_blocks.sql` (S2.3) adds `time_blocks`. Blocks are soft-deleted; deleting a task keeps its blocks, unlinked.
 - `V6__timer_last_seen.sql` (S2.4) adds `time_entries.last_seen_at`, a heartbeat for crash recovery that does not bump `revision`.
+- `V7__settings_and_reviews.sql` (S3.2) adds `app_meta` (device settings; currently `capacity_minutes`) and `daily_reviews` (one row per local day).
 - Other tables below ship in the migration of the sprint that needs them (for example `projects` in S1.2, `time_blocks` and `time_entries` in Phase 2).
 - Released migrations are immutable. Changes go into a new `V{n}__name.sql`.
 

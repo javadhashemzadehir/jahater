@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  loadOf,
+  plannedMinutes,
   addDays,
   assignLanes,
   dayRange,
@@ -89,5 +91,30 @@ describe("timeline model", () => {
     ]);
     expect(lanes.get("a")).toEqual({ lane: 0, lanes: 1 });
     expect(lanes.get("b")).toEqual({ lane: 0, lanes: 1 });
+  });
+});
+
+describe("daily load", () => {
+  const block = (h: number, minutes: number, kind = "task") => ({ startAt: at(h), durationMin: minutes, kind });
+
+  it("adds up planned work and ignores buffers, transitions and free time", () => {
+    const blocks = [block(9, 60), block(11, 30, "event"), block(12, 45, "buffer"), block(13, 15, "transition"), block(14, 60, "free")];
+    expect(plannedMinutes(blocks, day)).toBe(90);
+  });
+
+  it("clips a block that crosses midnight to the day being measured", () => {
+    const evening = { startAt: new Date(2026, 9, 14, 23, 0).toISOString(), durationMin: 120, kind: "task" };
+    expect(plannedMinutes([evening], day)).toBe(60);
+    expect(plannedMinutes([evening], new Date(2026, 9, 14))).toBe(60);
+  });
+
+  it("counts overlapping blocks twice, because that is the load", () => {
+    expect(plannedMinutes([block(9, 60), block(9, 30)], day)).toBe(90);
+  });
+
+  it("reports how far over capacity a day is, and caps the bar at full", () => {
+    expect(loadOf(240, 360)).toEqual({ planned: 240, capacity: 360, over: 0, fraction: 240 / 360 });
+    expect(loadOf(450, 360)).toEqual({ planned: 450, capacity: 360, over: 90, fraction: 1 });
+    expect(loadOf(0, 360).fraction).toBe(0);
   });
 });
