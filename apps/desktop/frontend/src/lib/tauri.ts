@@ -100,6 +100,44 @@ export const startTimerInputSchema = z.object({
 
 export type StartTimerInput = z.infer<typeof startTimerInputSchema>;
 
+export const blockKindSchema = z.enum(["task", "buffer", "transition", "free", "event"]);
+
+export type BlockKind = z.infer<typeof blockKindSchema>;
+
+export const blockSchema = z.object({
+  id: z.string(),
+  taskId: z.string().nullable(),
+  kind: blockKindSchema,
+  title: z.string().nullable(),
+  startAt: z.string(),
+  durationMin: z.number().int().positive(),
+  revision: z.number().int(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type Block = z.infer<typeof blockSchema>;
+
+export const createBlockInputSchema = z.object({
+  taskId: z.string().nullish(),
+  kind: blockKindSchema,
+  title: z.string().nullish(),
+  startAt: z.string(),
+  durationMin: z.number().int().positive(),
+});
+
+export type CreateBlockInput = z.infer<typeof createBlockInputSchema>;
+
+// Omitted key: unchanged. `null` on taskId or title: cleared.
+export const updateBlockInputSchema = z.object({
+  taskId: z.string().nullish(),
+  title: z.string().nullish(),
+  startAt: z.string().optional(),
+  durationMin: z.number().int().positive().optional(),
+});
+
+export type UpdateBlockInput = z.infer<typeof updateBlockInputSchema>;
+
 export class IpcError extends Error {
   readonly command: CommandError;
 
@@ -213,6 +251,25 @@ export function stopTimer(): Promise<Timer> {
 
 export function getActiveTimer(): Promise<Timer | null> {
   return call("get_active_timer", {}, timerSchema.nullable());
+}
+
+export function createBlock(input: CreateBlockInput): Promise<Block> {
+  const payload = createBlockInputSchema.parse(input);
+  return call("create_block", { input: payload }, blockSchema);
+}
+
+export function updateBlock(id: string, input: UpdateBlockInput): Promise<Block> {
+  const payload = updateBlockInputSchema.parse(input);
+  return call("update_block", { id, input: payload }, blockSchema);
+}
+
+export function deleteBlock(id: string): Promise<void> {
+  return call("delete_block", { id }, z.void());
+}
+
+/** Blocks with any part inside `[from, to)` (ISO strings), earliest first. */
+export function listBlocks(from: string, to: string): Promise<Block[]> {
+  return call("list_blocks", { from, to }, blockSchema.array());
 }
 
 export const TIMER_CHANGED_EVENT = "timer://changed";

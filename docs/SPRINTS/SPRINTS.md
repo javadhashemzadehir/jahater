@@ -136,9 +136,11 @@ Display values are recomputed from timestamps (`timer-math.ts`, mirrors the Rust
 
 ### S2.3 Daily timeline
 
-- [ ] Time blocks with start and duration on a task
-- [ ] Draggable blocks, now line, keyboard alternative
-- [ ] Jalali/Gregorian display through the shared formatter
+- [x] Time blocks with start and duration, linked to a task or free-standing (V5 migration; `create_block`, `update_block`, `delete_block`, `list_blocks`). Overlapping blocks sit side by side
+- [x] Draggable blocks (snap to 5 minutes, kept inside the day), a "Now" line on today, and a keyboard alternative: dnd-kit keyboard sensor plus an edit panel with start time, length and 15-minute earlier/later buttons
+- [x] Jalali/Gregorian display through the shared formatter (`formatDate`, `formatTime`); day navigation arrows mirror in RTL
+
+Blocks never move on their own. Not yet checked visually: the six locale/theme combinations and an RTL drag.
 
 ### S2.4 Notifications and recovery
 

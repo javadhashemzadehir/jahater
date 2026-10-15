@@ -35,3 +35,9 @@ export function formatClock(totalSeconds: number, locale: Locale): string {
   const rest = `${two.format(minutes)}:${two.format(seconds)}`;
   return hours > 0 ? `${one.format(hours)}:${rest}` : rest;
 }
+
+/** Time of day such as 09:30, with the digits of the locale. */
+export function formatTime(value: Date | string, locale: Locale): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+  return new Intl.DateTimeFormat(intlLocale[locale], { hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+}

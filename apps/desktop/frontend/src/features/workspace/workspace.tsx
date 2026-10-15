@@ -7,14 +7,15 @@ import { MatrixView } from "@/features/matrix/matrix-view";
 import { LabelsView } from "@/features/labels/labels-view";
 import { TasksView } from "@/features/tasks/tasks-view";
 import { useTaskSync } from "@/features/tasks/use-task-sync";
+import { TimelineView } from "@/features/timeline/timeline-view";
 import { TimerPanel } from "@/features/timer/timer-panel";
 import { useTimerSync } from "@/features/timer/use-timer-sync";
 import { TrashView } from "@/features/trash/trash-view";
 import { useTranslations } from "@/hooks/use-locale";
 
-type View = "tasks" | "board" | "matrix" | "timer" | "labels" | "trash";
+type View = "tasks" | "board" | "matrix" | "timeline" | "timer" | "labels" | "trash";
 
-const views: View[] = ["tasks", "board", "matrix", "timer", "labels", "trash"];
+const views: View[] = ["tasks", "board", "matrix", "timeline", "timer", "labels", "trash"];
 
 export function Workspace() {
   const t = useTranslations();
@@ -44,6 +45,7 @@ export function Workspace() {
       {view === "tasks" ? <TasksView /> : null}
       {view === "board" ? <BoardView /> : null}
       {view === "matrix" ? <MatrixView /> : null}
+      {view === "timeline" ? <TimelineView /> : null}
       {view === "timer" ? <TimerPanel /> : null}
       {view === "labels" ? <LabelsView /> : null}
       {view === "trash" ? <TrashView /> : null}

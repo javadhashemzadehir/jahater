@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createTaskInputSchema, labelSchema, taskSchema, updateTaskInputSchema } from "./tauri";
+import { blockSchema, createBlockInputSchema, createTaskInputSchema, labelSchema, taskSchema, updateTaskInputSchema } from "./tauri";
 
 describe("task IPC schemas", () => {
   it("keeps an omitted field out of an update, and passes null through as a clear", () => {
@@ -57,5 +57,28 @@ describe("task and label responses", () => {
   it("parses a label", () => {
     const label = { id: "1", name: "Home", revision: 1, createdAt: "x", updatedAt: "y" };
     expect(labelSchema.safeParse(label).success).toBe(true);
+  });
+});
+
+describe("block IPC schemas", () => {
+  it("accepts a block response and rejects a zero duration", () => {
+    const block = {
+      id: "b",
+      taskId: null,
+      kind: "task",
+      title: null,
+      startAt: "2026-10-15T09:00:00.000Z",
+      durationMin: 30,
+      revision: 1,
+      createdAt: "x",
+      updatedAt: "y",
+    };
+    expect(blockSchema.safeParse(block).success).toBe(true);
+    expect(blockSchema.safeParse({ ...block, durationMin: 0 }).success).toBe(false);
+  });
+
+  it("rejects an unknown kind before it reaches Rust", () => {
+    const input = { kind: "nap", startAt: "2026-10-15T09:00:00.000Z", durationMin: 30 };
+    expect(createBlockInputSchema.safeParse(input).success).toBe(false);
   });
 });
