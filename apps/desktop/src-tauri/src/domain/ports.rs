@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use super::block::TimeBlock;
 use super::label::{Label, LabelKind};
 use super::review::DailyReview;
+use super::snapshot::Snapshot;
 use super::task::Task;
 use super::timer::TimeEntry;
 
@@ -81,6 +82,25 @@ pub trait MetaRepository: Send + Sync {
     fn set(&self, key: &str, value: &str) -> Result<(), RepositoryError>;
 }
 
+/// Reads and replaces all user data at once, for export, import and backups.
+pub trait SnapshotStore: Send + Sync {
+    fn export(&self) -> Result<Snapshot, RepositoryError>;
+    /// Replaces everything in one transaction. On any error nothing changes.
+    fn import(&self, snapshot: &Snapshot) -> Result<(), RepositoryError>;
+}
+
+/// Named JSON files in one folder.
+pub trait BackupFiles: Send + Sync {
+    fn write(&self, name: &str, content: &str) -> Result<(), RepositoryError>;
+    fn read(&self, name: &str) -> Result<String, RepositoryError>;
+    fn exists(&self, name: &str) -> Result<bool, RepositoryError>;
+    /// File names, oldest name first.
+    fn list(&self) -> Result<Vec<String>, RepositoryError>;
+    fn delete(&self, name: &str) -> Result<(), RepositoryError>;
+    /// Where the file lives, for showing to the user.
+    fn location(&self, name: &str) -> Result<String, RepositoryError>;
+}
+
 /// Tells the UI that task data changed, so every view refetches (FR-15).
 pub trait ChangeNotifier: Send + Sync {
     fn tasks_changed(&self);
@@ -92,4 +112,7 @@ pub trait ChangeNotifier: Send + Sync {
 pub enum RepositoryError {
     #[error("storage failure: {0}")]
     Storage(String),
+    /// The data itself is wrong (a bad file name, an import that does not fit), not the disk.
+    #[error("invalid data: {0}")]
+    InvalidData(String),
 }

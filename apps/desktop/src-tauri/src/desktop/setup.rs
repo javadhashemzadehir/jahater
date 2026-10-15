@@ -5,11 +5,13 @@ use tauri::{App, Manager};
 
 use super::events::TauriChangeNotifier;
 use super::state::AppState;
+use crate::application::backup_service::BackupService;
 use crate::application::block_service::BlockService;
 use crate::application::label_service::LabelService;
 use crate::application::review_service::{ReviewService, SettingsService};
 use crate::application::task_service::TaskService;
 use crate::application::timer_service::TimerService;
+use crate::infrastructure::backup_files::DirectoryBackupFiles;
 use crate::infrastructure::clock::SystemClock;
 use crate::infrastructure::database;
 use crate::infrastructure::repositories::sqlite_block_repository::SqliteBlockRepository;
@@ -18,10 +20,13 @@ use crate::infrastructure::repositories::sqlite_meta_repository::SqliteMetaRepos
 use crate::infrastructure::repositories::sqlite_review_repository::SqliteReviewRepository;
 use crate::infrastructure::repositories::sqlite_task_repository::SqliteTaskRepository;
 use crate::infrastructure::repositories::sqlite_time_entry_repository::SqliteTimeEntryRepository;
+use crate::infrastructure::snapshot_store::SqliteSnapshotStore;
 
 /// Overrides the data directory for dev, tests and seed scripts. Never point it at the real app data.
 pub const DATA_DIR_ENV: &str = "SELF_PLANNER_DATA_DIR";
 pub const DATABASE_FILE: &str = "planner.sqlite";
+pub const BACKUPS_DIR: &str = "backups";
+pub const EXPORTS_DIR: &str = "exports";
 
 pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let data_dir = resolve_data_dir(app)?;
@@ -47,12 +52,28 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         clock.clone(),
         notifier.clone(),
     );
-    let blocks = BlockService::new(blocks_repository, tasks_repository, clock.clone(), notifier);
+    let blocks = BlockService::new(
+        blocks_repository,
+        tasks_repository,
+        clock.clone(),
+        notifier.clone(),
+    );
     let reviews = ReviewService::new(
         Arc::new(SqliteReviewRepository::new(connection.clone())),
-        clock,
+        clock.clone(),
     );
-    let settings = SettingsService::new(Arc::new(SqliteMetaRepository::new(connection)));
+    let settings = SettingsService::new(Arc::new(SqliteMetaRepository::new(connection.clone())));
+    let backup = BackupService::new(
+        Arc::new(SqliteSnapshotStore::new(connection)),
+        Arc::new(DirectoryBackupFiles::new(data_dir.join(BACKUPS_DIR))),
+        Arc::new(DirectoryBackupFiles::new(data_dir.join(EXPORTS_DIR))),
+        clock,
+        notifier,
+    );
+    // Best effort: a failed backup must never stop the app from opening.
+    if let Err(error) = backup.ensure_daily_backup() {
+        eprintln!("daily backup failed: {error}");
+    }
 
     // Must run before the ticker starts: its heartbeat would hide when the timer was last seen.
     timer.detect_orphan()?;
@@ -64,6 +85,7 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         blocks,
         reviews,
         settings,
+        backup,
     });
     super::ticker::spawn(app.handle().clone());
     Ok(())

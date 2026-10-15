@@ -1,3 +1,4 @@
+use crate::application::backup_service::BackupService;
 use crate::application::block_service::BlockService;
 use crate::application::label_service::LabelService;
 use crate::application::review_service::{ReviewService, SettingsService};
@@ -11,4 +12,5 @@ pub struct AppState {
     pub blocks: BlockService,
     pub reviews: ReviewService,
     pub settings: SettingsService,
+    pub backup: BackupService,
 }

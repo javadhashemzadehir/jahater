@@ -13,6 +13,9 @@ pub const TIMER_FINISHED: &str = "timer://finished";
 /// How often the running timer is marked alive, for crash recovery.
 const HEARTBEAT_SECONDS: u64 = 5;
 
+/// How often to check whether a new day needs its backup.
+const BACKUP_CHECK_SECONDS: u64 = 3600;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TickPayload {
@@ -78,6 +81,9 @@ pub fn spawn(app: AppHandle) {
                 let _ = state.timer.heartbeat();
             }
             let view = state.timer.active().ok().flatten();
+            if seconds.is_multiple_of(BACKUP_CHECK_SECONDS) {
+                let _ = state.backup.ensure_daily_backup();
+            }
             let result = outcome(view.as_ref(), &mut last_finished);
             if let Some(tick) = result.tick {
                 let _ = app.emit(TIMER_TICK, tick);

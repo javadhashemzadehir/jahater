@@ -1,5 +1,6 @@
 use crate::application::error::ApplicationError;
 use crate::domain::errors::DomainError;
+use crate::domain::ports::RepositoryError;
 use crate::shared::error::CommandError;
 
 /// Maps internal errors to the `{ code, message_key }` pair the UI localizes.
@@ -73,6 +74,10 @@ pub fn to_command_error(error: &ApplicationError) -> CommandError {
         ApplicationError::TaskNotFound => CommandError {
             code: "NOT_FOUND",
             message_key: "errors.task.notFound",
+        },
+        ApplicationError::Repository(RepositoryError::InvalidData(_)) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.backup.invalid",
         },
         ApplicationError::Repository(_) => CommandError {
             code: "STORAGE_FAILED",

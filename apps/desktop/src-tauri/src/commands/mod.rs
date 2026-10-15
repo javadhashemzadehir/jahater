@@ -1,3 +1,4 @@
+pub mod backup_commands;
 pub mod block_commands;
 pub mod label_commands;
 pub mod planning_commands;

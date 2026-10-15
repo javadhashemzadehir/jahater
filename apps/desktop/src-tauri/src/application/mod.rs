@@ -1,3 +1,4 @@
+pub mod backup_service;
 pub mod block_service;
 pub mod error;
 pub mod label_service;
