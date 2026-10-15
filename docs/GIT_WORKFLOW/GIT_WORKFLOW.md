@@ -1,6 +1,6 @@
 # Git workflow
 
-Same model as JabeX: a light Git Flow suitable for a solo maintainer now and contributors later.
+A light Git Flow suitable for a solo maintainer now and contributors later.
 
 ## Branches
 
@@ -23,13 +23,13 @@ Keep commits focused. One logical change per commit.
 
 ## Commit attribution policy
 
-Mirrors JabeX: commit history contains only human contributors.
+Commit history contains only human contributors.
 
 - No AI assistant attribution trailers or assistant identities in commit metadata.
 - Legitimate human `Co-authored-by` trailers stay.
 - A tracked `commit-msg` hook in `scripts/git/` strips assistant trailers. Install it once per clone with `sh scripts/git/install-hooks.sh`. Agent rules for commits, merges and tree cleanup are in [AGENT_GIT_GUIDE.md](../AGENT_GIT_GUIDE/AGENT_GIT_GUIDE.md).
 
-This is carried over from JabeX as a default. Remove this section if the policy is not wanted for Self Planner.
+This is the default for this repo. Remove this section if the policy is not wanted for Self Planner.
 
 ## Pull requests
 

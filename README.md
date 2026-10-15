@@ -19,7 +19,7 @@ Private, offline-first planner for ADHD brains. Timeline, time tracking, timebox
 
 ## Stack
 
-Same foundation as [JabeX](https://github.com/javadhashemzadehir/JabeX):
+Foundation:
 
 | Layer | Choice |
 | --- | --- |
@@ -38,4 +38,4 @@ Start at [docs/README.md](./docs/README.md). Agents and contributors working on 
 
 ## License
 
-MIT, matching JabeX (to be confirmed before the first public release).
+MIT (to be confirmed before the first public release).

@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Self Planner targets Persian users first while staying usable in English. Direction, typography and copy must switch without duplicating UI trees. Users expect Light, Dark and System themes. The author already implemented both in JabeX.
+Self Planner targets Persian users first while staying usable in English. Direction, typography and copy must switch without duplicating UI trees. Users expect Light, Dark and System themes. The author has already implemented both before.
 
 ## Decision
 
@@ -37,7 +37,7 @@ Self Planner targets Persian users first while staying usable in English. Direct
 
 - Single component tree for both directions.
 - No flash of wrong theme, live response to OS changes in System mode.
-- Straight reuse of working JabeX code.
+- Straight reuse of working code.
 
 ### Negative
 

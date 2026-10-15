@@ -29,7 +29,7 @@ Dependency rule: inward only. `domain` imports neither `rusqlite` nor Tauri.
 
 - Timer and planning logic are tested with a fake clock.
 - Storage can change behind ports.
-- Same shape as JabeX.
+- Same shape as the author's earlier apps.
 
 ### Negative
 
