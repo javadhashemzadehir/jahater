@@ -10,6 +10,14 @@ pub fn to_command_error(error: &ApplicationError) -> CommandError {
             code: "VALIDATION_FAILED",
             message_key: "errors.task.titleRequired",
         },
+        ApplicationError::Domain(DomainError::InvalidEstimate) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.task.estimateInvalid",
+        },
+        ApplicationError::TaskNotFound => CommandError {
+            code: "NOT_FOUND",
+            message_key: "errors.task.notFound",
+        },
         ApplicationError::Repository(_) => CommandError {
             code: "STORAGE_FAILED",
             message_key: "errors.storage.failed",

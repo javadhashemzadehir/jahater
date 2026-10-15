@@ -7,4 +7,6 @@ pub enum ApplicationError {
     Domain(#[from] DomainError),
     #[error(transparent)]
     Repository(#[from] RepositoryError),
+    #[error("task not found")]
+    TaskNotFound,
 }

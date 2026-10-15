@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use tauri::{App, Manager};
 
+use super::events::TauriChangeNotifier;
 use super::state::AppState;
 use crate::application::task_service::TaskService;
 use crate::infrastructure::clock::SystemClock;
@@ -19,7 +20,8 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     let connection = database::open(&data_dir.join(DATABASE_FILE))?;
     let repository = Arc::new(SqliteTaskRepository::new(connection));
-    let tasks = TaskService::new(repository, Arc::new(SystemClock));
+    let notifier = Arc::new(TauriChangeNotifier::new(app.handle().clone()));
+    let tasks = TaskService::new(repository, Arc::new(SystemClock), notifier);
 
     app.manage(AppState { tasks });
     Ok(())
