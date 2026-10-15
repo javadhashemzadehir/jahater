@@ -48,9 +48,9 @@ Sprint plan derived from [ROADMAP.md](../ROADMAP/ROADMAP.md) and [REQUIREMENTS.m
 
 ### S0.2 Shell, i18n, theming
 
-- [ ] Port from JabeX: shell, providers, theme, i18n, fonts, shadcn setup, token file (no JabeX-specific features). Not done: S0.2 was written from the docs without consulting JabeX. Open item for the author.
+- [x] Port from JabeX: shell, providers, theme, i18n, shadcn setup, token file (no JabeX-specific features). Ported from the local JabeX clone: hold-to-confirm button, input, theme provider, `components.json`. Fonts stay Vazirmatn and Comfortaa (NFR-12) instead of JabeX's Yekan.
 - [x] `fa` (RTL, default) and `en` (LTR) dictionaries wired through `useTranslations()`
-- [ ] Light, Dark, System switcher; no flash of wrong theme (switcher built; flash not checked visually)
+- [x] Light, Dark, System switcher; no flash of wrong theme. The `next-themes` bootstrap is inline in the export and runs before paint. Not yet checked visually in the desktop window.
 - [x] Shared date formatter stub (Jalali for `fa`, Gregorian for `en`)
 
 **Done when:** the six locale/theme combinations render correctly on the empty shell.
@@ -66,8 +66,8 @@ Sprint plan derived from [ROADMAP.md](../ROADMAP/ROADMAP.md) and [REQUIREMENTS.m
 
 ### S0.4 CI and CSP
 
-- [ ] CI: lint, typecheck, test, build, `cargo fmt`, `clippy`, `cargo test` (workflow written in `.github/workflows/ci.yml`; not yet run on GitHub)
-- [ ] Check the theme bootstrap against the release CSP. Release CSP is set, and the release build passes with it. `script-src` allows `'unsafe-inline'` because the static export inlines its scripts. Hash-based strict CSP is an open item. Bootstrap not yet confirmed in the webview console.
+- [x] CI: lint, typecheck, test, build, `cargo fmt`, `clippy`, `cargo test`. All three jobs (`frontend`, `rust`, `release-csp`) passed on PR #2.
+- [x] Check the theme bootstrap against the release CSP. The release build passes with the CSP. `script-src` allows `'unsafe-inline'` for the static export; see [ADR 008](../ADR/008-release-csp-script-policy/008-release-csp-script-policy.md). Hash-based strict CSP is deferred. Webview console not yet inspected.
 - [ ] Record real durations of S0.1 to S0.3 for later estimates
 
 **Done when (Phase 0):** the app runs on the author's machine, a task is saved, CI is green, and the six combinations render correctly.
@@ -81,7 +81,7 @@ Sprint plan derived from [ROADMAP.md](../ROADMAP/ROADMAP.md) and [REQUIREMENTS.m
 - [x] Task CRUD with title and notes (V2 adds `notes`, `estimate_minutes`). Project and tags are deferred to S1.2, where the `projects` and `tags` tables arrive
 - [x] `is_urgent`, `is_important`, status (`todo`, `doing`, `done`, `archived`), estimate. Actual time is not a column: it is derived from `time_entries` in Phase 2 (see DATABASE.md sample query)
 - [x] Soft delete via `deleted_at`, `revision` bump on update
-- [ ] Trash view with restore and hold-to-confirm permanent delete. Backend commands exist (`list_trashed_tasks`, `restore_task`, `purge_task`); the UI is not built yet
+- [x] Trash view with restore and hold-to-confirm permanent delete, reached from the Tasks/Trash switch
 - [x] `tasks://changed` event emitted from Rust after every task write
 
 Backend and IPC: `create_task`, `update_task` (partial patch, `null` clears), `trash_task`, `restore_task`, `purge_task` (trashed rows only), `list_tasks`, `list_trashed_tasks`. Domain tests, repository tests and service tests cover the rules; Zod tests cover the IPC boundary.
