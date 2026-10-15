@@ -32,5 +32,5 @@ Planner data is personal. Reports need time-range queries. The app must work off
 ## Alternatives considered
 
 - **JSON file:** weak for queries and concurrent writes.
-- **`sqlx`:** compile-time checks are attractive, but `rusqlite` + `refinery` is proven in JabeX and avoids an async DB layer.
+- **`sqlx`:** compile-time checks are attractive, but `rusqlite` + `refinery` is proven in the author's earlier work and avoids an async DB layer.
 - **IndexedDB in the webview:** ties data to the webview and is awkward to back up.

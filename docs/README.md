@@ -1,6 +1,6 @@
 # Self Planner documentation
 
-Start here if you are new to the repo. Layout mirrors JabeX: one folder per document, numbered ADRs.
+Start here if you are new to the repo. One folder per document, numbered ADRs.
 
 | Doc | When to read it |
 | --- | --- |
