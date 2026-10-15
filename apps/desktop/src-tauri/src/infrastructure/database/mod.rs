@@ -1,8 +1,16 @@
 use std::path::Path;
+use std::sync::{Arc, Mutex};
 
 use rusqlite::Connection;
 
 use crate::domain::ports::RepositoryError;
+
+/// One connection shared by every repository, so multi-step writes can use a single transaction.
+pub type SharedConnection = Arc<Mutex<Connection>>;
+
+pub fn share(connection: Connection) -> SharedConnection {
+    Arc::new(Mutex::new(connection))
+}
 
 mod embedded {
     refinery::embed_migrations!("src/infrastructure/database/migrations");
@@ -50,6 +58,21 @@ mod tests {
             .query_row("PRAGMA journal_mode", [], |row| row.get(0))
             .unwrap();
         assert_eq!(mode, "wal");
+    }
+
+    #[test]
+    fn migrations_create_label_tables() {
+        let connection = open_in_memory().unwrap();
+        for table in ["projects", "tags", "task_tags"] {
+            let count: i64 = connection
+                .query_row(
+                    "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = ?1",
+                    [table],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            assert_eq!(count, 1, "{table}");
+        }
     }
 
     #[test]

@@ -40,6 +40,9 @@ pub struct Task {
     pub is_urgent: bool,
     pub is_important: bool,
     pub estimate_minutes: Option<u32>,
+    pub project_id: Option<String>,
+    /// Sorted and unique.
+    pub tag_ids: Vec<String>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub revision: i64,
     pub created_at: DateTime<Utc>,
@@ -54,6 +57,8 @@ pub struct NewTask {
     pub is_urgent: bool,
     pub is_important: bool,
     pub estimate_minutes: Option<u32>,
+    pub project_id: Option<String>,
+    pub tag_ids: Vec<String>,
 }
 
 /// A partial update. `None` leaves a field alone; `Some(None)` clears an optional field.
@@ -65,6 +70,8 @@ pub struct TaskPatch {
     pub is_urgent: Option<bool>,
     pub is_important: Option<bool>,
     pub estimate_minutes: Option<Option<u32>>,
+    pub project_id: Option<Option<String>>,
+    pub tag_ids: Option<Vec<String>>,
 }
 
 impl Task {
@@ -78,6 +85,8 @@ impl Task {
             is_urgent: input.is_urgent,
             is_important: input.is_important,
             estimate_minutes: validate_estimate(input.estimate_minutes)?,
+            project_id: input.project_id,
+            tag_ids: normalize_tag_ids(input.tag_ids),
             deleted_at: None,
             revision: 1,
             created_at: now,
@@ -108,6 +117,12 @@ impl Task {
         }
         if let Some(estimate) = estimate {
             self.estimate_minutes = estimate;
+        }
+        if let Some(project_id) = patch.project_id {
+            self.project_id = project_id;
+        }
+        if let Some(tag_ids) = patch.tag_ids {
+            self.tag_ids = normalize_tag_ids(tag_ids);
         }
 
         self.touch(now);
@@ -141,6 +156,12 @@ fn normalize_title(value: &str) -> Result<String, DomainError> {
         return Err(DomainError::EmptyTitle);
     }
     Ok(title.to_owned())
+}
+
+fn normalize_tag_ids(mut ids: Vec<String>) -> Vec<String> {
+    ids.sort();
+    ids.dedup();
+    ids
 }
 
 fn normalize_notes(value: Option<String>) -> Option<String> {
@@ -289,6 +310,33 @@ mod tests {
         task.restore(later());
         assert!(!task.is_trashed());
         assert_eq!(task.revision, 3);
+    }
+
+    #[test]
+    fn tag_ids_are_sorted_and_unique_and_project_can_be_cleared() {
+        let mut task = task("A");
+        task.apply(
+            TaskPatch {
+                project_id: Some(Some("p1".into())),
+                tag_ids: Some(vec!["b".into(), "a".into(), "b".into()]),
+                ..Default::default()
+            },
+            later(),
+        )
+        .unwrap();
+        assert_eq!(task.project_id.as_deref(), Some("p1"));
+        assert_eq!(task.tag_ids, vec!["a", "b"]);
+
+        task.apply(
+            TaskPatch {
+                project_id: Some(None),
+                ..Default::default()
+            },
+            later(),
+        )
+        .unwrap();
+        assert_eq!(task.project_id, None);
+        assert_eq!(task.tag_ids, vec!["a", "b"]);
     }
 
     #[test]

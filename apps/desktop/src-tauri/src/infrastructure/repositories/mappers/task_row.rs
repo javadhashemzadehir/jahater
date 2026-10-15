@@ -23,6 +23,9 @@ pub fn task_from_row(row: &Row<'_>) -> rusqlite::Result<Task> {
         is_urgent: row.get(4)?,
         is_important: row.get(5)?,
         estimate_minutes: row.get(6)?,
+        project_id: row.get(11)?,
+        // Tags live in `task_tags`; the repository fills them after reading the row.
+        tag_ids: Vec::new(),
         deleted_at: parse_optional_timestamp(row, 7)?,
         revision: row.get(8)?,
         created_at: parse_timestamp(row, 9)?,
@@ -34,7 +37,7 @@ pub fn format_timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Millis, true)
 }
 
-fn parse_timestamp(row: &Row<'_>, index: usize) -> rusqlite::Result<DateTime<Utc>> {
+pub fn parse_timestamp(row: &Row<'_>, index: usize) -> rusqlite::Result<DateTime<Utc>> {
     let text: String = row.get(index)?;
     parse_text(&text, index)
 }
