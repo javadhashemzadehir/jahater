@@ -1,9 +1,13 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { useIsClient } from "@/hooks/use-is-client";
 import { useLocale, useTranslations } from "@/hooks/use-locale";
 import { formatDate, formatDuration } from "@/lib/format/date";
@@ -34,7 +38,11 @@ export function TasksView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   const projectName = new Map(projects.map((project) => [project.id, project.name]));
@@ -69,59 +77,61 @@ export function TasksView() {
       </form>
 
       <div className="grid gap-2 sm:grid-cols-2">
-        <Select aria-label={t.tasks.filterProject} value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)}>
-          <option value="">{t.tasks.allProjects}</option>
+        <NativeSelect aria-label={t.tasks.filterProject} value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)}>
+          <NativeSelectOption value="">{t.tasks.allProjects}</NativeSelectOption>
           {projects.map((project) => (
-            <option key={project.id} value={project.id}>
+            <NativeSelectOption key={project.id} value={project.id}>
               {project.name}
-            </option>
+            </NativeSelectOption>
           ))}
-        </Select>
-        <Select aria-label={t.tasks.filterTag} value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}>
-          <option value="">{t.tasks.allTags}</option>
+        </NativeSelect>
+        <NativeSelect aria-label={t.tasks.filterTag} value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}>
+          <NativeSelectOption value="">{t.tasks.allTags}</NativeSelectOption>
           {tags.map((tag) => (
-            <option key={tag.id} value={tag.id}>
+            <NativeSelectOption key={tag.id} value={tag.id}>
               {tag.name}
-            </option>
+            </NativeSelectOption>
           ))}
-        </Select>
+        </NativeSelect>
       </div>
 
       {shownError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {shownError}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{shownError}</AlertDescription>
+        </Alert>
       ) : null}
 
-      {visible.length === 0 ? <p className="text-sm text-muted-foreground">{t.tasks.empty}</p> : null}
+      {visible.length === 0 ? (
+        <Empty>
+          <EmptyDescription>{t.tasks.empty}</EmptyDescription>
+        </Empty>
+      ) : null}
 
-      <ul className="flex flex-col gap-2">
+      <ItemGroup className="gap-2">
         {visible.map((task) => {
           const done = task.status === "done";
           const editing = editingId === task.id;
           return (
-            <li key={task.id} className="flex flex-col gap-2 rounded-md border border-border px-3 py-2">
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="size-4 shrink-0 accent-primary"
-                  checked={done}
-                  onChange={() => toggleDone(task)}
-                  aria-label={done ? t.tasks.markTodo : t.tasks.markDone}
-                />
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span dir="auto" className={done ? "truncate text-sm text-muted-foreground line-through" : "truncate text-sm"}>
-                    {task.title}
-                  </span>
-                  <span className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+            <Item key={task.id} role="listitem" variant="outline" size="sm">
+              <Checkbox
+                checked={done}
+                onCheckedChange={() => toggleDone(task)}
+                aria-label={done ? t.tasks.markTodo : t.tasks.markDone}
+              />
+              <ItemContent className="gap-0.5">
+                <ItemTitle dir="auto" className={done ? "w-full font-normal text-muted-foreground line-through" : "w-full font-normal"}>
+                  <span className="truncate">{task.title}</span>
+                </ItemTitle>
+                <ItemDescription className="flex flex-wrap gap-x-3">
                     {task.projectId ? <bdi>{projectName.get(task.projectId)}</bdi> : null}
                     {task.tagIds.map((id) => (
                       <bdi key={id}>#{tagName.get(id)}</bdi>
                     ))}
                     {task.estimateMinutes ? <span>{formatDuration(task.estimateMinutes, locale)}</span> : null}
-                    <time dateTime={task.createdAt}>{formatDate(task.createdAt, locale)}</time>
-                  </span>
-                </div>
+                  <time dateTime={task.createdAt}>{formatDate(task.createdAt, locale)}</time>
+                </ItemDescription>
+              </ItemContent>
+              <ItemActions>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -133,20 +143,22 @@ export function TasksView() {
                 <Button variant="outline" size="sm" onClick={() => void run(() => trashTask(task.id))}>
                   {t.tasks.moveToTrash}
                 </Button>
-              </div>
+              </ItemActions>
               {editing ? (
-                <TaskEditor
+                <div className="basis-full">
+                  <TaskEditor
                   key={task.revision}
                   task={task}
                   projects={projects}
                   tags={tags}
-                  onClose={() => setEditingId(null)}
-                />
+                    onClose={() => setEditingId(null)}
+                  />
+                </div>
               ) : null}
-            </li>
+            </Item>
           );
         })}
-      </ul>
+      </ItemGroup>
     </section>
   );
 }

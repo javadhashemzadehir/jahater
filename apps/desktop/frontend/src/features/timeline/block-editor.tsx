@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAction } from "@/features/tasks/use-action";
 import { useTranslations } from "@/hooks/use-locale";
@@ -58,19 +61,22 @@ export function BlockEditor({ block, day, onClose }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} aria-label={t.timeline.editBlock} className="flex flex-col gap-3 rounded-md border border-border p-3">
+    <Card>
+    <CardContent className="p-3">
+    <form onSubmit={onSubmit} aria-label={t.timeline.editBlock} className="flex flex-col gap-3">
       <div className="grid gap-3 sm:grid-cols-3">
-        <label className="flex flex-col gap-1 text-sm">
-          {t.timeline.blockTitle}
-          <Input value={title} onChange={(event) => setTitle(event.target.value)} dir="auto" />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          {t.timeline.start}
-          <Input type="time" required value={start} onChange={(event) => setStart(event.target.value)} dir="ltr" />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          {t.timeline.duration}
+        <Field>
+          <FieldLabel htmlFor="edit-block-title">{t.timeline.blockTitle}</FieldLabel>
+          <Input id="edit-block-title" value={title} onChange={(event) => setTitle(event.target.value)} dir="auto" />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="edit-block-start">{t.timeline.start}</FieldLabel>
+          <Input id="edit-block-start" type="time" required value={start} onChange={(event) => setStart(event.target.value)} dir="ltr" />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="edit-block-duration">{t.timeline.duration}</FieldLabel>
           <Input
+            id="edit-block-duration"
             type="number"
             min={1}
             max={1440}
@@ -80,7 +86,7 @@ export function BlockEditor({ block, day, onClose }: Props) {
             value={duration}
             onChange={(event) => setDuration(event.target.value)}
           />
-        </label>
+        </Field>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -96,9 +102,9 @@ export function BlockEditor({ block, day, onClose }: Props) {
       </div>
 
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
       <div className="flex flex-wrap gap-2">
@@ -113,5 +119,7 @@ export function BlockEditor({ block, day, onClose }: Props) {
         </Button>
       </div>
     </form>
+    </CardContent>
+    </Card>
   );
 }

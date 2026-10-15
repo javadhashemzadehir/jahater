@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useTaskStore } from "@/features/tasks/task-store";
 import { useAction } from "@/features/tasks/use-action";
@@ -48,7 +50,11 @@ export function TimerPanel() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   const shownError = error ?? (loadError ? errorMessage(t, loadError) : null);
@@ -68,9 +74,9 @@ export function TimerPanel() {
       </h2>
 
       {shownError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {shownError}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{shownError}</AlertDescription>
+        </Alert>
       ) : null}
 
       {active ? (
@@ -102,32 +108,32 @@ export function TimerPanel() {
         <form onSubmit={onStart} className="flex w-full flex-col gap-3">
           <p className="text-sm text-muted-foreground">{t.timer.idle}</p>
 
-          <label className="flex flex-col gap-1 text-sm" htmlFor="timer-task">
-            {t.timer.task}
-            <Select id="timer-task" value={taskId} onChange={(event) => setTaskId(event.target.value)}>
-              <option value="">{t.timer.noTask}</option>
+          <Field>
+            <FieldLabel htmlFor="timer-task">{t.timer.task}</FieldLabel>
+            <NativeSelect id="timer-task" value={taskId} onChange={(event) => setTaskId(event.target.value)}>
+              <NativeSelectOption value="">{t.timer.noTask}</NativeSelectOption>
               {openTasks.map((task) => (
-                <option key={task.id} value={task.id}>
+                <NativeSelectOption key={task.id} value={task.id}>
                   {task.title}
-                </option>
+                </NativeSelectOption>
               ))}
-            </Select>
-          </label>
+            </NativeSelect>
+          </Field>
 
-          <label className="flex flex-col gap-1 text-sm" htmlFor="timer-mode">
-            {t.timer.mode}
-            <Select id="timer-mode" value={mode} onChange={(event) => setMode(event.target.value as TimerMode)}>
+          <Field>
+            <FieldLabel htmlFor="timer-mode">{t.timer.mode}</FieldLabel>
+            <NativeSelect id="timer-mode" value={mode} onChange={(event) => setMode(event.target.value as TimerMode)}>
               {modes.map((value) => (
-                <option key={value} value={value}>
+                <NativeSelectOption key={value} value={value}>
                   {t.timer.modes[value]}
-                </option>
+                </NativeSelectOption>
               ))}
-            </Select>
-          </label>
+            </NativeSelect>
+          </Field>
 
           {needsTarget[mode] !== "none" ? (
-            <label className="flex flex-col gap-1 text-sm" htmlFor="timer-minutes">
-              {t.timer.minutes}
+            <Field>
+              <FieldLabel htmlFor="timer-minutes">{t.timer.minutes}</FieldLabel>
               <Input
                 id="timer-minutes"
                 type="number"
@@ -138,7 +144,7 @@ export function TimerPanel() {
                 required={needsTarget[mode] === "required"}
                 onChange={(event) => setMinutes(event.target.value)}
               />
-            </label>
+            </Field>
           ) : null}
 
           <Button type="submit">{t.timer.start}</Button>

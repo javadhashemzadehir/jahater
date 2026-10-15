@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { useTranslations } from "@/hooks/use-locale";
 import { updateTask, type Label, type Task } from "@/lib/tauri";
 import { useAction } from "./use-action";
@@ -50,27 +55,28 @@ export function TaskEditor({ task, projects, tags, onClose }: Props) {
   const fieldId = `task-${task.id}`;
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-3 border-t border-border pt-3">
-      <label className="flex flex-col gap-1 text-sm" htmlFor={`${fieldId}-title`}>
-        {t.tasks.titleLabel}
-        <Input id={`${fieldId}-title`} value={title} onChange={(event) => setTitle(event.target.value)} dir="auto" />
-      </label>
+    <form onSubmit={onSubmit} className="flex flex-col gap-3">
+      <Separator />
+      <FieldGroup className="gap-3">
+        <Field>
+          <FieldLabel htmlFor={`${fieldId}-title`}>{t.tasks.titleLabel}</FieldLabel>
+          <Input id={`${fieldId}-title`} value={title} onChange={(event) => setTitle(event.target.value)} dir="auto" />
+        </Field>
 
-      <label className="flex flex-col gap-1 text-sm" htmlFor={`${fieldId}-notes`}>
-        {t.tasks.notes}
-        <textarea
-          id={`${fieldId}-notes`}
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          dir="auto"
-          rows={3}
-          className="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        />
-      </label>
+        <Field>
+          <FieldLabel htmlFor={`${fieldId}-notes`}>{t.tasks.notes}</FieldLabel>
+          <Textarea
+            id={`${fieldId}-notes`}
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            dir="auto"
+            rows={3}
+          />
+        </Field>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm" htmlFor={`${fieldId}-estimate`}>
-          {t.tasks.estimate}
+        <Field>
+          <FieldLabel htmlFor={`${fieldId}-estimate`}>{t.tasks.estimate}</FieldLabel>
           <Input
             id={`${fieldId}-estimate`}
             type="number"
@@ -80,62 +86,64 @@ export function TaskEditor({ task, projects, tags, onClose }: Props) {
             value={estimate}
             onChange={(event) => setEstimate(event.target.value)}
           />
-        </label>
-        <label className="flex flex-col gap-1 text-sm" htmlFor={`${fieldId}-project`}>
-          {t.tasks.project}
-          <Select id={`${fieldId}-project`} value={projectId} onChange={(event) => setProjectId(event.target.value)}>
-            <option value="">{t.tasks.noProject}</option>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor={`${fieldId}-project`}>{t.tasks.project}</FieldLabel>
+          <NativeSelect id={`${fieldId}-project`} value={projectId} onChange={(event) => setProjectId(event.target.value)}>
+            <NativeSelectOption value="">{t.tasks.noProject}</NativeSelectOption>
             {projects.map((project) => (
-              <option key={project.id} value={project.id}>
+              <NativeSelectOption key={project.id} value={project.id}>
                 {project.name}
-              </option>
+              </NativeSelectOption>
             ))}
-          </Select>
-        </label>
+          </NativeSelect>
+        </Field>
       </div>
 
       {tags.length > 0 ? (
-        <fieldset className="flex flex-wrap gap-3">
-          <legend className="mb-1 text-sm">{t.tasks.tags}</legend>
-          {tags.map((tag) => (
-            <label key={tag.id} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="size-4 accent-primary"
-                checked={tagIds.includes(tag.id)}
-                onChange={() => toggleTag(tag.id)}
-              />
-              <bdi>{tag.name}</bdi>
-            </label>
-          ))}
-        </fieldset>
+        <FieldSet>
+          <FieldLegend>{t.tasks.tags}</FieldLegend>
+          <div className="flex flex-wrap gap-3">
+            {tags.map((tag) => (
+              <Field key={tag.id} orientation="horizontal" className="w-auto">
+                <Checkbox
+                  id={`${fieldId}-tag-${tag.id}`}
+                  checked={tagIds.includes(tag.id)}
+                  onCheckedChange={() => toggleTag(tag.id)}
+                />
+                <FieldLabel htmlFor={`${fieldId}-tag-${tag.id}`}>
+                  <bdi>{tag.name}</bdi>
+                </FieldLabel>
+              </Field>
+            ))}
+          </div>
+        </FieldSet>
       ) : null}
 
       <div className="flex flex-wrap gap-4">
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="size-4 accent-primary"
+        <Field orientation="horizontal" className="w-auto">
+          <Checkbox
+            id={`${fieldId}-urgent`}
             checked={isUrgent}
-            onChange={(event) => setIsUrgent(event.target.checked)}
+            onCheckedChange={(checked) => setIsUrgent(checked === true)}
           />
-          {t.tasks.urgent}
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="size-4 accent-primary"
+          <FieldLabel htmlFor={`${fieldId}-urgent`}>{t.tasks.urgent}</FieldLabel>
+        </Field>
+        <Field orientation="horizontal" className="w-auto">
+          <Checkbox
+            id={`${fieldId}-important`}
             checked={isImportant}
-            onChange={(event) => setIsImportant(event.target.checked)}
+            onCheckedChange={(checked) => setIsImportant(checked === true)}
           />
-          {t.tasks.important}
-        </label>
+          <FieldLabel htmlFor={`${fieldId}-important`}>{t.tasks.important}</FieldLabel>
+        </Field>
       </div>
+      </FieldGroup>
 
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
       <div className="flex gap-2">

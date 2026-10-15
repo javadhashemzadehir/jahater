@@ -53,9 +53,10 @@
     "title": "Trash",
     "empty": "Trash is empty.",
     "restore": "Restore",
-    "purgeHold": "Hold to delete forever",
-    "purgeConfirming": "Keep holding…",
-    "trashedOn": "Moved to Trash"
+    "trashedOn": "Moved to Trash",
+    "purge": "Delete forever",
+    "purgeTitle": "Delete this task forever?",
+    "purgeDescription": "“{title}” will be removed permanently. This can’t be undone."
   },
   "errors": {
     "task": {
@@ -113,7 +114,9 @@
     "noProjects": "No projects yet.",
     "noTags": "No tags yet.",
     "rename": "Rename",
-    "deleteHold": "Hold to delete"
+    "delete": "Delete",
+    "deleteTitle": "Delete “{name}”?",
+    "deleteDescription": "Your tasks stay. They are only unlinked from it."
   },
   "board": {
     "columns": {
@@ -306,14 +309,16 @@
     "importTitle": "Import",
     "importWarning": "Importing replaces everything in the app with the contents of the file. A safety copy of your current data is saved first, so you can undo it from the list below.",
     "chooseFile": "Choose an export file",
-    "importHold": "Hold to replace all data",
     "imported": "Imported {rows} items. Your previous data was saved as {backup}.",
     "backupsTitle": "Automatic backups",
     "backupsHelp": "Restoring replaces everything with that copy. A safety copy of the current data is saved first.",
     "noBackups": "No backups yet.",
     "dailyCopy": "daily backup",
     "safetyCopy": "safety copy before a restore",
-    "restoreHold": "Hold to restore",
-    "restored": "Restored. Your previous data was saved as {backup}."
+    "restored": "Restored. Your previous data was saved as {backup}.",
+    "importConfirm": "Replace all data",
+    "importConfirmTitle": "Replace all data with this file?",
+    "restore": "Restore",
+    "restoreConfirmTitle": "Restore this backup?"
   }
 }

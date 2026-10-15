@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   DndContext,
   KeyboardSensor,
@@ -14,7 +15,11 @@ import {
 import { ChevronLeft, ChevronRight, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useTaskStore } from "@/features/tasks/task-store";
 import { useTasksChanged } from "@/features/tasks/use-tasks-changed";
@@ -91,7 +96,11 @@ export function TimelineView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   const taskTitle = new Map(tasks.map((task) => [task.id, task.title]));
@@ -152,19 +161,23 @@ export function TimelineView() {
       <NewBlockForm day={day} />
 
       {shownError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {shownError}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{shownError}</AlertDescription>
+        </Alert>
       ) : null}
 
-      {blocks.length === 0 ? <p className="text-sm text-muted-foreground">{t.timeline.empty}</p> : null}
+      {blocks.length === 0 ? (
+        <Empty className="p-4">
+          <EmptyDescription>{t.timeline.empty}</EmptyDescription>
+        </Empty>
+      ) : null}
 
       <DndContext
         sensors={sensors}
         onDragEnd={onDragEnd}
         accessibility={{ announcements, screenReaderInstructions: { draggable: t.timeline.instructions } }}
       >
-        <div ref={scroller} className="max-h-[60vh] overflow-y-auto rounded-md border border-border">
+        <Card ref={scroller} className="block max-h-[60vh] overflow-y-auto shadow-none">
           <div className="relative flex" style={{ height: MINUTES_PER_DAY * PX_PER_MINUTE }}>
             <div className="w-16 shrink-0 border-e border-border" aria-hidden>
               {HOURS.map((hour) => (
@@ -186,9 +199,9 @@ export function TimelineView() {
                   className="pointer-events-none absolute inset-x-0 z-20 h-0.5 bg-timer-progress"
                   style={{ top: nowMinutes * PX_PER_MINUTE }}
                 >
-                  <span className="absolute -top-2 start-0 rounded-sm bg-timer-progress px-1 text-xs text-primary-foreground">
+                  <Badge className="absolute -top-2.5 start-0 border-transparent bg-timer-progress px-1 py-0 text-primary-foreground">
                     {t.timeline.now}
-                  </span>
+                  </Badge>
                 </div>
               ) : null}
 
@@ -210,7 +223,7 @@ export function TimelineView() {
               })}
             </div>
           </div>
-        </div>
+        </Card>
       </DndContext>
 
       {selected ? (
@@ -248,10 +261,10 @@ function BlockCard({
   const end = new Date(Date.parse(block.startAt) + block.durationMin * 60000);
 
   return (
-    <div
+    <Card
       ref={setNodeRef}
-      className={`absolute z-10 flex items-start overflow-hidden rounded-md border bg-card text-xs shadow-sm ${
-        selected ? "border-2 border-ring" : "border-border"
+      className={`absolute z-10 flex-row items-start overflow-hidden rounded-md text-xs ${
+        selected ? "border-2 border-ring" : ""
       } ${kindLabel ? "border-dashed" : ""} ${isDragging ? "opacity-70" : ""}`}
       style={{
         top: place.top,
@@ -261,21 +274,24 @@ function BlockCard({
         transform: transform ? `translate3d(0, ${transform.y}px, 0)` : undefined,
       }}
     >
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-sm"
         ref={setActivatorNodeRef}
         aria-label={t.timeline.dragHandle.replace("{title}", title)}
-        className="cursor-grab touch-none p-0.5 text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+        className="size-6 shrink-0 cursor-grab touch-none rounded-none text-muted-foreground"
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="size-4" aria-hidden />
-      </button>
-      <button
+        <GripVertical aria-hidden />
+      </Button>
+      <Button
         type="button"
+        variant="ghost"
         aria-pressed={selected}
         onClick={onSelect}
-        className="min-w-0 flex-1 px-1 py-0.5 text-start outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="h-auto min-w-0 flex-1 flex-col items-stretch gap-0 rounded-none px-1 py-0.5 text-start text-xs font-normal whitespace-normal"
       >
         <span dir="auto" className="block truncate font-medium">
           {title}
@@ -284,8 +300,8 @@ function BlockCard({
           {kindLabel ? `${kindLabel} · ` : ""}
           {formatTime(block.startAt, locale)} – {formatTime(end, locale)}
         </span>
-      </button>
-    </div>
+      </Button>
+    </Card>
   );
 }
 
@@ -333,30 +349,28 @@ function NewBlockForm({ day }: { day: Date }) {
 
   return (
     <form onSubmit={onSubmit} aria-label={t.timeline.addBlock} className="grid items-end gap-2 sm:grid-cols-[auto_1fr_auto_auto_auto]">
-      <label className="flex flex-col gap-1 text-sm">
-        {t.timeline.kind}
-        <Select value={kind} onChange={(event) => onKindChange(event.target.value as BlockKind)}>
+      <Field>
+        <FieldLabel htmlFor="block-kind">{t.timeline.kind}</FieldLabel>
+        <NativeSelect id="block-kind" value={kind} onChange={(event) => onKindChange(event.target.value as BlockKind)}>
           {blockKindSchema.options.map((value) => (
-            <option key={value} value={value}>
+            <NativeSelectOption key={value} value={value}>
               {t.timeline.kinds[value]}
-            </option>
+            </NativeSelectOption>
           ))}
-        </Select>
-      </label>
-      <div className="flex flex-col gap-1">
-        <label className="text-sm" htmlFor="block-task">
-          {isTask ? t.timer.task : t.timeline.blockTitle}
-        </label>
+        </NativeSelect>
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="block-task">{isTask ? t.timer.task : t.timeline.blockTitle}</FieldLabel>
         {isTask ? (
           <div className="flex gap-2">
-            <Select id="block-task" value={taskId} onChange={(event) => onTaskChange(event.target.value)}>
-              <option value="">{t.timeline.noTask}</option>
+            <NativeSelect id="block-task" value={taskId} onChange={(event) => onTaskChange(event.target.value)}>
+              <NativeSelectOption value="">{t.timeline.noTask}</NativeSelectOption>
               {open.map((task) => (
-                <option key={task.id} value={task.id}>
+                <NativeSelectOption key={task.id} value={task.id}>
                   {task.title}
-                </option>
+                </NativeSelectOption>
               ))}
-            </Select>
+            </NativeSelect>
             {taskId === "" ? (
               <Input
                 value={title}
@@ -376,14 +390,15 @@ function NewBlockForm({ day }: { day: Date }) {
             dir="auto"
           />
         )}
-      </div>
-      <label className="flex flex-col gap-1 text-sm">
-        {t.timeline.start}
-        <Input type="time" required value={start} onChange={(event) => setStart(event.target.value)} dir="ltr" />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        {t.timeline.duration}
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="block-start">{t.timeline.start}</FieldLabel>
+        <Input id="block-start" type="time" required value={start} onChange={(event) => setStart(event.target.value)} dir="ltr" />
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="block-duration">{t.timeline.duration}</FieldLabel>
         <Input
+          id="block-duration"
           type="number"
           min={1}
           max={1440}
@@ -394,12 +409,12 @@ function NewBlockForm({ day }: { day: Date }) {
           onChange={(event) => setDuration(event.target.value)}
           className="w-24"
         />
-      </label>
+      </Field>
       <Button type="submit">{t.timeline.add}</Button>
       {error ? (
-        <p role="alert" className="text-sm text-destructive sm:col-span-5">
-          {error}
-        </p>
+        <Alert variant="destructive" className="sm:col-span-5">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
     </form>
   );

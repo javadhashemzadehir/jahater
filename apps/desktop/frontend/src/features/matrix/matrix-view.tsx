@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   DndContext,
   DragOverlay,
@@ -15,7 +16,10 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { CalendarClock, Flame, GripVertical, Pause, Zap, type LucideIcon } from "lucide-react";
-import { Select } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useTaskStore } from "@/features/tasks/task-store";
 import { useAction } from "@/features/tasks/use-action";
@@ -58,7 +62,11 @@ export function MatrixView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   const groups = groupByQuadrant(tasks);
@@ -109,9 +117,9 @@ export function MatrixView() {
       </h2>
 
       {shownError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {shownError}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{shownError}</AlertDescription>
+        </Alert>
       ) : null}
 
       <DndContext
@@ -155,29 +163,34 @@ function Cell({
   const tone = tones[quadrant];
 
   return (
-    <section
+    <Card
       ref={setNodeRef}
+      role="region"
       aria-labelledby={headingId}
-      className={`${tone} flex min-h-44 flex-col gap-2 rounded-lg p-3 ${
-        isOver ? "border-2 border-dashed border-ring" : "border border-border"
-      }`}
+      className={`${tone} min-h-44 ${isOver ? "border-2 border-dashed border-ring" : ""}`}
     >
-      <h3 id={headingId} className="flex items-center gap-2 text-sm font-semibold">
-        <Icon className="size-4" aria-hidden />
-        {t.matrix.quadrants[quadrant]}
-        <span className="ms-auto text-xs font-normal text-muted-foreground">{tasks.length}</span>
-      </h3>
-      <p className="text-xs text-muted-foreground">{t.matrix.hints[quadrant]}</p>
-      <ul className="flex flex-col gap-2">
-        {tasks.map((task) => (
-          <Card key={task.id} task={task} onMove={onMove} />
-        ))}
-      </ul>
-    </section>
+      <CardHeader className="p-3 pb-0">
+        <CardTitle id={headingId} className="flex items-center gap-2 text-sm">
+          <Icon className="size-4" aria-hidden />
+          {t.matrix.quadrants[quadrant]}
+          <Badge variant="secondary" className="ms-auto">
+            {tasks.length}
+          </Badge>
+        </CardTitle>
+        <CardDescription className="text-xs">{t.matrix.hints[quadrant]}</CardDescription>
+      </CardHeader>
+      <CardContent className="p-3">
+        <ul className="flex flex-col gap-2">
+          {tasks.map((task) => (
+            <TaskCard key={task.id} task={task} onMove={onMove} />
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
 }
 
-function Card({ task, onMove }: { task: Task; onMove: (task: Task, quadrant: Quadrant) => void }) {
+function TaskCard({ task, onMove }: { task: Task; onMove: (task: Task, quadrant: Quadrant) => void }) {
   const t = useTranslations();
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({ id: task.id });
 
@@ -186,33 +199,35 @@ function Card({ task, onMove }: { task: Task; onMove: (task: Task, quadrant: Qua
       <CardBody
         task={task}
         handle={
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             ref={setActivatorNodeRef}
             aria-label={t.board.dragHandle.replace("{title}", task.title)}
-            className="cursor-grab touch-none rounded-sm p-1 text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+            className="cursor-grab touch-none text-muted-foreground"
             {...attributes}
             {...listeners}
           >
-            <GripVertical className="size-4" aria-hidden />
-          </button>
+            <GripVertical aria-hidden />
+          </Button>
         }
         move={
-          <Select
+          <NativeSelect
+            size="sm"
             aria-label={t.matrix.moveTo.replace("{title}", task.title)}
             value={String(quadrantOf(task))}
             onChange={(event) => {
               const target = parseQuadrantId(`q${event.target.value}`);
               if (target) onMove(task, target);
             }}
-            className="h-8 text-xs"
           >
             {quadrants.map((quadrant) => (
-              <option key={quadrant} value={quadrant}>
+              <NativeSelectOption key={quadrant} value={quadrant}>
                 {t.matrix.quadrants[quadrant]}
-              </option>
+              </NativeSelectOption>
             ))}
-          </Select>
+          </NativeSelect>
         }
       />
     </li>
@@ -231,13 +246,7 @@ function CardBody({
   lifted?: boolean;
 }) {
   return (
-    <div
-      className={
-        lifted
-          ? "flex flex-col gap-2 rounded-md border border-ring bg-background p-2 shadow-md"
-          : "flex flex-col gap-2 rounded-md border border-border bg-background p-2"
-      }
-    >
+    <Card className={lifted ? "gap-2 border-ring bg-background p-2 shadow-md" : "gap-2 bg-background p-2"}>
       <div className="flex items-start gap-2">
         {handle}
         <span dir="auto" className="min-w-0 flex-1 text-sm">
@@ -245,6 +254,6 @@ function CardBody({
         </span>
       </div>
       {move}
-    </div>
+    </Card>
   );
 }

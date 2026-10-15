@@ -1,21 +1,21 @@
 "use client";
 
+import { PolarAngleAxis, RadialBar, RadialBarChart } from "recharts";
+import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
 import { useLocale, useTranslations } from "@/hooks/use-locale";
 import { formatClock } from "@/lib/format/date";
 import type { Timer } from "@/lib/tauri";
 import { elapsedSeconds, overtimeSeconds, phaseOf, remainingSeconds, ringFraction } from "./timer-math";
 
-const RADIUS = 88;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
 // Colour follows the phase, and the phase is also written as text below the ring,
 // so meaning never depends on colour alone. No animation: nothing to reduce.
-const progressClass = {
-  running: "stroke-timer-progress",
-  warning: "stroke-timer-warning",
-  paused: "stroke-timer-track",
-  reached: "stroke-timer-overtime",
-} as const;
+const chartConfig = {
+  track: { color: "var(--timer-track)" },
+  running: { color: "var(--timer-progress)" },
+  warning: { color: "var(--timer-warning)" },
+  paused: { color: "var(--timer-track)" },
+  reached: { color: "var(--timer-overtime)" },
+} satisfies ChartConfig;
 
 export function CircularTimer({ timer, nowMs }: { timer: Timer; nowMs: number }) {
   const t = useTranslations();
@@ -30,23 +30,23 @@ export function CircularTimer({ timer, nowMs }: { timer: Timer; nowMs: number })
   const big =
     remaining === null ? formatClock(elapsedSeconds(timer, nowMs), locale) : overtime > 0 ? `+${formatClock(overtime, locale)}` : formatClock(remaining, locale);
 
+  const data = [{ value: fraction * 100, fill: `var(--color-${phase})` }];
+
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="relative size-60">
-        <svg viewBox="0 0 200 200" className="size-full -rotate-90" aria-hidden>
-          <circle cx="100" cy="100" r={RADIUS} fill="none" strokeWidth="12" className="stroke-timer-track" />
-          <circle
-            cx="100"
-            cy="100"
-            r={RADIUS}
-            fill="none"
-            strokeWidth="12"
-            strokeLinecap="round"
-            strokeDasharray={CIRCUMFERENCE}
-            strokeDashoffset={CIRCUMFERENCE * (1 - fraction)}
-            className={progressClass[phase]}
-          />
-        </svg>
+        {/* A clock face: clockwise from the top in both directions, never mirrored. */}
+        <ChartContainer config={chartConfig} className="aspect-square size-full" aria-hidden>
+          <RadialBarChart data={data} startAngle={90} endAngle={-270} innerRadius="80%" outerRadius="100%" barSize={12}>
+            <PolarAngleAxis type="number" domain={[0, 100]} tick={false} axisLine={false} />
+            <RadialBar
+              dataKey="value"
+              cornerRadius={6}
+              isAnimationActive={false}
+              background={{ fill: "var(--color-track)" }}
+            />
+          </RadialBarChart>
+        </ChartContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-4xl font-semibold tabular-nums" dir="ltr">
             {big}

@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Field, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useAction } from "@/features/tasks/use-action";
 import { useSettingsStore } from "@/features/settings/settings-store";
@@ -53,7 +58,11 @@ export function ReviewView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   const load = loadOf(plannedMinutes(blocks, today), capacity);
@@ -82,56 +91,59 @@ export function ReviewView() {
         <p className="text-sm text-muted-foreground">{formatDate(today, locale, { dateStyle: "full" })}</p>
       </div>
 
-      <div role="group" aria-label={t.review.modeLabel} className="inline-flex gap-1 self-start rounded-md border border-border p-1">
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        size="sm"
+        aria-label={t.review.modeLabel}
+        className="self-start"
+        value={mode}
+        onValueChange={(value) => {
+          const next = MODES.find((candidate) => candidate === value);
+          if (!next) return;
+          setMode(next);
+          setSaved(false);
+        }}
+      >
         {MODES.map((value) => (
-          <Button
-            key={value}
-            type="button"
-            size="sm"
-            variant={mode === value ? "secondary" : "ghost"}
-            aria-pressed={mode === value}
-            onClick={() => {
-              setMode(value);
-              setSaved(false);
-            }}
-          >
+          <ToggleGroupItem key={value} value={value}>
             {t.review.modes[value]}
-          </Button>
+          </ToggleGroupItem>
         ))}
-      </div>
+      </ToggleGroup>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         {mode === "morning" ? (
           <>
             <CapacityBar load={load} />
-            <fieldset className="flex flex-col gap-2">
-              <legend className="mb-1 text-sm">{t.review.energyQuestion}</legend>
-              <div className="flex flex-wrap gap-3">
+            <FieldSet>
+              <FieldLegend>{t.review.energyQuestion}</FieldLegend>
+              <RadioGroup
+                className="flex flex-wrap gap-3"
+                value={energy === null ? "" : String(energy)}
+                onValueChange={(value) => {
+                  setEnergy(Number(value));
+                  setSaved(false);
+                }}
+              >
                 {ENERGY_LEVELS.map((level) => (
-                  <label key={level} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="energy"
-                      className="size-4 accent-primary"
-                      checked={energy === level}
-                      onChange={() => {
-                        setEnergy(level);
-                        setSaved(false);
-                      }}
-                    />
-                    {t.review.energy[String(level) as "1" | "2" | "3" | "4" | "5"]}
-                  </label>
+                  <Field key={level} orientation="horizontal" className="w-auto">
+                    <RadioGroupItem id={`energy-${level}`} value={String(level)} />
+                    <FieldLabel htmlFor={`energy-${level}`}>
+                      {t.review.energy[String(level) as "1" | "2" | "3" | "4" | "5"]}
+                    </FieldLabel>
+                  </Field>
                 ))}
-              </div>
+              </RadioGroup>
               {energy !== null ? (
                 <Button type="button" variant="ghost" size="sm" className="self-start" onClick={() => setEnergy(null)}>
                   {t.review.clearEnergy}
                 </Button>
               ) : null}
-            </fieldset>
-            <label className="flex flex-col gap-1 text-sm" htmlFor="review-morning">
-              {t.review.morningQuestion}
-              <textarea
+            </FieldSet>
+            <Field>
+              <FieldLabel htmlFor="review-morning">{t.review.morningQuestion}</FieldLabel>
+              <Textarea
                 id="review-morning"
                 rows={3}
                 dir="auto"
@@ -140,14 +152,13 @@ export function ReviewView() {
                   setMorning(event.target.value);
                   setSaved(false);
                 }}
-                className="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
-            </label>
+            </Field>
           </>
         ) : (
-          <label className="flex flex-col gap-1 text-sm" htmlFor="review-evening">
-            {t.review.eveningQuestion}
-            <textarea
+          <Field>
+            <FieldLabel htmlFor="review-evening">{t.review.eveningQuestion}</FieldLabel>
+            <Textarea
               id="review-evening"
               rows={4}
               dir="auto"
@@ -156,15 +167,14 @@ export function ReviewView() {
                 setEvening(event.target.value);
                 setSaved(false);
               }}
-              className="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
-          </label>
+          </Field>
         )}
 
         {shownError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {shownError}
-          </p>
+          <Alert variant="destructive">
+            <AlertDescription>{shownError}</AlertDescription>
+          </Alert>
         ) : null}
         <p role="status" className="min-h-5 text-sm text-muted-foreground">
           {saved ? t.review.saved : ""}

@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BoardView } from "@/features/board/board-view";
 import { FocusView } from "@/features/focus/focus-view";
 import { LabelsView } from "@/features/labels/labels-view";
@@ -36,6 +37,10 @@ const screens: Record<View, () => ReactNode> = {
 
 const views = Object.keys(screens) as View[];
 
+function isView(value: string): value is View {
+  return value in screens;
+}
+
 export function Workspace() {
   const t = useTranslations();
   const [view, setView] = useState<View>("tasks");
@@ -51,31 +56,33 @@ export function Workspace() {
       {focus ? (
         <FocusView onExit={() => setFocus(false)} />
       ) : (
-        <>
+        <Tabs
+          value={view}
+          onValueChange={(value) => {
+            if (isView(value)) setView(value);
+          }}
+          className="w-full items-center gap-6"
+        >
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <div role="group" aria-label={t.views.label} className="inline-flex flex-wrap justify-center gap-1 rounded-md border border-border p-1">
-              {views.map((value) => {
-                const pressed = view === value;
-                return (
-                  <Button
-                    key={value}
-                    variant={pressed ? "secondary" : "ghost"}
-                    size="sm"
-                    aria-pressed={pressed}
-                    onClick={() => setView(value)}
-                  >
-                    {t.views[value]}
-                  </Button>
-                );
-              })}
-            </div>
+            <TabsList aria-label={t.views.label} className="h-auto flex-wrap">
+              {views.map((value) => (
+                <TabsTrigger key={value} value={value}>
+                  {t.views[value]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
             <Button variant="outline" size="sm" onClick={() => setFocus(true)}>
               {t.focus.enter}
             </Button>
           </div>
 
-          {screens[view]()}
-        </>
+          {/* Only the active tab is mounted (Radix default). */}
+          {views.map((value) => (
+            <TabsContent key={value} value={value} className="flex w-full justify-center">
+              {screens[value]()}
+            </TabsContent>
+          ))}
+        </Tabs>
       )}
     </div>
   );

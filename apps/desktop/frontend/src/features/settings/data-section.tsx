@@ -1,8 +1,23 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { HoldToConfirmButton } from "@/components/ui/hold-to-confirm-button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useAction } from "@/features/tasks/use-action";
 import { useTranslations } from "@/hooks/use-locale";
@@ -76,13 +91,14 @@ export function DataSection() {
       <p className="text-sm text-muted-foreground">{t.data.intro}</p>
 
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
-      <p role="status" className="text-sm">
-        {message}
-      </p>
+      {/* Always mounted so screen readers announce the message when it appears. */}
+      <Alert className={message ? undefined : "sr-only"}>
+        <AlertDescription>{message}</AlertDescription>
+      </Alert>
 
       <div className="flex flex-col gap-2">
         <h3 className="text-sm font-medium">{t.data.exportTitle}</h3>
@@ -98,27 +114,43 @@ export function DataSection() {
 
       <div className="flex flex-col gap-2">
         <h3 className="text-sm font-medium">{t.data.importTitle}</h3>
-        <p className="text-xs text-muted-foreground">{t.data.importWarning}</p>
-        <label className="flex flex-col gap-1 text-sm">
-          {t.data.chooseFile}
-          <input
+        <Field>
+          <FieldLabel htmlFor="import-file">{t.data.chooseFile}</FieldLabel>
+          <Input
+            id="import-file"
             type="file"
             accept="application/json,.json"
             onChange={(event) => void onPickFile(event)}
-            className="text-sm file:me-3 file:rounded-md file:border file:border-input file:bg-background file:px-3 file:py-1.5"
           />
-        </label>
+          <FieldDescription>{t.data.importWarning}</FieldDescription>
+        </Field>
         {file ? (
           <div className="flex flex-col gap-2">
             <p className="text-sm">
               <bdi dir="ltr">{file.name}</bdi>
             </p>
-            <HoldToConfirmButton
-              className="self-start"
-              holdLabel={t.data.importHold}
-              confirmingLabel={t.trash.purgeConfirming}
-              onConfirm={() => void onImport()}
-            />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="self-start">
+                  {t.data.importConfirm}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t.data.importConfirmTitle}</AlertDialogTitle>
+                  <AlertDialogDescription>{t.data.importWarning}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t.tasks.cancel}</AlertDialogCancel>
+                  <AlertDialogAction
+                    className={buttonVariants({ variant: "destructive" })}
+                    onClick={() => void onImport()}
+                  >
+                    {t.data.importConfirm}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         ) : null}
       </div>
@@ -127,29 +159,53 @@ export function DataSection() {
         <h3 className="text-sm font-medium">{t.data.backupsTitle}</h3>
         <p className="text-xs text-muted-foreground">{t.data.backupsHelp}</p>
         {listError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {listError}
-          </p>
+          <Alert variant="destructive">
+            <AlertDescription>{listError}</AlertDescription>
+          </Alert>
         ) : null}
-        {backups.length === 0 ? <p className="text-sm text-muted-foreground">{t.data.noBackups}</p> : null}
-        <ul className="flex flex-col gap-2">
+        {backups.length === 0 ? (
+          <Empty className="p-4">
+            <EmptyDescription>{t.data.noBackups}</EmptyDescription>
+          </Empty>
+        ) : null}
+        <ItemGroup className="gap-2">
           {backups.map((name) => (
-            <li key={name} className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
-              <span className="text-sm">
-                <bdi dir="ltr">{backupDate(name)}</bdi>
-                <span className="ms-2 text-xs text-muted-foreground">
+            <Item key={name} role="listitem" variant="outline" size="sm">
+              <ItemContent className="gap-0.5">
+                <ItemTitle className="font-normal">
+                  <bdi dir="ltr">{backupDate(name)}</bdi>
+                </ItemTitle>
+                <ItemDescription>
                   {name.startsWith("pre-import-") ? t.data.safetyCopy : t.data.dailyCopy}
-                </span>
-              </span>
-              <HoldToConfirmButton
-                size="sm"
-                holdLabel={t.data.restoreHold}
-                confirmingLabel={t.trash.purgeConfirming}
-                onConfirm={() => void onRestore(name)}
-              />
-            </li>
+                </ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      {t.data.restore}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t.data.restoreConfirmTitle}</AlertDialogTitle>
+                      <AlertDialogDescription>{t.data.backupsHelp}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t.tasks.cancel}</AlertDialogCancel>
+                      <AlertDialogAction
+                        className={buttonVariants({ variant: "destructive" })}
+                        onClick={() => void onRestore(name)}
+                      >
+                        {t.data.restore}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </ItemActions>
+            </Item>
           ))}
-        </ul>
+        </ItemGroup>
       </div>
     </section>
   );

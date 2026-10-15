@@ -1,8 +1,21 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { HoldToConfirmButton } from "@/components/ui/hold-to-confirm-button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
+import { Item, ItemActions, ItemContent, ItemGroup, ItemTitle } from "@/components/ui/item";
 import { Input } from "@/components/ui/input";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useTaskStore } from "@/features/tasks/task-store";
@@ -38,15 +51,19 @@ export function LabelsView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   return (
     <div className="flex w-full max-w-2xl flex-col gap-8">
       {loadError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {errorMessage(t, loadError)}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{errorMessage(t, loadError)}</AlertDescription>
+        </Alert>
       ) : null}
       <LabelSection
         id="projects"
@@ -115,16 +132,20 @@ function LabelSection({ id, heading, addLabel, placeholder, empty, items, api }:
       </form>
 
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
-      {items.length === 0 ? <p className="text-sm text-muted-foreground">{empty}</p> : null}
+      {items.length === 0 ? (
+        <Empty>
+          <EmptyDescription>{empty}</EmptyDescription>
+        </Empty>
+      ) : null}
 
-      <ul className="flex flex-col gap-2">
+      <ItemGroup className="gap-2">
         {items.map((item) => (
-          <li key={item.id} className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
+          <Item key={item.id} role="listitem" variant="outline" size="sm">
             {editingId === item.id ? (
               <form onSubmit={(event) => void onRename(event, item.id)} className="flex flex-1 gap-2">
                 <Input
@@ -143,8 +164,12 @@ function LabelSection({ id, heading, addLabel, placeholder, empty, items, api }:
               </form>
             ) : (
               <>
-                <bdi className="min-w-0 truncate text-sm">{item.name}</bdi>
-                <div className="flex shrink-0 gap-2">
+                <ItemContent>
+                  <ItemTitle className="w-full font-normal">
+                    <bdi className="truncate">{item.name}</bdi>
+                  </ItemTitle>
+                </ItemContent>
+                <ItemActions>
                   <Button
                     variant="outline"
                     size="sm"
@@ -155,18 +180,36 @@ function LabelSection({ id, heading, addLabel, placeholder, empty, items, api }:
                   >
                     {t.labels.rename}
                   </Button>
-                  <HoldToConfirmButton
-                    size="sm"
-                    holdLabel={t.labels.deleteHold}
-                    confirmingLabel={t.trash.purgeConfirming}
-                    onConfirm={() => void run(() => api.remove(item.id))}
-                  />
-                </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        {t.labels.delete}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          {t.labels.deleteTitle.replace("{name}", item.name)}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>{t.labels.deleteDescription}</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{t.tasks.cancel}</AlertDialogCancel>
+                        <AlertDialogAction
+                          className={buttonVariants({ variant: "destructive" })}
+                          onClick={() => void run(() => api.remove(item.id))}
+                        >
+                          {t.labels.delete}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </ItemActions>
               </>
             )}
-          </li>
+          </Item>
         ))}
-      </ul>
+      </ItemGroup>
     </section>
   );
 }

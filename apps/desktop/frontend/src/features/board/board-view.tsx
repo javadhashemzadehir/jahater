@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   DndContext,
   DragOverlay,
@@ -15,7 +16,10 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { GripVertical } from "lucide-react";
-import { Select } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useTaskStore } from "@/features/tasks/task-store";
 import { useAction } from "@/features/tasks/use-action";
@@ -41,7 +45,11 @@ export function BoardView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   const columns = groupByStatus(tasks);
@@ -89,9 +97,9 @@ export function BoardView() {
       </h2>
 
       {shownError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {shownError}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{shownError}</AlertDescription>
+        </Alert>
       ) : null}
 
       <DndContext
@@ -129,30 +137,31 @@ function Column({
   const headingId = `board-${status}`;
 
   return (
-    <section
+    <Card
       ref={setNodeRef}
+      role="region"
       aria-labelledby={headingId}
-      className={
-        isOver
-          ? "flex min-h-40 flex-col gap-2 rounded-lg border-2 border-dashed border-ring bg-accent/40 p-3"
-          : "flex min-h-40 flex-col gap-2 rounded-lg border border-border bg-card p-3"
-      }
+      className={isOver ? "min-h-40 border-2 border-dashed border-ring bg-accent/40" : "min-h-40"}
     >
-      <h3 id={headingId} className="flex items-center justify-between text-sm font-semibold">
-        {t.board.columns[status]}
-        <span className="text-xs font-normal text-muted-foreground">{tasks.length}</span>
-      </h3>
-      {tasks.length === 0 ? <p className="text-xs text-muted-foreground">{t.board.emptyColumn}</p> : null}
-      <ul className="flex flex-col gap-2">
-        {tasks.map((task) => (
-          <Card key={task.id} task={task} onMove={onMove} />
-        ))}
-      </ul>
-    </section>
+      <CardHeader className="p-3 pb-0">
+        <CardTitle id={headingId} className="flex items-center justify-between text-sm">
+          {t.board.columns[status]}
+          <Badge variant="secondary">{tasks.length}</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2 p-3">
+        {tasks.length === 0 ? <p className="text-xs text-muted-foreground">{t.board.emptyColumn}</p> : null}
+        <ul className="flex flex-col gap-2">
+          {tasks.map((task) => (
+            <TaskCard key={task.id} task={task} onMove={onMove} />
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
 }
 
-function Card({ task, onMove }: { task: Task; onMove: (task: Task, status: BoardStatus) => void }) {
+function TaskCard({ task, onMove }: { task: Task; onMove: (task: Task, status: BoardStatus) => void }) {
   const t = useTranslations();
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({ id: task.id });
 
@@ -161,32 +170,34 @@ function Card({ task, onMove }: { task: Task; onMove: (task: Task, status: Board
       <CardBody
         task={task}
         handle={
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             ref={setActivatorNodeRef}
             aria-label={t.board.dragHandle.replace("{title}", task.title)}
-            className="cursor-grab touch-none rounded-sm p-1 text-muted-foreground outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+            className="cursor-grab touch-none text-muted-foreground"
             {...attributes}
             {...listeners}
           >
-            <GripVertical className="size-4" aria-hidden />
-          </button>
+            <GripVertical aria-hidden />
+          </Button>
         }
         move={
-          <Select
+          <NativeSelect
+            size="sm"
             aria-label={t.board.moveTo.replace("{title}", task.title)}
             value={isBoardStatus(task.status) ? task.status : ""}
             onChange={(event) => {
               if (isBoardStatus(event.target.value)) onMove(task, event.target.value);
             }}
-            className="h-8 text-xs"
           >
             {boardStatuses.map((status) => (
-              <option key={status} value={status}>
+              <NativeSelectOption key={status} value={status}>
                 {t.board.columns[status]}
-              </option>
+              </NativeSelectOption>
             ))}
-          </Select>
+          </NativeSelect>
         }
       />
     </li>
@@ -205,13 +216,7 @@ function CardBody({
   lifted?: boolean;
 }) {
   return (
-    <div
-      className={
-        lifted
-          ? "flex flex-col gap-2 rounded-md border border-ring bg-background p-2 shadow-md"
-          : "flex flex-col gap-2 rounded-md border border-border bg-background p-2"
-      }
-    >
+    <Card className={lifted ? "gap-2 border-ring bg-background p-2 shadow-md" : "gap-2 bg-background p-2"}>
       <div className="flex items-start gap-2">
         {handle}
         <span dir="auto" className={task.status === "done" ? "min-w-0 flex-1 text-sm line-through" : "min-w-0 flex-1 text-sm"}>
@@ -219,6 +224,6 @@ function CardBody({
         </span>
       </div>
       {move}
-    </div>
+    </Card>
   );
 }

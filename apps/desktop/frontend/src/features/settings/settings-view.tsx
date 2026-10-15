@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useAction } from "@/features/tasks/use-action";
@@ -23,7 +25,11 @@ export function SettingsView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   // Edited as hours with halves allowed; stored as whole minutes.
@@ -51,8 +57,8 @@ export function SettingsView() {
       </h2>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <label className="flex flex-col gap-1 text-sm" htmlFor="capacity-hours">
-          {t.settings.capacity}
+        <Field>
+          <FieldLabel htmlFor="capacity-hours">{t.settings.capacity}</FieldLabel>
           <Input
             id="capacity-hours"
             type="number"
@@ -67,13 +73,13 @@ export function SettingsView() {
               setHours(event.target.value);
             }}
           />
-        </label>
-        <p className="text-xs text-muted-foreground">{t.settings.capacityHelp}</p>
+          <FieldDescription>{t.settings.capacityHelp}</FieldDescription>
+        </Field>
 
         {shownError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {shownError}
-          </p>
+          <Alert variant="destructive">
+            <AlertDescription>{shownError}</AlertDescription>
+          </Alert>
         ) : null}
         <p role="status" className="min-h-5 text-sm text-muted-foreground">
           {saved ? t.settings.saved : ""}

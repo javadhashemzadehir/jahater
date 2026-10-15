@@ -1,8 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { HoldToConfirmButton } from "@/components/ui/hold-to-confirm-button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useTasksChanged } from "@/features/tasks/use-tasks-changed";
 import { useIsClient } from "@/hooks/use-is-client";
@@ -54,7 +67,11 @@ export function TrashView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   return (
@@ -64,40 +81,64 @@ export function TrashView() {
       </h2>
 
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
-      {tasks.length === 0 ? <p className="text-sm text-muted-foreground">{t.trash.empty}</p> : null}
+      {tasks.length === 0 ? (
+        <Empty>
+          <EmptyDescription>{t.trash.empty}</EmptyDescription>
+        </Empty>
+      ) : null}
 
-      <ul className="flex flex-col gap-2">
+      <ItemGroup className="gap-2">
         {tasks.map((task) => (
-          <li key={task.id} className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
-            <div className="flex min-w-0 flex-col">
-              <span dir="auto" className="truncate text-sm">
-                {task.title}
-              </span>
+          <Item key={task.id} role="listitem" variant="outline" size="sm">
+            <ItemContent className="gap-0.5">
+              <ItemTitle dir="auto" className="w-full font-normal">
+                <span className="truncate">{task.title}</span>
+              </ItemTitle>
               {task.deletedAt ? (
-                <time dateTime={task.deletedAt} className="text-xs text-muted-foreground">
-                  {t.trash.trashedOn} {formatDate(task.deletedAt, locale)}
-                </time>
+                <ItemDescription>
+                  <time dateTime={task.deletedAt}>
+                    {t.trash.trashedOn} {formatDate(task.deletedAt, locale)}
+                  </time>
+                </ItemDescription>
               ) : null}
-            </div>
-            <div className="flex shrink-0 gap-2">
+            </ItemContent>
+            <ItemActions>
               <Button variant="outline" size="sm" onClick={() => void onRestore(task.id)}>
                 {t.trash.restore}
               </Button>
-              <HoldToConfirmButton
-                size="sm"
-                holdLabel={t.trash.purgeHold}
-                confirmingLabel={t.trash.purgeConfirming}
-                onConfirm={() => void onPurge(task.id)}
-              />
-            </div>
-          </li>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    {t.trash.purge}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.trash.purgeTitle}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t.trash.purgeDescription.replace("{title}", task.title)}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t.tasks.cancel}</AlertDialogCancel>
+                    <AlertDialogAction
+                      className={buttonVariants({ variant: "destructive" })}
+                      onClick={() => void onPurge(task.id)}
+                    >
+                      {t.trash.purge}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </ItemActions>
+          </Item>
         ))}
-      </ul>
+      </ItemGroup>
     </section>
   );
 }

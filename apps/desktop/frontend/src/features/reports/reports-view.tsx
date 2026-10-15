@@ -1,7 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Select } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useTaskStore } from "@/features/tasks/task-store";
 import { useTasksChanged } from "@/features/tasks/use-tasks-changed";
@@ -66,7 +80,11 @@ export function ReportsView() {
   if (!isClient) return null;
 
   if (!inTauri) {
-    return <p className="text-muted-foreground">{t.errors.ipc.unavailable}</p>;
+    return (
+      <Alert className="max-w-xl">
+        <AlertDescription>{t.errors.ipc.unavailable}</AlertDescription>
+      </Alert>
+    );
   }
 
   const report = buildReport(entries, tasks, grouping);
@@ -97,80 +115,82 @@ export function ReportsView() {
       <p className="text-sm text-muted-foreground">{t.reports.intro}</p>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm">
-          {t.reports.range}
-          <Select value={String(days)} onChange={(event) => setDays(Number(event.target.value) as ReportRange)}>
+        <Field>
+          <FieldLabel htmlFor="report-range">{t.reports.range}</FieldLabel>
+          <NativeSelect id="report-range" value={String(days)} onChange={(event) => setDays(Number(event.target.value) as ReportRange)}>
             {reportRanges.map((value) => (
-              <option key={value} value={value}>
+              <NativeSelectOption key={value} value={value}>
                 {t.reports.ranges[String(value) as "1" | "7" | "30"]}
-              </option>
+              </NativeSelectOption>
             ))}
-          </Select>
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          {t.reports.groupBy}
-          <Select value={grouping} onChange={(event) => setGrouping(event.target.value as Grouping)}>
+          </NativeSelect>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="report-grouping">{t.reports.groupBy}</FieldLabel>
+          <NativeSelect id="report-grouping" value={grouping} onChange={(event) => setGrouping(event.target.value as Grouping)}>
             {groupings.map((value) => (
-              <option key={value} value={value}>
+              <NativeSelectOption key={value} value={value}>
                 {t.reports.groupings[value]}
-              </option>
+              </NativeSelectOption>
             ))}
-          </Select>
-        </label>
+          </NativeSelect>
+        </Field>
       </div>
 
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
       {report.rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t.reports.empty}</p>
+        <Empty>
+          <EmptyDescription>{t.reports.empty}</EmptyDescription>
+        </Empty>
       ) : (
-        <div className="overflow-x-auto rounded-md border border-border">
-          <table className="w-full text-sm">
-            <caption className="sr-only">{t.reports.title}</caption>
-            <thead className="bg-muted/50 text-start">
-              <tr>
-                <th scope="col" className="px-3 py-2 text-start font-medium">
+        <Card className="shadow-none">
+          <Table>
+            <TableCaption className="sr-only">{t.reports.title}</TableCaption>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead scope="col" className="px-3">
                   {t.reports.groupings[grouping]}
-                </th>
-                <th scope="col" className="px-3 py-2 text-end font-medium">
+                </TableHead>
+                <TableHead scope="col" className="px-3 text-end">
                   {t.reports.estimate}
-                </th>
-                <th scope="col" className="px-3 py-2 text-end font-medium">
+                </TableHead>
+                <TableHead scope="col" className="px-3 text-end">
                   {t.reports.actual}
-                </th>
-                <th scope="col" className="px-3 py-2 text-end font-medium">
+                </TableHead>
+                <TableHead scope="col" className="px-3 text-end">
                   {t.reports.difference}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {report.rows.map((row) => (
-                <tr key={row.key} className="border-t border-border">
-                  <th scope="row" className="px-3 py-2 text-start font-normal">
+                <TableRow key={row.key}>
+                  <TableHead scope="row" className="h-auto px-3 py-2 font-normal text-foreground">
                     <bdi>{labelOf(row)}</bdi>
-                  </th>
-                  <td className="px-3 py-2 text-end tabular-nums">{row.estimateMinutes ? formatDuration(row.estimateMinutes, locale) : "–"}</td>
-                  <td className="px-3 py-2 text-end tabular-nums">{minutes(row.actualSeconds)}</td>
-                  <td className="px-3 py-2 text-end tabular-nums">{difference(row.estimateMinutes, row.actualSeconds)}</td>
-                </tr>
+                  </TableHead>
+                  <TableCell className="px-3 text-end tabular-nums">{row.estimateMinutes ? formatDuration(row.estimateMinutes, locale) : "–"}</TableCell>
+                  <TableCell className="px-3 text-end tabular-nums">{minutes(row.actualSeconds)}</TableCell>
+                  <TableCell className="px-3 text-end tabular-nums">{difference(row.estimateMinutes, row.actualSeconds)}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-            <tfoot>
-              <tr className="border-t border-border font-medium">
-                <th scope="row" className="px-3 py-2 text-start">
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableHead scope="row" className="h-auto px-3 py-2 text-foreground">
                   {t.reports.total}
-                </th>
-                <td className="px-3 py-2 text-end tabular-nums">{report.total.estimateMinutes ? formatDuration(report.total.estimateMinutes, locale) : "–"}</td>
-                <td className="px-3 py-2 text-end tabular-nums">{minutes(report.total.actualSeconds)}</td>
-                <td className="px-3 py-2 text-end tabular-nums">{difference(report.total.estimateMinutes, report.total.actualSeconds)}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+                </TableHead>
+                <TableCell className="px-3 text-end tabular-nums">{report.total.estimateMinutes ? formatDuration(report.total.estimateMinutes, locale) : "–"}</TableCell>
+                <TableCell className="px-3 text-end tabular-nums">{minutes(report.total.actualSeconds)}</TableCell>
+                <TableCell className="px-3 text-end tabular-nums">{difference(report.total.estimateMinutes, report.total.actualSeconds)}</TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </Card>
       )}
 
       {grouping === "tag" ? <p className="text-xs text-muted-foreground">{t.reports.tagNote}</p> : null}

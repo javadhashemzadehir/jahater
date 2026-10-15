@@ -1,8 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dialog } from "radix-ui";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useAction } from "@/features/tasks/use-action";
 import { useLocale, useTranslations } from "@/hooks/use-locale";
@@ -36,7 +45,13 @@ export function OrphanTimerDialog() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inTauri]);
 
-  if (!orphan) return loadError ? <p role="alert" className="text-sm text-destructive">{loadError}</p> : null;
+  if (!orphan) {
+    return loadError ? (
+      <Alert variant="destructive" className="max-w-xl">
+        <AlertDescription>{loadError}</AlertDescription>
+      </Alert>
+    ) : null;
+  }
 
   async function resolve(action: OrphanAction) {
     if (await run(() => resolveOrphanTimer(action))) setOrphan(null);
@@ -46,19 +61,17 @@ export function OrphanTimerDialog() {
   const tracked = formatClock(orphan.elapsedAtLastSeenSeconds, locale);
 
   return (
-    <Dialog.Root open onOpenChange={(open) => (open ? undefined : setOrphan(null))}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-background/80" />
-        <Dialog.Content className="fixed start-1/2 top-1/2 z-50 flex w-[min(28rem,calc(100vw-2rem))] -translate-y-1/2 flex-col gap-4 rounded-lg border border-border bg-card p-5 shadow-lg ltr:-translate-x-1/2 rtl:translate-x-1/2">
-          <Dialog.Title className="text-lg font-semibold">{t.orphan.title}</Dialog.Title>
-          <Dialog.Description className="text-sm text-muted-foreground">
-            {t.orphan.description.replace("{time}", lastSeen)}
-          </Dialog.Description>
+    <Dialog open onOpenChange={(open) => (open ? undefined : setOrphan(null))}>
+      <DialogContent className="w-[min(28rem,calc(100vw-2rem))] max-w-none">
+        <DialogHeader>
+          <DialogTitle>{t.orphan.title}</DialogTitle>
+          <DialogDescription>{t.orphan.description.replace("{time}", lastSeen)}</DialogDescription>
+        </DialogHeader>
 
           {error ? (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           ) : null}
 
           <div className="flex flex-col gap-2">
@@ -73,13 +86,14 @@ export function OrphanTimerDialog() {
             </Button>
           </div>
 
-          <Dialog.Close asChild>
+        <DialogFooter>
+          <DialogClose asChild>
             <Button variant="ghost" size="sm">
               {t.orphan.later}
             </Button>
-          </Dialog.Close>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

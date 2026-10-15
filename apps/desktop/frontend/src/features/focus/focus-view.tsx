@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
 import { errorMessage } from "@/features/tasks/error-message";
 import { useTaskStore } from "@/features/tasks/task-store";
 import { useAction } from "@/features/tasks/use-action";
@@ -58,13 +60,15 @@ export function FocusView({ onExit }: { onExit: () => void }) {
           {current.title}
         </p>
       ) : (
-        <p className="text-center text-muted-foreground">{t.focus.nothingCurrent}</p>
+        <Empty>
+          <EmptyDescription>{t.focus.nothingCurrent}</EmptyDescription>
+        </Empty>
       )}
 
       {shownError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {shownError}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{shownError}</AlertDescription>
+        </Alert>
       ) : null}
 
       {active ? (
