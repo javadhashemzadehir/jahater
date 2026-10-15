@@ -78,11 +78,13 @@ Sprint plan derived from [ROADMAP.md](../ROADMAP/ROADMAP.md) and [REQUIREMENTS.m
 
 ### S1.1 Task model and Trash
 
-- [ ] Task CRUD with title, notes, project, tags
-- [ ] `is_urgent`, `is_important`, status (`todo`, `doing`, `done`, `archived`), estimate, actual
-- [ ] Soft delete via `deleted_at`, `revision` bump on update
-- [ ] Trash view with restore and hold-to-confirm permanent delete
-- [ ] `tasks://changed` event emitted from Rust
+- [x] Task CRUD with title and notes (V2 adds `notes`, `estimate_minutes`). Project and tags are deferred to S1.2, where the `projects` and `tags` tables arrive
+- [x] `is_urgent`, `is_important`, status (`todo`, `doing`, `done`, `archived`), estimate. Actual time is not a column: it is derived from `time_entries` in Phase 2 (see DATABASE.md sample query)
+- [x] Soft delete via `deleted_at`, `revision` bump on update
+- [ ] Trash view with restore and hold-to-confirm permanent delete. Backend commands exist (`list_trashed_tasks`, `restore_task`, `purge_task`); the UI is not built yet
+- [x] `tasks://changed` event emitted from Rust after every task write
+
+Backend and IPC: `create_task`, `update_task` (partial patch, `null` clears), `trash_task`, `restore_task`, `purge_task` (trashed rows only), `list_tasks`, `list_trashed_tasks`. Domain tests, repository tests and service tests cover the rules; Zod tests cover the IPC boundary.
 
 ### S1.2 List view and store sync
 
