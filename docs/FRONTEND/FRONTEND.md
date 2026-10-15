@@ -1,6 +1,6 @@
 # Frontend
 
-Next.js App Router with static export, running inside the Tauri webview. This document defines the bilingual (Persian/English) and three-mode theme (Light, Dark, System) setup. Both follow the JabeX implementation so code can be copied and kept in sync.
+Next.js App Router with static export, running inside the Tauri webview. This document defines the bilingual (Persian/English) and three-mode theme (Light, Dark, System) setup. Both use well-known patterns so the setup stays simple.
 
 ## Project setup
 
@@ -57,7 +57,7 @@ src/locales/en/common.json
 1. `config.ts` exports `locales = ["fa", "en"] as const`, `DEFAULT_LOCALE = "fa"`, `localeDirections`, `localeLabels` (`فارسی`, `English`), and `LOCALE_STORAGE_KEY = "selfplanner.locale"`.
 2. The `fa` JSON is the source of truth for the dictionary type: `type Dictionary = typeof fa`. Missing keys in `en` fail typecheck.
 3. `setLocale` updates `document.documentElement.lang` and `.dir`, saves to `localStorage` inside try/catch, and updates the store.
-4. `hydrate()` runs once on mount. Root layout renders the default locale on the server and static export; an `en` user sees a one-frame switch. Accepted trade-off, same as JabeX.
+4. `hydrate()` runs once on mount. Root layout renders the default locale on the server and static export; an `en` user sees a one-frame switch. Accepted trade-off.
 5. Every user-facing string comes from `useTranslations()`. No literals in JSX, toasts, `aria-label`, tooltips or document title.
 6. Dynamic text uses small formatter helpers in `lib/`, not string concatenation, so word order can differ per locale.
 7. Add new strings to **both** JSON files in the same change.
@@ -98,7 +98,7 @@ The daily timeline is **vertical** (time flows top to bottom), so it has no RTL 
 
 Default is **System**. The selected mode persists locally (`next-themes` stores it in `localStorage`).
 
-### Implementation (same as JabeX)
+### Implementation
 
 ```tsx
 // components/providers/theme-provider.tsx
@@ -152,7 +152,7 @@ Rules:
 1. Components use tokens through Tailwind classes (`bg-background`, `text-muted-foreground`). No hex or `rgb()` in components.
 2. Colour is never the only carrier of meaning. Pair with icon, label or pattern.
 3. Project colours are user-chosen and stored as a hue or a light/dark pair; they must stay readable on both backgrounds. Compute readable foreground at runtime.
-4. The primary hue comes from the Jahater brand (Ink, hue 271), which is distinct from JabeX (hue 160).
+4. Pick a primary hue for the brand. Decision pending.
 5. Check contrast in all three modes before merging UI work.
 6. Dark mode is designed, not inverted.
 

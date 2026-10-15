@@ -48,7 +48,7 @@ Sprint plan derived from [ROADMAP.md](../ROADMAP/ROADMAP.md) and [REQUIREMENTS.m
 
 ### S0.2 Shell, i18n, theming
 
-- [x] Port from JabeX: shell, providers, theme, i18n, shadcn setup, token file (no JabeX-specific features). Ported from the local JabeX clone: hold-to-confirm button, input, theme provider, `components.json`. Fonts stay Vazirmatn and Comfortaa (NFR-12) instead of JabeX's Yekan.
+- [x] Shell, providers, theme, i18n, shadcn setup, token file. Added hold-to-confirm button, input, theme provider and `components.json`. Fonts are Vazirmatn and Comfortaa (NFR-12).
 - [x] `fa` (RTL, default) and `en` (LTR) dictionaries wired through `useTranslations()`
 - [x] Light, Dark, System switcher; no flash of wrong theme. The `next-themes` bootstrap is inline in the export and runs before paint. Not yet checked visually in the desktop window.
 - [x] Shared date formatter stub (Jalali for `fa`, Gregorian for `en`)

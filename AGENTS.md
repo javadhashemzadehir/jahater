@@ -2,7 +2,7 @@
 
 Instructions for coding agents and contributors working on Self Planner.
 
-> **Status:** the repository is in the planning stage. Paths and commands below describe the planned scaffold and mirror [JabeX](https://github.com/javadhashemzadehir/JabeX). If a path or command does not exist yet, check `docs/ROADMAP/ROADMAP.md` for the phase that introduces it, and do not invent it.
+> **Status:** the repository is in the planning stage. Paths and commands below describe the planned scaffold. If a path or command does not exist yet, check `docs/ROADMAP/ROADMAP.md` for the phase that introduces it, and do not invent it.
 
 ## What this project is
 
@@ -116,7 +116,7 @@ cargo test
 - Auto-reschedule a user's plan without confirmation.
 - Make medical or treatment claims in code, copy or docs.
 - Present unverified research as established fact. Use the evidence levels in `docs/RESEARCH/TIME_MANAGEMENT_RESEARCH.md`.
-- Copy JabeX-specific features (Leitner, TipTap, ink, speech) when porting shared code.
+- Port features outside the product scope (flashcards, rich-text editors, handwriting, speech) when reusing shared code.
 - Edit, delete or reorder existing ADRs; add a new one to supersede.
 
 ## Definition of done
@@ -138,10 +138,10 @@ Next.js changes quickly and may differ from what you remember. Read the relevant
 
 - Branching and Conventional Commits: `docs/GIT_WORKFLOW/GIT_WORKFLOW.md`.
 - Agent commit, merge and tree-cleanup rules: `docs/AGENT_GIT_GUIDE/AGENT_GIT_GUIDE.md`. Run `sh scripts/git/install-hooks.sh` once per clone.
-- Branch from `develop`; never commit directly to `main`.
-- Commit messages and PR descriptions must **not** contain AI-assistant attribution trailers or assistant identities. This mirrors the JabeX policy and is the default for this repo. Human `Co-authored-by` trailers are fine.
+- Two branches only: work on `develop`, promote to `main` by pull request. Never commit directly to `main`. No topic branches unless the maintainer asks.
+- Commit messages and PR descriptions must **not** contain AI-assistant attribution trailers or assistant identities. This is the default for this repo. Human `Co-authored-by` trailers are fine.
 - Keep commits small and focused.
 
 ## When unsure
 
-Prefer the smaller change, follow the JabeX pattern if one exists, and record the question as an open item in the relevant doc instead of guessing.
+Prefer the smaller change, follow the existing pattern in the repo if one exists, and record the question as an open item in the relevant doc instead of guessing.
