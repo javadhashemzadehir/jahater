@@ -69,6 +69,37 @@ export const labelSchema = z.object({
 
 export type Label = z.infer<typeof labelSchema>;
 
+export const timerModeSchema = z.enum(["tracker", "timebox", "pomodoro", "flowtime"]);
+
+export type TimerMode = z.infer<typeof timerModeSchema>;
+
+export const timerSchema = z.object({
+  id: z.string(),
+  taskId: z.string().nullable(),
+  mode: timerModeSchema,
+  startedAt: z.string(),
+  endedAt: z.string().nullable(),
+  pausedTotalSec: z.number().int().nonnegative(),
+  pausedAt: z.string().nullable(),
+  targetMin: z.number().int().positive().nullable(),
+  isPaused: z.boolean(),
+  note: z.string().nullable(),
+  elapsedSeconds: z.number().int().nonnegative(),
+  remainingSeconds: z.number().int().nonnegative().nullable(),
+  revision: z.number().int(),
+});
+
+export type Timer = z.infer<typeof timerSchema>;
+
+export const startTimerInputSchema = z.object({
+  taskId: z.string().nullish(),
+  mode: timerModeSchema,
+  targetMin: z.number().int().positive().nullish(),
+  note: z.string().nullish(),
+});
+
+export type StartTimerInput = z.infer<typeof startTimerInputSchema>;
+
 export class IpcError extends Error {
   readonly command: CommandError;
 
@@ -161,6 +192,34 @@ export function renameTag(id: string, name: string): Promise<Label> {
 
 export function deleteTag(id: string): Promise<void> {
   return call("delete_tag", { id }, z.void());
+}
+
+export function startTimer(input: StartTimerInput): Promise<Timer> {
+  const payload = startTimerInputSchema.parse(input);
+  return call("start_timer", { input: payload }, timerSchema);
+}
+
+export function pauseTimer(): Promise<Timer> {
+  return call("pause_timer", {}, timerSchema);
+}
+
+export function resumeTimer(): Promise<Timer> {
+  return call("resume_timer", {}, timerSchema);
+}
+
+export function stopTimer(): Promise<Timer> {
+  return call("stop_timer", {}, timerSchema);
+}
+
+export function getActiveTimer(): Promise<Timer | null> {
+  return call("get_active_timer", {}, timerSchema.nullable());
+}
+
+export const TIMER_CHANGED_EVENT = "timer://changed";
+
+// Rust emits this when a timer starts, pauses, resumes or stops.
+export function onTimerChanged(handler: () => void): Promise<UnlistenFn> {
+  return listen(TIMER_CHANGED_EVENT, () => handler());
 }
 
 export const TASKS_CHANGED_EVENT = "tasks://changed";

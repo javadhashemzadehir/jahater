@@ -42,7 +42,8 @@
     "trash": "Trash",
     "labels": "Projects & tags",
     "board": "Board",
-    "matrix": "Matrix"
+    "matrix": "Matrix",
+    "timer": "Timer"
   },
   "trash": {
     "title": "Trash",
@@ -131,6 +132,32 @@
     "instructions": "Press Space or Enter to pick up the task. Use the arrow keys to move it to another quadrant, then press Space or Enter to drop it. Press Escape to cancel.",
     "announce": {
       "outside": "{title} is not over a quadrant."
+    }
+  },
+  "timer": {
+    "idle": "Nothing is being timed right now.",
+    "task": "Task",
+    "noTask": "No task",
+    "mode": "Mode",
+    "minutes": "Length (minutes)",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Finish",
+    "elapsed": "elapsed",
+    "remaining": "left",
+    "overtime": "past the target",
+    "modes": {
+      "tracker": "Tracker",
+      "timebox": "Timebox",
+      "pomodoro": "Pomodoro",
+      "flowtime": "Flowtime"
+    },
+    "phase": {
+      "running": "Running",
+      "warning": "Almost at the target",
+      "paused": "Paused",
+      "reached": "Target reached"
     }
   }
 }

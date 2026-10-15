@@ -128,9 +128,11 @@ Backend and IPC: `start_timer`, `pause_timer`, `resume_timer`, `stop_timer`, `ge
 
 ### S2.2 Tracker, timebox, visual timer
 
-- [ ] Tracker UI for start, pause, stop
-- [ ] Timebox with target duration and countdown
-- [ ] Circular visual timer using `--timer-*` tokens; respects reduced motion
+- [x] Tracker UI for start, pause, resume, finish (Timer view, optional task link). Pomodoro and Flowtime modes are available too, since a mode is data on the entry
+- [x] Timebox with target duration and countdown, then calm overtime (`+mm:ss`) past the target
+- [x] Circular visual timer using `--timer-*` tokens. The phase (running, almost at the target, paused, target reached) is also written as text in a `role="status"` line, so colour is not the only cue. The ring has no animation, so there is nothing to reduce
+
+Display values are recomputed from timestamps (`timer-math.ts`, mirrors the Rust formula), so a throttled webview never changes the numbers. Not yet checked visually: the six locale/theme combinations.
 
 ### S2.3 Daily timeline
 
