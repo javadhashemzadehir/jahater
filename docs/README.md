@@ -34,6 +34,7 @@ Start here if you are new to the repo. Layout mirrors JabeX: one folder per docu
 - [008 Release CSP script policy](./ADR/008-release-csp-script-policy/008-release-csp-script-policy.md)
 - [009 All UI from the shadcn design system](./ADR/009-shadcn-and-third-party-components/009-shadcn-and-third-party-components.md)
 - [010 Jahater brand and design system](./ADR/010-jahater-brand-and-design-system/010-jahater-brand-and-design-system.md)
+- [011 Owner-supplied fonts](./ADR/011-owner-supplied-fonts/011-owner-supplied-fonts.md)
 
 ## About sources
 

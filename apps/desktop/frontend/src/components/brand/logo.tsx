@@ -36,7 +36,7 @@ function LogoMark({ className, ...props }: React.ComponentProps<"svg">) {
 }
 
 // "Jahat" + "er" in English, "جهت" + "ر" in Persian: the last part takes the brand accent.
-// Latin: Bricolage Grotesque 600 with -3% tracking. Persian: system UI font bold, no letter-spacing.
+// Latin: Comfortaa 600 with -3% tracking. Persian: Yekan Bakh bold, no letter-spacing.
 function Logo({ className }: { className?: string }) {
   const t = useTranslations();
   const { locale } = useLocale();

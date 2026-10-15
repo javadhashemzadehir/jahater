@@ -178,15 +178,14 @@ The Jahater brand pack ([ADR 010](../ADR/010-jahater-brand-and-design-system/010
 
 | Locale | Font | Notes |
 | --- | --- | --- |
-| `en` | Bricolage Grotesque (SIL OFL, variable) | Latin subset from the brand pack |
-| `fa` | System UI font | No Persian font is bundled yet. **Open item:** choose an OFL Persian font. Vazirmatn is not used (owner decision). |
+| `en` | Comfortaa (SIL OFL, variable) | Latin; Persian glyphs fall through to Yekan Bakh |
+| `fa` | Yekan Bakh FaNum (Regular, Medium, Bold) | Owner-supplied commercial font; Latin falls through to Comfortaa (ADR 011) |
 
-- Yekan Bakh is not used: its licence does not allow redistribution in this repo.
-- The font file lives in `src/fonts/` with its OFL text in `src/fonts/licenses/`. No remote font loading.
-- Loaded with `next/font/local` as the CSS variable `--font-bricolage`, `display: "swap"`.
+- **Open item:** confirm the Yekan Bakh licence allows redistribution before any public repository or release. Vazirmatn is not used (owner decision).
+- Font files live in `src/fonts/`. No remote font loading.
+- Loaded with `next/font/local` as the CSS variables `--font-comfortaa` and `--font-yekan`, `display: "swap"`.
 - `html { --font-family: ... }` sets the stack.
 - `body` and portal content (`[data-radix-portal]`, `[role="dialog"]`, Sonner toasts) must all use `var(--font-family)`.
-- **Check each font's licence for redistribution inside an open-source repo before committing the files.**
 - FaNum caveat: copied text contains Latin digits even though they look Persian. Fine for display, noted for export.
 
 ## Feature structure
