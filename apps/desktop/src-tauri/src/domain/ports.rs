@@ -45,6 +45,8 @@ pub trait TimeEntryRepository: Send + Sync {
     ) -> Result<(), RepositoryError>;
     /// Overwrites every mutable column of an existing entry.
     fn update(&self, entry: &TimeEntry) -> Result<(), RepositoryError>;
+    /// Records that the running, unpaused entry is alive at `at`. Does not bump `revision`.
+    fn touch_running(&self, at: DateTime<Utc>) -> Result<(), RepositoryError>;
 }
 
 pub trait BlockRepository: Send + Sync {

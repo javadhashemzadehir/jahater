@@ -60,6 +60,8 @@ pub struct TimeEntry {
     pub is_running: bool,
     pub note: Option<String>,
     pub deleted_at: Option<DateTime<Utc>>,
+    /// Last moment the app confirmed the timer was running. Used to recover after a crash.
+    pub last_seen_at: Option<DateTime<Utc>>,
     pub revision: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -80,6 +82,7 @@ impl TimeEntry {
             is_running: true,
             note: input.note.filter(|text| !text.trim().is_empty()),
             deleted_at: None,
+            last_seen_at: Some(now),
             revision: 1,
             created_at: now,
             updated_at: now,
@@ -134,6 +137,28 @@ impl TimeEntry {
         }
         self.ended_at = Some(now);
         self.is_running = false;
+        self.touch(now);
+        Ok(())
+    }
+
+    /// Ends the entry at an earlier moment than `now`, such as the last time the app saw it alive.
+    /// The end is never before the start.
+    pub fn stop_at(&mut self, end: DateTime<Utc>, now: DateTime<Utc>) -> Result<(), DomainError> {
+        self.ensure_running()?;
+        self.paused_at = None;
+        self.ended_at = Some(end.max(self.started_at));
+        self.is_running = false;
+        self.touch(now);
+        Ok(())
+    }
+
+    /// Throws the entry away: it stops running and is hidden, like a trashed task.
+    pub fn discard(&mut self, now: DateTime<Utc>) -> Result<(), DomainError> {
+        self.ensure_running()?;
+        self.paused_at = None;
+        self.ended_at = Some(self.started_at);
+        self.is_running = false;
+        self.deleted_at = Some(now);
         self.touch(now);
         Ok(())
     }
@@ -361,6 +386,35 @@ mod tests {
         with_note.note = Some("  ".into());
         let entry = TimeEntry::start("e".into(), with_note, at("2026-10-15T08:00:00Z")).unwrap();
         assert_eq!(entry.note, None);
+    }
+
+    #[test]
+    fn stop_at_ends_at_the_given_moment_and_never_before_the_start() {
+        let mut entry = tracker();
+        entry
+            .stop_at(at("2026-10-15T08:20:00Z"), at("2026-10-15T14:00:00Z"))
+            .unwrap();
+        assert_eq!(entry.elapsed_seconds(at("2026-10-16T00:00:00Z")), 1200);
+        assert!(!entry.is_running);
+        assert_eq!(entry.updated_at, at("2026-10-15T14:00:00Z"));
+
+        let mut early = tracker();
+        early
+            .stop_at(at("2026-10-15T07:00:00Z"), at("2026-10-15T14:00:00Z"))
+            .unwrap();
+        assert_eq!(early.elapsed_seconds(at("2026-10-16T00:00:00Z")), 0);
+    }
+
+    #[test]
+    fn discard_hides_the_entry_and_it_cannot_be_discarded_twice() {
+        let mut entry = tracker();
+        entry.discard(at("2026-10-15T09:00:00Z")).unwrap();
+        assert!(!entry.is_running);
+        assert_eq!(entry.deleted_at, Some(at("2026-10-15T09:00:00Z")));
+        assert_eq!(
+            entry.discard(at("2026-10-15T09:01:00Z")),
+            Err(DomainError::TimerStopped)
+        );
     }
 
     #[test]

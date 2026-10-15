@@ -46,6 +46,9 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     );
     let blocks = BlockService::new(blocks_repository, tasks_repository, clock, notifier);
 
+    // Must run before the ticker starts: its heartbeat would hide when the timer was last seen.
+    timer.detect_orphan()?;
+
     app.manage(AppState {
         tasks,
         labels,

@@ -80,7 +80,8 @@
       "targetRequired": "Choose how long the timebox should be.",
       "targetInvalid": "The length must be a whole number of minutes above zero.",
       "modeInvalid": "Choose a valid timer mode.",
-      "none": "No timer is running."
+      "none": "No timer is running.",
+      "resolutionInvalid": "Choose one of the listed options."
     },
     "block": {
       "durationInvalid": "A block must be between 1 minute and 24 hours long.",
@@ -192,5 +193,13 @@
       "dropped": "{title} was moved.",
       "cancelled": "{title} stayed where it was."
     }
+  },
+  "orphan": {
+    "title": "A timer was still running",
+    "description": "A timer was running when Self Planner last closed. The last time it was seen running was {time}. Nothing is lost: pick what fits.",
+    "stopAtLastSeen": "Stop at {time} ({tracked} tracked)",
+    "resume": "Keep it running",
+    "discard": "Discard this time",
+    "later": "Decide later"
   }
 }

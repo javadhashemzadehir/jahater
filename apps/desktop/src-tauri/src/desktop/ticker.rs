@@ -10,6 +10,9 @@ use crate::application::timer_service::TimerView;
 pub const TIMER_TICK: &str = "timer://tick";
 pub const TIMER_FINISHED: &str = "timer://finished";
 
+/// How often the running timer is marked alive, for crash recovery.
+const HEARTBEAT_SECONDS: u64 = 5;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TickPayload {
@@ -65,9 +68,15 @@ pub fn outcome(view: Option<&TimerView>, last_finished: &mut Option<String>) -> 
 pub fn spawn(app: AppHandle) {
     thread::spawn(move || {
         let mut last_finished: Option<String> = None;
+        let mut seconds: u64 = 0;
         loop {
             thread::sleep(Duration::from_secs(1));
+            seconds += 1;
             let state = app.state::<AppState>();
+            if seconds.is_multiple_of(HEARTBEAT_SECONDS) {
+                // Best effort: a missed beat only makes crash recovery a few seconds coarser.
+                let _ = state.timer.heartbeat();
+            }
             let view = state.timer.active().ok().flatten();
             let result = outcome(view.as_ref(), &mut last_finished);
             if let Some(tick) = result.tick {

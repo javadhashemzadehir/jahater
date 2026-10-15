@@ -144,8 +144,8 @@ Blocks never move on their own. Not yet checked visually: the six locale/theme c
 
 ### S2.4 Notifications and recovery
 
-- [ ] Notifications from Rust for block start and timebox end
-- [ ] Orphan-timer recovery on startup
+- [ ] Notifications from Rust for block start and timebox end. **Blocked:** needs `tauri-plugin-notification`, and crates.io was unreachable from the build machine when this sprint ran, so the crate could not be added. `timer://finished` already fires once per reached target; the Rust-side sink is what is missing
+- [x] Orphan-timer recovery on startup: the running timer is marked alive every 5 seconds (`last_seen_at`, V6). A timer found running (not paused) at launch opens a dialog: stop at the last seen time, keep it running, or discard. Closing the dialog leaves the timer as it is. Covered by service tests for all three choices, a paused timer and the normal stop path
 
 **Done when (Phase 2):** a real day is planned and tracked, including a laptop sleep during a timer.
 

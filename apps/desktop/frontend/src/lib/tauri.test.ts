@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blockSchema, createBlockInputSchema, createTaskInputSchema, labelSchema, taskSchema, updateTaskInputSchema } from "./tauri";
+import { blockSchema, orphanActionSchema, orphanTimerSchema, createBlockInputSchema, createTaskInputSchema, labelSchema, taskSchema, updateTaskInputSchema } from "./tauri";
 
 describe("task IPC schemas", () => {
   it("keeps an omitted field out of an update, and passes null through as a clear", () => {
@@ -80,5 +80,16 @@ describe("block IPC schemas", () => {
   it("rejects an unknown kind before it reaches Rust", () => {
     const input = { kind: "nap", startAt: "2026-10-15T09:00:00.000Z", durationMin: 30 };
     expect(createBlockInputSchema.safeParse(input).success).toBe(false);
+  });
+});
+
+describe("orphan timer IPC schemas", () => {
+  it("only allows the three known actions", () => {
+    expect(orphanActionSchema.safeParse("stopAtLastSeen").success).toBe(true);
+    expect(orphanActionSchema.safeParse("keep").success).toBe(false);
+  });
+
+  it("requires the last seen time next to the timer", () => {
+    expect(orphanTimerSchema.safeParse({ lastSeenAt: "x", elapsedAtLastSeenSeconds: 5 }).success).toBe(false);
   });
 });

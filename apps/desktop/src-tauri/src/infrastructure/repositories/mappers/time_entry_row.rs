@@ -29,6 +29,7 @@ pub fn entry_from_row(row: &Row<'_>) -> rusqlite::Result<TimeEntry> {
         revision: row.get(11)?,
         created_at: parse_timestamp(row, 12)?,
         updated_at: parse_timestamp(row, 13)?,
+        last_seen_at: parse_optional_timestamp(row, 14)?,
     })
 }
 
@@ -60,6 +61,7 @@ pub fn entry_params(entry: &TimeEntry) -> Vec<rusqlite::types::Value> {
         Value::Integer(entry.revision),
         Value::Text(format_timestamp(entry.created_at)),
         Value::Text(format_timestamp(entry.updated_at)),
+        optional_time(entry.last_seen_at),
     ]
 }
 

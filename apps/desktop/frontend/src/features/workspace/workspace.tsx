@@ -7,6 +7,7 @@ import { MatrixView } from "@/features/matrix/matrix-view";
 import { LabelsView } from "@/features/labels/labels-view";
 import { TasksView } from "@/features/tasks/tasks-view";
 import { useTaskSync } from "@/features/tasks/use-task-sync";
+import { OrphanTimerDialog } from "@/features/timer/orphan-timer-dialog";
 import { TimelineView } from "@/features/timeline/timeline-view";
 import { TimerPanel } from "@/features/timer/timer-panel";
 import { useTimerSync } from "@/features/timer/use-timer-sync";
@@ -25,6 +26,7 @@ export function Workspace() {
 
   return (
     <div className="flex w-full flex-col items-center gap-6">
+      <OrphanTimerDialog />
       <div role="group" aria-label={t.views.label} className="inline-flex gap-1 rounded-md border border-border p-1">
         {views.map((value) => {
           const pressed = view === value;

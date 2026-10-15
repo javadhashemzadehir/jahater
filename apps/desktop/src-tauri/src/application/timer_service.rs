@@ -1,5 +1,6 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
+use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 use super::error::ApplicationError;
@@ -15,12 +16,34 @@ pub struct TimerView {
     pub remaining_seconds: Option<i64>,
 }
 
+/// What the user can do about a timer that was still running when the app last closed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OrphanResolution {
+    /// Keep counting as if the app had never closed.
+    Resume,
+    /// End the timer at the last moment the app saw it alive.
+    StopAtLastSeen,
+    /// Throw the entry away.
+    Discard,
+}
+
+/// A timer left running by a previous session, with the numbers needed to decide.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OrphanView {
+    pub timer: TimerView,
+    pub last_seen_at: DateTime<Utc>,
+    /// How much time the entry would have if stopped at `last_seen_at`.
+    pub elapsed_at_last_seen_seconds: i64,
+}
+
 /// Owns timer state (ADR 006): the frontend only displays what this returns.
 pub struct TimerService {
     entries: Arc<dyn TimeEntryRepository>,
     tasks: Arc<dyn TaskRepository>,
     clock: Arc<dyn Clock>,
     notifier: Arc<dyn ChangeNotifier>,
+    /// Id of the entry found running at startup and not yet resolved.
+    orphan: Mutex<Option<String>>,
 }
 
 impl TimerService {
@@ -35,6 +58,7 @@ impl TimerService {
             tasks,
             clock,
             notifier,
+            orphan: Mutex::new(None),
         }
     }
 
@@ -74,6 +98,75 @@ impl TimerService {
         Ok(self.entries.find_running()?.map(|entry| self.view(entry)))
     }
 
+    /// Call once at startup. A timer that is running (not paused) now was left behind by the
+    /// previous session: either the app closed or it crashed. A paused timer accrues no time,
+    /// so it is simply kept.
+    pub fn detect_orphan(&self) -> Result<(), ApplicationError> {
+        let found = self
+            .entries
+            .find_running()?
+            .filter(|entry| !entry.is_paused())
+            .map(|entry| entry.id);
+        *self.orphan.lock().expect("orphan lock") = found;
+        Ok(())
+    }
+
+    /// The unresolved orphan, if any.
+    pub fn orphan(&self) -> Result<Option<OrphanView>, ApplicationError> {
+        let Some(id) = self.orphan.lock().expect("orphan lock").clone() else {
+            return Ok(None);
+        };
+        let running = self.entries.find_running()?;
+        let Some(entry) = running.filter(|entry| entry.id == id && !entry.is_paused()) else {
+            // Resolved elsewhere (the user stopped or paused it): nothing left to ask.
+            *self.orphan.lock().expect("orphan lock") = None;
+            return Ok(None);
+        };
+        let last_seen_at = last_seen(&entry);
+        Ok(Some(OrphanView {
+            elapsed_at_last_seen_seconds: entry.elapsed_seconds(last_seen_at),
+            timer: self.view(entry),
+            last_seen_at,
+        }))
+    }
+
+    pub fn resolve_orphan(
+        &self,
+        resolution: OrphanResolution,
+    ) -> Result<Option<TimerView>, ApplicationError> {
+        let Some(orphan) = self.orphan()? else {
+            return Err(ApplicationError::NoActiveTimer);
+        };
+        let now = self.clock.now();
+        let mut entry = orphan.timer.entry;
+
+        let result = match resolution {
+            OrphanResolution::Resume => {
+                // Counting simply continues. Refresh the heartbeat so it is not an orphan again.
+                self.entries.touch_running(now)?;
+                Some(self.view(entry))
+            }
+            OrphanResolution::StopAtLastSeen => {
+                entry.stop_at(orphan.last_seen_at, now)?;
+                self.entries.update(&entry)?;
+                Some(self.view(entry))
+            }
+            OrphanResolution::Discard => {
+                entry.discard(now)?;
+                self.entries.update(&entry)?;
+                None
+            }
+        };
+        *self.orphan.lock().expect("orphan lock") = None;
+        self.notifier.timer_changed();
+        Ok(result)
+    }
+
+    /// Marks the running, unpaused timer as alive right now.
+    pub fn heartbeat(&self) -> Result<(), ApplicationError> {
+        Ok(self.entries.touch_running(self.clock.now())?)
+    }
+
     fn change(
         &self,
         apply: impl FnOnce(
@@ -99,6 +192,14 @@ impl TimerService {
             entry,
         }
     }
+}
+
+/// The last time the app confirmed the entry was alive; falls back to its last change.
+fn last_seen(entry: &TimeEntry) -> DateTime<Utc> {
+    entry
+        .last_seen_at
+        .unwrap_or(entry.updated_at)
+        .max(entry.started_at)
 }
 
 #[cfg(test)]
@@ -160,6 +261,14 @@ mod tests {
             let mut rows = self.rows.lock().unwrap();
             if let Some(slot) = rows.iter_mut().find(|e| e.id == entry.id) {
                 *slot = entry.clone();
+            }
+            Ok(())
+        }
+
+        fn touch_running(&self, at: DateTime<Utc>) -> Result<(), RepositoryError> {
+            let mut rows = self.rows.lock().unwrap();
+            for entry in rows.iter_mut().filter(|e| e.is_running && !e.is_paused()) {
+                entry.last_seen_at = Some(at);
             }
             Ok(())
         }
@@ -389,5 +498,118 @@ mod tests {
         f.service.start(tracker(None)).unwrap();
         f.clock.advance(-3600);
         assert_eq!(f.service.active().unwrap().unwrap().elapsed_seconds, 0);
+    }
+
+    /// Simulates closing the app: the same data, a fresh service with no memory of the session.
+    fn restart(f: &Fixture) -> TimerService {
+        let service = TimerService::new(
+            f.entries.clone(),
+            Arc::new(KnownTasks(Vec::new())),
+            f.clock.clone(),
+            f.notifier.clone(),
+        );
+        service.detect_orphan().unwrap();
+        service
+    }
+
+    #[test]
+    fn a_timer_left_running_is_offered_for_recovery_with_its_last_seen_time() {
+        let f = fixture();
+        f.service.start(tracker(None)).unwrap();
+        f.clock.advance(600);
+        f.service.heartbeat().unwrap();
+        f.clock.advance(7200); // the app was closed for two hours
+
+        let service = restart(&f);
+        let orphan = service.orphan().unwrap().unwrap();
+        assert_eq!(orphan.elapsed_at_last_seen_seconds, 600);
+        assert_eq!(orphan.timer.elapsed_seconds, 7800);
+    }
+
+    #[test]
+    fn stopping_at_the_last_seen_time_keeps_only_the_time_that_was_certainly_worked() {
+        let f = fixture();
+        f.service.start(tracker(None)).unwrap();
+        f.clock.advance(600);
+        f.service.heartbeat().unwrap();
+        f.clock.advance(7200);
+
+        let service = restart(&f);
+        let stopped = service
+            .resolve_orphan(OrphanResolution::StopAtLastSeen)
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(stopped.elapsed_seconds, 600);
+        assert!(!stopped.entry.is_running);
+        assert!(service.active().unwrap().is_none());
+        assert!(service.orphan().unwrap().is_none());
+    }
+
+    #[test]
+    fn resume_keeps_counting_and_clears_the_prompt() {
+        let f = fixture();
+        f.service.start(tracker(None)).unwrap();
+        f.clock.advance(300);
+
+        let service = restart(&f);
+        let resumed = service
+            .resolve_orphan(OrphanResolution::Resume)
+            .unwrap()
+            .unwrap();
+        assert!(resumed.entry.is_running);
+        assert_eq!(resumed.elapsed_seconds, 300);
+        assert!(service.orphan().unwrap().is_none());
+    }
+
+    #[test]
+    fn discard_removes_the_entry_from_view() {
+        let f = fixture();
+        let started = f.service.start(tracker(None)).unwrap();
+        f.clock.advance(300);
+
+        let service = restart(&f);
+        assert!(service
+            .resolve_orphan(OrphanResolution::Discard)
+            .unwrap()
+            .is_none());
+        assert!(service.active().unwrap().is_none());
+        let stored = f.entries.find(&started.entry.id).unwrap().unwrap();
+        assert!(stored.deleted_at.is_some());
+        assert!(!stored.is_running);
+    }
+
+    #[test]
+    fn a_paused_timer_is_not_an_orphan() {
+        let f = fixture();
+        f.service.start(tracker(None)).unwrap();
+        f.clock.advance(60);
+        f.service.pause().unwrap();
+
+        let service = restart(&f);
+        assert!(service.orphan().unwrap().is_none());
+        assert!(service.active().unwrap().unwrap().entry.is_paused());
+    }
+
+    #[test]
+    fn no_timer_means_no_orphan_and_resolving_says_so() {
+        let f = fixture();
+        let service = restart(&f);
+        assert!(service.orphan().unwrap().is_none());
+        assert!(matches!(
+            service.resolve_orphan(OrphanResolution::Resume),
+            Err(ApplicationError::NoActiveTimer)
+        ));
+    }
+
+    #[test]
+    fn stopping_the_timer_normally_clears_the_orphan() {
+        let f = fixture();
+        f.service.start(tracker(None)).unwrap();
+        let service = restart(&f);
+        assert!(service.orphan().unwrap().is_some());
+
+        service.stop().unwrap();
+        assert!(service.orphan().unwrap().is_none());
     }
 }

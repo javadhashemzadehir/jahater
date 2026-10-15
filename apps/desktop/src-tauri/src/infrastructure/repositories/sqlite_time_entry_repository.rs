@@ -1,7 +1,10 @@
 use rusqlite::{params, OptionalExtension};
 
+use super::mappers::task_row::format_timestamp;
 use super::mappers::time_entry_row::{as_params, entry_from_row, entry_params};
-use super::queries::time_entries::{FIND_ENTRY, FIND_RUNNING_ENTRY, INSERT_ENTRY, UPDATE_ENTRY};
+use super::queries::time_entries::{
+    FIND_ENTRY, FIND_RUNNING_ENTRY, INSERT_ENTRY, TOUCH_RUNNING_ENTRY, UPDATE_ENTRY,
+};
 use crate::domain::ports::{RepositoryError, TimeEntryRepository};
 use crate::domain::timer::TimeEntry;
 use crate::infrastructure::database::SharedConnection;
@@ -59,6 +62,13 @@ impl TimeEntryRepository for SqliteTimeEntryRepository {
     fn update(&self, entry: &TimeEntry) -> Result<(), RepositoryError> {
         self.lock()?
             .execute(UPDATE_ENTRY, as_params(&entry_params(entry)))
+            .map_err(storage)?;
+        Ok(())
+    }
+
+    fn touch_running(&self, at: chrono::DateTime<chrono::Utc>) -> Result<(), RepositoryError> {
+        self.lock()?
+            .execute(TOUCH_RUNNING_ENTRY, params![format_timestamp(at)])
             .map_err(storage)?;
         Ok(())
     }
@@ -145,6 +155,37 @@ mod tests {
 
         assert_eq!(repository.find_running().unwrap(), Some(second));
         assert!(!repository.find("a").unwrap().unwrap().is_running);
+    }
+
+    #[test]
+    fn heartbeat_updates_last_seen_without_touching_the_revision() {
+        let repository = repository();
+        let running = entry("a", TimerMode::Tracker, None, "2026-10-15T08:00:00Z");
+        repository.replace_running(None, &running).unwrap();
+
+        repository
+            .touch_running(at("2026-10-15T08:05:00Z"))
+            .unwrap();
+        let found = repository.find("a").unwrap().unwrap();
+        assert_eq!(found.last_seen_at, Some(at("2026-10-15T08:05:00Z")));
+        assert_eq!(found.revision, 1);
+    }
+
+    #[test]
+    fn heartbeat_skips_a_paused_entry() {
+        let repository = repository();
+        let mut paused = entry("a", TimerMode::Tracker, None, "2026-10-15T08:00:00Z");
+        repository.replace_running(None, &paused).unwrap();
+        paused.pause(at("2026-10-15T08:01:00Z")).unwrap();
+        repository.update(&paused).unwrap();
+
+        repository
+            .touch_running(at("2026-10-15T09:00:00Z"))
+            .unwrap();
+        assert_eq!(
+            repository.find("a").unwrap().unwrap().last_seen_at,
+            Some(at("2026-10-15T08:00:00Z"))
+        );
     }
 
     #[test]

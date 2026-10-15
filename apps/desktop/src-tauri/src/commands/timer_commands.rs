@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::application::timer_service::TimerView;
+use crate::application::timer_service::{OrphanResolution, OrphanView, TimerView};
 use crate::desktop::state::AppState;
 use crate::domain::timer::{StartTimer, TimerMode};
 use crate::infrastructure::error_map::to_command_error;
@@ -114,5 +114,57 @@ pub fn get_active_timer(state: State<'_, AppState>) -> Result<Option<TimerDto>, 
         .timer
         .active()
         .map(|view| view.map(TimerDto::from))
+        .map_err(|error| to_command_error(&error))
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OrphanDto {
+    pub timer: TimerDto,
+    pub last_seen_at: String,
+    pub elapsed_at_last_seen_seconds: i64,
+}
+
+impl From<OrphanView> for OrphanDto {
+    fn from(orphan: OrphanView) -> Self {
+        Self {
+            timer: orphan.timer.into(),
+            last_seen_at: format_timestamp(orphan.last_seen_at),
+            elapsed_at_last_seen_seconds: orphan.elapsed_at_last_seen_seconds,
+        }
+    }
+}
+
+/// A timer the previous session left running, if the user has not dealt with it yet.
+#[tauri::command]
+pub fn get_orphan_timer(state: State<'_, AppState>) -> Result<Option<OrphanDto>, CommandError> {
+    state
+        .timer
+        .orphan()
+        .map(|orphan| orphan.map(OrphanDto::from))
+        .map_err(|error| to_command_error(&error))
+}
+
+/// `action` is `resume`, `stopAtLastSeen` or `discard`. Returns the timer that remains, if any.
+#[tauri::command]
+pub fn resolve_orphan_timer(
+    state: State<'_, AppState>,
+    action: String,
+) -> Result<Option<TimerDto>, CommandError> {
+    let resolution = match action.as_str() {
+        "resume" => OrphanResolution::Resume,
+        "stopAtLastSeen" => OrphanResolution::StopAtLastSeen,
+        "discard" => OrphanResolution::Discard,
+        _ => {
+            return Err(CommandError {
+                code: "VALIDATION_FAILED",
+                message_key: "errors.timer.resolutionInvalid",
+            })
+        }
+    };
+    state
+        .timer
+        .resolve_orphan(resolution)
+        .map(|timer| timer.map(TimerDto::from))
         .map_err(|error| to_command_error(&error))
 }

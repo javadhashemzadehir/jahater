@@ -138,6 +138,18 @@ export const updateBlockInputSchema = z.object({
 
 export type UpdateBlockInput = z.infer<typeof updateBlockInputSchema>;
 
+export const orphanActionSchema = z.enum(["resume", "stopAtLastSeen", "discard"]);
+
+export type OrphanAction = z.infer<typeof orphanActionSchema>;
+
+export const orphanTimerSchema = z.object({
+  timer: timerSchema,
+  lastSeenAt: z.string(),
+  elapsedAtLastSeenSeconds: z.number().int().nonnegative(),
+});
+
+export type OrphanTimer = z.infer<typeof orphanTimerSchema>;
+
 export class IpcError extends Error {
   readonly command: CommandError;
 
@@ -270,6 +282,15 @@ export function deleteBlock(id: string): Promise<void> {
 /** Blocks with any part inside `[from, to)` (ISO strings), earliest first. */
 export function listBlocks(from: string, to: string): Promise<Block[]> {
   return call("list_blocks", { from, to }, blockSchema.array());
+}
+
+/** A timer the previous session left running and the user has not dealt with yet. */
+export function getOrphanTimer(): Promise<OrphanTimer | null> {
+  return call("get_orphan_timer", {}, orphanTimerSchema.nullable());
+}
+
+export function resolveOrphanTimer(action: OrphanAction): Promise<Timer | null> {
+  return call("resolve_orphan_timer", { action: orphanActionSchema.parse(action) }, timerSchema.nullable());
 }
 
 export const TIMER_CHANGED_EVENT = "timer://changed";
