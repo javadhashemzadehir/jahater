@@ -1,30 +1,23 @@
 import localFont from "next/font/local";
 
-// OFL-licensed fonts, bundled locally (no remote fonts in v0.x).
-// Yekan Bakh is not used: its licence does not allow redistribution in this repo.
-const vazirmatnArabic = localFont({
-  src: "../fonts/vazirmatn-arabic-400-normal.woff2",
-  variable: "--font-vazirmatn-arabic",
-  display: "swap",
-  weight: "400",
-});
-
-const vazirmatnLatin = localFont({
-  src: "../fonts/vazirmatn-latin-400-normal.woff2",
-  variable: "--font-vazirmatn-latin",
-  display: "swap",
-  weight: "400",
-});
-
-const comfortaaLatin = localFont({
-  src: "../fonts/comfortaa-latin-400-normal.woff2",
+// Owner-supplied fonts, bundled locally (no remote fonts in v0.x).
+// Comfortaa (SIL OFL, variable) covers Latin. Yekan Bakh FaNum covers Persian with Persian digits.
+// Comfortaa has no Persian glyphs, so the stack falls through to Yekan Bakh per character.
+const comfortaa = localFont({
+  src: "../fonts/comfortaa-variable.ttf",
   variable: "--font-comfortaa",
   display: "swap",
-  weight: "400",
+  weight: "300 700",
 });
 
-export const fontVariables = [
-  vazirmatnArabic.variable,
-  vazirmatnLatin.variable,
-  comfortaaLatin.variable,
-].join(" ");
+const yekanBakh = localFont({
+  src: [
+    { path: "../fonts/yekan-bakh-fanum-regular.woff", weight: "400", style: "normal" },
+    { path: "../fonts/yekan-bakh-fanum-medium.woff", weight: "500", style: "normal" },
+    { path: "../fonts/yekan-bakh-fanum-bold.woff", weight: "700", style: "normal" },
+  ],
+  variable: "--font-yekan",
+  display: "swap",
+});
+
+export const fontVariables = `${comfortaa.variable} ${yekanBakh.variable}`;
