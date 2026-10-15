@@ -29,6 +29,10 @@ pub fn run() {
             commands::timer_commands::resume_timer,
             commands::timer_commands::stop_timer,
             commands::timer_commands::get_active_timer,
+            commands::block_commands::create_block,
+            commands::block_commands::update_block,
+            commands::block_commands::delete_block,
+            commands::block_commands::list_blocks,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Self Planner");

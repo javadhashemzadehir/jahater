@@ -46,6 +46,14 @@ pub fn to_command_error(error: &ApplicationError) -> CommandError {
             code: "VALIDATION_FAILED",
             message_key: "errors.timer.targetInvalid",
         },
+        ApplicationError::Domain(DomainError::InvalidDuration) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.block.durationInvalid",
+        },
+        ApplicationError::BlockNotFound => CommandError {
+            code: "NOT_FOUND",
+            message_key: "errors.block.notFound",
+        },
         ApplicationError::NoActiveTimer => CommandError {
             code: "NOT_FOUND",
             message_key: "errors.timer.none",

@@ -16,4 +16,6 @@ pub enum DomainError {
     TimerTargetRequired,
     #[error("target must be a positive number of minutes")]
     InvalidTimerTarget,
+    #[error("block length must be between 1 minute and 24 hours")]
+    InvalidDuration,
 }

@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 
+use super::block::TimeBlock;
 use super::label::{Label, LabelKind};
 use super::task::Task;
 use super::timer::TimeEntry;
@@ -44,6 +45,19 @@ pub trait TimeEntryRepository: Send + Sync {
     ) -> Result<(), RepositoryError>;
     /// Overwrites every mutable column of an existing entry.
     fn update(&self, entry: &TimeEntry) -> Result<(), RepositoryError>;
+}
+
+pub trait BlockRepository: Send + Sync {
+    fn insert(&self, block: &TimeBlock) -> Result<(), RepositoryError>;
+    /// Overwrites every mutable column, including `deleted_at`.
+    fn update(&self, block: &TimeBlock) -> Result<(), RepositoryError>;
+    fn find_active(&self, id: &str) -> Result<Option<TimeBlock>, RepositoryError>;
+    /// Active blocks whose start lies strictly between `from` and `to`.
+    fn list_starting_between(
+        &self,
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+    ) -> Result<Vec<TimeBlock>, RepositoryError>;
 }
 
 /// Tells the UI that task data changed, so every view refetches (FR-15).

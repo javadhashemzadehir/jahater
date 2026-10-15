@@ -5,11 +5,13 @@ use tauri::{App, Manager};
 
 use super::events::TauriChangeNotifier;
 use super::state::AppState;
+use crate::application::block_service::BlockService;
 use crate::application::label_service::LabelService;
 use crate::application::task_service::TaskService;
 use crate::application::timer_service::TimerService;
 use crate::infrastructure::clock::SystemClock;
 use crate::infrastructure::database;
+use crate::infrastructure::repositories::sqlite_block_repository::SqliteBlockRepository;
 use crate::infrastructure::repositories::sqlite_label_repository::SqliteLabelRepository;
 use crate::infrastructure::repositories::sqlite_task_repository::SqliteTaskRepository;
 use crate::infrastructure::repositories::sqlite_time_entry_repository::SqliteTimeEntryRepository;
@@ -24,6 +26,7 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     let connection = database::share(database::open(&data_dir.join(DATABASE_FILE))?);
     let tasks_repository = Arc::new(SqliteTaskRepository::new(connection.clone()));
+    let blocks_repository = Arc::new(SqliteBlockRepository::new(connection.clone()));
     let entries_repository = Arc::new(SqliteTimeEntryRepository::new(connection.clone()));
     let labels_repository = Arc::new(SqliteLabelRepository::new(connection));
     let notifier = Arc::new(TauriChangeNotifier::new(app.handle().clone()));
@@ -35,12 +38,19 @@ pub fn init(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         notifier.clone(),
     );
     let labels = LabelService::new(labels_repository, clock.clone(), notifier.clone());
-    let timer = TimerService::new(entries_repository, tasks_repository, clock, notifier);
+    let timer = TimerService::new(
+        entries_repository,
+        tasks_repository.clone(),
+        clock.clone(),
+        notifier.clone(),
+    );
+    let blocks = BlockService::new(blocks_repository, tasks_repository, clock, notifier);
 
     app.manage(AppState {
         tasks,
         labels,
         timer,
+        blocks,
     });
     super::ticker::spawn(app.handle().clone());
     Ok(())

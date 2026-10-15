@@ -1,3 +1,4 @@
+pub mod block;
 pub mod errors;
 pub mod label;
 pub mod ports;

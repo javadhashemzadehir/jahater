@@ -15,4 +15,6 @@ pub enum ApplicationError {
     DuplicateLabel,
     #[error("no timer is running")]
     NoActiveTimer,
+    #[error("time block not found")]
+    BlockNotFound,
 }
