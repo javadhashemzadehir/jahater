@@ -26,6 +26,30 @@ pub fn to_command_error(error: &ApplicationError) -> CommandError {
             code: "CONFLICT",
             message_key: "errors.label.duplicate",
         },
+        ApplicationError::Domain(DomainError::TimerAlreadyPaused) => CommandError {
+            code: "CONFLICT",
+            message_key: "errors.timer.alreadyPaused",
+        },
+        ApplicationError::Domain(DomainError::TimerNotPaused) => CommandError {
+            code: "CONFLICT",
+            message_key: "errors.timer.notPaused",
+        },
+        ApplicationError::Domain(DomainError::TimerStopped) => CommandError {
+            code: "CONFLICT",
+            message_key: "errors.timer.stopped",
+        },
+        ApplicationError::Domain(DomainError::TimerTargetRequired) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.timer.targetRequired",
+        },
+        ApplicationError::Domain(DomainError::InvalidTimerTarget) => CommandError {
+            code: "VALIDATION_FAILED",
+            message_key: "errors.timer.targetInvalid",
+        },
+        ApplicationError::NoActiveTimer => CommandError {
+            code: "NOT_FOUND",
+            message_key: "errors.timer.none",
+        },
         ApplicationError::TaskNotFound => CommandError {
             code: "NOT_FOUND",
             message_key: "errors.task.notFound",

@@ -13,4 +13,6 @@ pub enum ApplicationError {
     LabelNotFound,
     #[error("a project or tag with this name already exists")]
     DuplicateLabel,
+    #[error("no timer is running")]
+    NoActiveTimer,
 }

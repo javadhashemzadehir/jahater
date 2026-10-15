@@ -6,4 +6,14 @@ pub enum DomainError {
     InvalidEstimate,
     #[error("name is empty")]
     EmptyName,
+    #[error("timer is already paused")]
+    TimerAlreadyPaused,
+    #[error("timer is not paused")]
+    TimerNotPaused,
+    #[error("timer was already stopped")]
+    TimerStopped,
+    #[error("a timebox needs a target length")]
+    TimerTargetRequired,
+    #[error("target must be a positive number of minutes")]
+    InvalidTimerTarget,
 }

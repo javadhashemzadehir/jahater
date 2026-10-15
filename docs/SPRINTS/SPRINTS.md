@@ -120,9 +120,11 @@ Not yet checked visually: the six locale/theme combinations.
 
 ### S2.1 Timer engine (Rust)
 
-- [ ] Injected `Clock`; elapsed derived from absolute timestamps (ADR 006)
-- [ ] One running entry at a time; start, pause, stop persisted immediately
-- [ ] Fake-clock tests including sleep and suspend cases
+- [x] Injected `Clock`; elapsed derived from absolute timestamps (ADR 006): `domain/timer.rs`
+- [x] One running entry at a time (partial unique index plus `replace_running` in one transaction); start, pause, resume, stop persisted immediately (V4 migration)
+- [x] Fake-clock tests including sleep (an eight-hour gap with no ticks) and a system clock moved backwards (elapsed clamps to zero)
+
+Backend and IPC: `start_timer`, `pause_timer`, `resume_timer`, `stop_timer`, `get_active_timer`; events `timer://changed`, `timer://tick` (every second, display only) and `timer://finished` (once per entry when a target is reached). No UI yet: S2.2.
 
 ### S2.2 Tracker, timebox, visual timer
 

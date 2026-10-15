@@ -26,9 +26,32 @@ impl Clock for FixedClock {
     }
 }
 
+/// A clock the test moves by hand, to simulate waiting, sleep and a changed system clock.
+pub struct ManualClock(Mutex<DateTime<Utc>>);
+
+impl Default for ManualClock {
+    fn default() -> Self {
+        Self(Mutex::new(FixedClock::default().0))
+    }
+}
+
+impl ManualClock {
+    pub fn advance(&self, seconds: i64) {
+        let mut now = self.0.lock().unwrap();
+        *now += chrono::Duration::seconds(seconds);
+    }
+}
+
+impl Clock for ManualClock {
+    fn now(&self) -> DateTime<Utc> {
+        *self.0.lock().unwrap()
+    }
+}
+
 #[derive(Default)]
 pub struct CountingNotifier {
     pub count: AtomicUsize,
+    pub timer_count: AtomicUsize,
 }
 
 impl CountingNotifier {
@@ -40,6 +63,10 @@ impl CountingNotifier {
 impl ChangeNotifier for CountingNotifier {
     fn tasks_changed(&self) {
         self.count.fetch_add(1, Ordering::SeqCst);
+    }
+
+    fn timer_changed(&self) {
+        self.timer_count.fetch_add(1, Ordering::SeqCst);
     }
 }
 

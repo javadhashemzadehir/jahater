@@ -42,7 +42,7 @@ pub fn parse_timestamp(row: &Row<'_>, index: usize) -> rusqlite::Result<DateTime
     parse_text(&text, index)
 }
 
-fn parse_optional_timestamp(
+pub fn parse_optional_timestamp(
     row: &Row<'_>,
     index: usize,
 ) -> rusqlite::Result<Option<DateTime<Utc>>> {

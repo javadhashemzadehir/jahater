@@ -70,6 +70,15 @@
       "nameRequired": "Enter a name.",
       "notFound": "This project or tag no longer exists.",
       "duplicate": "This name is already in use."
+    },
+    "timer": {
+      "alreadyPaused": "The timer is already paused.",
+      "notPaused": "The timer is not paused.",
+      "stopped": "This timer has already stopped.",
+      "targetRequired": "Choose how long the timebox should be.",
+      "targetInvalid": "The length must be a whole number of minutes above zero.",
+      "modeInvalid": "Choose a valid timer mode.",
+      "none": "No timer is running."
     }
   },
   "labels": {

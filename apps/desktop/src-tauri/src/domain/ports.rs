@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 
 use super::label::{Label, LabelKind};
 use super::task::Task;
+use super::timer::TimeEntry;
 
 /// Source of "now". Injected so time-dependent logic can be tested with a fake clock (ADR 006).
 pub trait Clock: Send + Sync {
@@ -30,9 +31,26 @@ pub trait LabelRepository: Send + Sync {
     fn list(&self, kind: LabelKind) -> Result<Vec<Label>, RepositoryError>;
 }
 
+pub trait TimeEntryRepository: Send + Sync {
+    /// The entry with `is_running = 1` (running or paused), if any.
+    fn find_running(&self) -> Result<Option<TimeEntry>, RepositoryError>;
+    fn find(&self, id: &str) -> Result<Option<TimeEntry>, RepositoryError>;
+    /// Writes `stopped` (the previous running entry, already ended) and inserts `started` in
+    /// one transaction, so there is never a moment with two running entries or none by accident.
+    fn replace_running(
+        &self,
+        stopped: Option<&TimeEntry>,
+        started: &TimeEntry,
+    ) -> Result<(), RepositoryError>;
+    /// Overwrites every mutable column of an existing entry.
+    fn update(&self, entry: &TimeEntry) -> Result<(), RepositoryError>;
+}
+
 /// Tells the UI that task data changed, so every view refetches (FR-15).
 pub trait ChangeNotifier: Send + Sync {
     fn tasks_changed(&self);
+    /// The running timer started, paused, resumed or stopped.
+    fn timer_changed(&self) {}
 }
 
 #[derive(Debug, thiserror::Error)]
