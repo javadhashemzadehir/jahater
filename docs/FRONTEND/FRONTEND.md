@@ -149,10 +149,12 @@ Rules:
 
 | Locale | Font | Notes |
 | --- | --- | --- |
-| `fa` | Yekan Bakh (FaNum cuts) | Latin digits render as Persian numerals, so no digit conversion code is needed |
-| `en` | Comfortaa, with Yekan Bakh fallback for Persian glyphs | |
+| `fa` | Vazirmatn (SIL OFL) | Persian and Latin subsets; Persian digits come from the locale formatter |
+| `en` | Comfortaa (SIL OFL), with Vazirmatn fallback for Persian glyphs | |
 
-- Loaded with `next/font/local` as CSS variables (`--font-yekan`, `--font-comfortaa`), `display: "swap"`.
+- Yekan Bakh is not used: its licence does not allow redistribution in this repo. Decision recorded in S0.1 (SPRINTS.md).
+- Font files come from the `@fontsource` npm packages and live in `src/fonts/` with their OFL texts in `src/fonts/licenses/`. No remote font loading.
+- Loaded with `next/font/local` as CSS variables (`--font-vazirmatn-arabic`, `--font-vazirmatn-latin`, `--font-comfortaa`), `display: "swap"`.
 - `html { --font-family: ... }` and `html[lang="en"] { --font-family: ... }` switch the stack with the locale.
 - `body` and portal content (`[data-radix-portal]`, `[role="dialog"]`, Sonner toasts) must all use `var(--font-family)`.
 - **Check each font's licence for redistribution inside an open-source repo before committing the files.** If a font cannot be bundled, use Vazirmatn (SIL OFL) for `fa` and a system or OFL font for `en`.

@@ -28,7 +28,14 @@
 
 JabeX uses multiple local profiles. Self Planner starts with a single profile. If profiles are added later, the layout can follow JabeX (`app.sqlite` registry plus `profiles/{uuid}/`).
 
-## Schema (V1 draft)
+## Migrations
+
+- `V1__create_tasks.sql` (S0.3) creates only the `tasks` table.
+- `V2__task_fields.sql` (S1.1) adds `tasks.notes` and `tasks.estimate_minutes`, plus an index on `deleted_at`.
+- Other tables below ship in the migration of the sprint that needs them (for example `projects` in S1.2, `time_blocks` and `time_entries` in Phase 2).
+- Released migrations are immutable. Changes go into a new `V{n}__name.sql`.
+
+## Schema (draft, full target)
 
 ```sql
 CREATE TABLE projects (
